@@ -1,0 +1,5 @@
+.movie-card{background:$card;border-radius:$radius;overflow:hidden;box-shadow:$shadow;}
+.movie-card .poster-placeholder{background:$brand;height:220px;}
+.movie-card .info{padding:.75rem;}
+.movie-card .meta{color:$muted;font-size:.9rem;}
+.movie-card .stars{margin-top:.35rem;letter-spacing:.2ch;}
