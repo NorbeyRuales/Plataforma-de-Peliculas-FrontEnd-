@@ -6,31 +6,55 @@ export default function Header(){
   const [q,setQ]=useState('')
   const navigate=useNavigate()
   const {pathname}=useLocation()
+
+  // Ocultar header en pantallas públicas
   const hide=useMemo(()=>['/login','/register','/forgot-password'].includes(pathname),[pathname])
   if(hide) return null
 
-  function onSearch(e:React.FormEvent){ e.preventDefault(); navigate(`/?q=${encodeURIComponent(q)}`) }
+  function onSearch(e:React.FormEvent){
+    e.preventDefault();
+    navigate(`/movies?q=${encodeURIComponent(q)}`);
+  }
 
-  return (<header className='site-header'>
-    <div className='container nav'>
-      <Link to='/' className='brand' aria-label='Flimhub home'>
-        <span className='logo-square' aria-hidden/><span>Flimhub</span>
-      </Link>
+  // NUEVO: cerrar sesión
+  async function onLogout(){
+    try {
+      // (opcional) si tu backend tiene endpoint de logout, descomenta:
+      // await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, { method:'POST', credentials:'include' }).catch(()=>{})
+    } finally {
+      localStorage.removeItem('token')  // o donde guardes el token
+      navigate('/login', { replace:true })
+    }
+  }
 
-      <nav aria-label='Main'>
-        <NavLink to='/' end>Inicio</NavLink>
-        <NavLink to='/?tab=movies'>Películas</NavLink>
-        <NavLink to='/?tab=series'>Serie</NavLink>
-        <NavLink to='/favorites'>Mi lista</NavLink>
-      </nav>
+  return (
+    <header className='site-header'>
+      <div className='container nav'>
+        <Link to='/' className='brand' aria-label='Flimhub home'>
+          <span className='logo-square' aria-hidden/><span>Flimhub</span>
+        </Link>
 
-      <div className='right'>
-        <form className='search' onSubmit={onSearch} role='search' aria-label='Buscar'>
-          <input placeholder='Buscar' value={q} onChange={(e)=>setQ(e.target.value)} aria-label='Texto de búsqueda'/>
-          <button type='submit' className='icon-btn' aria-label='Buscar'/>
-        </form>
-        <button className='avatar-btn' aria-label='Cuenta'>👤</button>
+        <nav aria-label='Main'>
+          <NavLink to='/' end>Inicio</NavLink>
+          <NavLink to='/movies'>Películas</NavLink>
+          <NavLink to='/favorites'>Mi lista</NavLink>
+          <NavLink to='/about'>Sobre nosotros</NavLink>
+        </nav>
+
+        <div className='right'>
+          <form className='search' onSubmit={onSearch} role='search' aria-label='Buscar'>
+            <input placeholder='Buscar' value={q} onChange={(e)=>setQ(e.target.value)} aria-label='Texto de búsqueda'/>
+            <button type='submit' className='icon-btn' aria-label='Buscar'/>
+          </form>
+
+          <NavLink to='/account' className='avatar-btn' aria-label='Cuenta'>👤</NavLink>
+
+          {/* Botón Salir */}
+          <button type='button' className='logout-btn' onClick={onLogout} aria-label='Cerrar sesión'>
+            Salir
+          </button>
+        </div>
       </div>
-    </div>
-  </header>)
+    </header>
+  )
 }

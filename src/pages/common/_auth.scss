@@ -30,3 +30,121 @@
   padding: .55rem .6rem;
   color: #111;
 }
+
+$success: #1e9e63 !default;
+$danger: #d83a3a !default;
+
+/* Contenedor de pantallas de auth (Login/Register/Account) */
+.auth-screen.container {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Inputs: foco accesible con realce en el color de marca */
+.auth-form input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba($brand, .25);
+}
+
+/* Filas de acciones (grupos de botones) */
+.row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: .25rem 0 .75rem;
+}
+
+/* Botones base + variantes (coinciden con clases usadas en Account.tsx) */
+.btn {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: .65rem 1rem;
+  font-weight: 600;
+  background: #1c1c1f;
+  /* fondo neutro oscuro para contraste */
+  color: #fff;
+  cursor: pointer;
+  transition: transform .06s ease, background .15s ease, opacity .2s;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset;
+}
+
+.btn:hover {
+  background: #232327;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid $brand;
+  outline-offset: 2px;
+}
+
+.btn[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: $brand;
+  color: #101;
+}
+
+.btn.success {
+  background: $success;
+}
+
+.btn.danger {
+  background: $danger;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, .18);
+  color: #111;
+}
+
+.btn.block {
+  width: 100%;
+}
+
+/* Modal de confirmación (Eliminar cuenta) */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .55);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  animation: fadeIn .12s ease;
+}
+
+.modal-card {
+  width: min(520px, 92vw);
+  background: #fff;
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, .10);
+  border-radius: 12px;
+  box-shadow: $shadow;
+  padding: 1rem 1.25rem;
+}
+
+.modal .row {
+  justify-content: flex-end;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}

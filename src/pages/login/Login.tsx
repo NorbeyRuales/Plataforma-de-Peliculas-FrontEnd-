@@ -15,8 +15,8 @@ export default function Login(){
     setError(undefined)
     setLoading(true)
     try{
-      await Auth.login(email, password)
-      navigate('/home')
+      await Auth.login(email, password)          // guarda el token en localStorage
+      navigate('/', { replace: true })           // ← siempre al Home
     }catch(err:any){
       setError(err?.message || 'Error al iniciar sesión')
     }finally{
@@ -29,9 +29,13 @@ export default function Login(){
       <div className='logo-big' aria-label='Flimhub' />
       <h1 className='sr-only'>Iniciar sesión</h1>
       <form className='auth-form' onSubmit={handleSubmit}>
-        <input placeholder='Ingresa tu correo electrónico' type='email' required value={email} onChange={e=>setEmail(e.target.value)} />
-        <input placeholder='Contraseña' type='password' required value={password} onChange={e=>setPassword(e.target.value)} />
-        <button className='btn primary' type='submit' disabled={loading}>{loading? 'Entrando...' : 'Iniciar sesión'}</button>
+        <input type='email' required placeholder='Ingresa tu correo electrónico'
+               value={email} onChange={e=>setEmail(e.target.value)} />
+        <input type='password' required placeholder='Contraseña'
+               value={password} onChange={e=>setPassword(e.target.value)} />
+        <button className='btn primary' type='submit' disabled={loading}>
+          {loading ? 'Entrando...' : 'Iniciar sesión'}
+        </button>
       </form>
       {error && <p className='muted' style={{color:'salmon'}}>{error}</p>}
       <p className='muted'><Link to='/forgot-password'>¿Olvidaste la contraseña?</Link></p>
