@@ -38,7 +38,7 @@ export default function ForgotPassword() {
     } catch {}
   };
 
-  // Listener por si Supabase crea sesión antes que este efecto
+  // Escucha eventos de Supabase (por si crea sesión con el token antes de este efecto)
   useEffect(() => {
     const { data: sub } = supa.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
@@ -90,6 +90,7 @@ export default function ForgotPassword() {
     }
   }, []);
 
+  // Enfoca el resumen de error accesible
   useEffect(() => {
     if (err) errRef.current?.focus();
   }, [err]);
@@ -100,7 +101,7 @@ export default function ForgotPassword() {
     setErr(null);
     setMsg(null);
     try {
-      // muy importante: URL pública que procesa el token y vuelve aquí
+      // URL pública que procesa el token y vuelve aquí
       const redirectTo = `${SITE_URL}/auth/callback`;
       const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
