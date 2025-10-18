@@ -14,7 +14,7 @@ import Favorites from '../pages/favorites/Favorites'
 import About from '../pages/about/About'
 import SiteMap from '../site-map/SiteMap'
 
-// 👇 NUEVOS imports
+// Importa la página de callback de autenticación
 import AuthCallback from '../pages/auth-callback/AuthCallback'
 import { hasSupabaseAuthParams } from '../utils/authUrl'
 
