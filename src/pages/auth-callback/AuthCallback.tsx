@@ -10,6 +10,8 @@ export default function AuthCallback() {
         (async () => {
             try {
                 await supa.auth.exchangeCodeForSession(window.location.href)
+            } catch {
+                // no-op
             } finally {
                 // después de procesar el token, ve al formulario de nueva contraseña
                 navigate('/forgot-password', { replace: true })

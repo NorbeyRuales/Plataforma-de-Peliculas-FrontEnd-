@@ -1,3 +1,4 @@
+// src/pages/forgot-password/ForgotPassword.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import './ForgotPassword.scss';
@@ -34,9 +35,10 @@ export default function ForgotPassword() {
     try {
       const clean = `${SITE_URL}/forgot-password`;
       window.history.replaceState({}, document.title, clean);
-    } catch {}
+    } catch { }
   };
 
+  // Listener por si Supabase crea sesión antes que este efecto
   useEffect(() => {
     const { data: sub } = supa.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
@@ -47,7 +49,11 @@ export default function ForgotPassword() {
     return () => { sub.subscription.unsubscribe(); };
   }, []);
 
+  // Detecta tokens en query/hash y hace exchange (si corresponde)
   useEffect(() => {
+    // Si ya no hay hash ni code (porque venimos de /auth/callback), no intentes intercambiar de nuevo.
+    if (!window.location.hash && !new URLSearchParams(window.location.search).get('code')) return;
+
     const href = window.location.href;
     const url = new URL(href);
     const q = url.searchParams;
@@ -77,7 +83,7 @@ export default function ForgotPassword() {
     }
   }, []);
 
-  useEffect(()=>{ if (err) errRef.current?.focus() }, [err])
+  useEffect(() => { if (err) errRef.current?.focus() }, [err])
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -174,7 +180,7 @@ export default function ForgotPassword() {
                   autoComplete='new-password'
                   value={pass1}
                   onChange={e => setPass1(e.target.value)}
-                  onKeyUp={e=>setCaps1(e.getModifierState('CapsLock'))}
+                  onKeyUp={e => setCaps1(e.getModifierState('CapsLock'))}
                   aria-describedby='fp_pwd1_hint'
                 />
                 <button
@@ -182,16 +188,17 @@ export default function ForgotPassword() {
                   className='pwd-toggle'
                   aria-pressed={show1}
                   aria-label={show1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  onClick={()=>setShow1(s=>!s)}
+                  onClick={() => setShow1(s => !s)}
                 >
+                  {/* ojo/ojito */}
                   {show1 ? (
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36"/>
+                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
                     </svg>
                   ) : (
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
-                      <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5"/>
+                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                      <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
                     </svg>
                   )}
                   <span className="sr-only">{show1 ? 'Ocultar' : 'Mostrar'}</span>
@@ -212,7 +219,7 @@ export default function ForgotPassword() {
                   autoComplete='new-password'
                   value={pass2}
                   onChange={e => setPass2(e.target.value)}
-                  onKeyUp={e=>setCaps2(e.getModifierState('CapsLock'))}
+                  onKeyUp={e => setCaps2(e.getModifierState('CapsLock'))}
                   aria-describedby='fp_pwd2_hint'
                 />
                 <button
@@ -220,16 +227,16 @@ export default function ForgotPassword() {
                   className='pwd-toggle'
                   aria-pressed={show2}
                   aria-label={show2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  onClick={()=>setShow2(s=>!s)}
+                  onClick={() => setShow2(s => !s)}
                 >
                   {show2 ? (
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36"/>
+                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
                     </svg>
                   ) : (
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
-                      <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5"/>
+                      <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                      <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
                     </svg>
                   )}
                   <span className="sr-only">{show2 ? 'Ocultar' : 'Mostrar'}</span>
