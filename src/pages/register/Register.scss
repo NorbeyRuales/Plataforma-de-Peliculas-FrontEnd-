@@ -1,1 +1,90 @@
 @use '../common/_auth' as *;
+
+/* Resumen de error */
+.form-summary {
+    margin: .5rem 0 1rem;
+    padding: .6rem .8rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.form-summary--error {
+    background: #3b0b0b;
+    color: #ffd7d7;
+}
+
+/* Campos uniformes */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.field__label {
+    font-size: .9rem;
+    color: $muted;
+}
+
+.field__hint {
+    font-size: .8rem;
+    color: $muted;
+}
+
+.auth-form input[type="email"],
+.auth-form input[type="password"],
+.auth-form input[type="text"],
+.auth-form input[type="date"] {
+    background: #d9d9d9;
+    color: #111;
+    border: 0;
+    border-radius: 6px;
+    padding: .6rem .75rem;
+    width: 100%;
+    height: 40px;
+    outline: none;
+}
+
+/* Ojo dentro del campo */
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 44px;
+}
+
+.password-field .pwd-toggle {
+    position: absolute;
+    top: 50%;
+    right: .35rem;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 0;
+    color: #3b3b3b;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.password-field .pwd-toggle:hover,
+.password-field .pwd-toggle:focus-visible {
+    color: #111;
+    outline: 2px solid rgba(255, 255, 255, .25);
+    outline-offset: 2px;
+}
+
+/* Utilidad accesible */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}

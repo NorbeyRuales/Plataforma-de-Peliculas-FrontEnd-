@@ -1,1 +1,48 @@
 @use '../common/_auth' as *;
+
+/* ——— Botonera de 3 columnas (Editar / Volver / Cambiar contraseña) ——— */
+.actions{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+  margin: .35rem 0 .9rem;
+}
+.actions .btn{
+  width: 100%;
+  min-height: 42px; /* miso alto para los 3 */
+}
+
+@media (max-width: 640px){
+  .actions{
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Tercer botón ocupa toda la fila en móvil */
+  .actions .btn:nth-child(3){
+    grid-column: 1 / -1;
+  }
+}
+
+/* Asegura misma altura en los botones de Guardar/Cancelar también */
+.auth-form .row .btn{ min-height: 42px; }
+
+/* ——— Estado de sólo lectura: texto más opaco ——— */
+.auth-form.is-readonly input[disabled]{
+  color: #6f6f77;     /* texto más tenue */
+  background: #e3e3e8;/* un pelín más gris para dejar claro que no es editable */
+}
+.auth-form.is-readonly .field__label{
+  opacity: .85;
+}
+
+/* Errores bajo los campos */
+.field__error{ color: salmon; font-size: .85rem; }
+
+/* Botones más bajos en la pantalla de Cuenta */
+.actions .btn,
+.auth-form .row .btn,
+.auth-form > .btn.danger {
+  min-height: 34px;      /* ↓ antes: 42px */
+  padding: .38rem .75rem;/* ↓ antes: .65rem 1rem desde el .btn global */
+  font-size: .95rem;     /* opcional: texto un pelín más compacto */
+  line-height: 1;        /* asegura que no “empuje” la altura */
+}

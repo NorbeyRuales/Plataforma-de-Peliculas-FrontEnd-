@@ -156,3 +156,9 @@ $danger: #d83a3a !default;
     opacity: 1
   }
 }
+
+.btn[disabled] {
+  opacity: .6;
+  cursor: not-allowed;
+  filter: grayscale(10%);
+}

@@ -1,20 +1,20 @@
-// src/components/layout/Header.tsx
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import './Header.scss'
 
 export default function Header(){
-  const [q,setQ]=useState('')
-  const navigate=useNavigate()
-  const {pathname}=useLocation()
+  const [q, setQ] = useState('')
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
 
   // Ocultar header en pantallas públicas
-  const hide=useMemo(()=>['/login','/register','/forgot-password'].includes(pathname),[pathname])
-  if(hide) return null
+  const hide = useMemo(() => ['/login','/register','/forgot-password'].includes(pathname), [pathname])
+  if (hide) return null
 
-  function onSearch(e:React.FormEvent){
+  function onSearch(e: React.FormEvent){
     e.preventDefault()
-    navigate(`/movies?q=${encodeURIComponent(q)}`)
+    const term = q.trim()
+    navigate(term ? `/movies?q=${encodeURIComponent(term)}` : '/movies')
   }
 
   // Cerrar sesión
@@ -44,9 +44,17 @@ export default function Header(){
         </nav>
 
         <div className='right'>
+          {/* 🔎 Solo barra: sin botón ni icono */}
           <form className='search' onSubmit={onSearch} role='search' aria-label='Buscar'>
-            <input placeholder='Buscar' value={q} onChange={(e)=>setQ(e.target.value)} aria-label='Texto de búsqueda'/>
-            <button type='submit' className='icon-btn' aria-label='Buscar'/>
+            <input
+              className='search__input'
+              type='search'
+              inputMode='search'
+              placeholder='Buscar…'
+              aria-label='Texto de búsqueda'
+              value={q}
+              onChange={(e)=>setQ(e.target.value)}
+            />
           </form>
 
           <NavLink to='/account' className='avatar-btn' aria-label='Cuenta'>👤</NavLink>
