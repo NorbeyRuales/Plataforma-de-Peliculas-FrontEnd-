@@ -14,9 +14,12 @@ import Favorites from '../pages/favorites/Favorites'
 import About from '../pages/about/About'
 import SiteMap from '../site-map/SiteMap'
 
-// Importa la página de callback de autenticación
+// 👇 Callback de Supabase y util
 import AuthCallback from '../pages/auth-callback/AuthCallback'
 import { hasSupabaseAuthParams } from '../utils/authUrl'
+
+// 👇 NUEVO: pantalla dedicada para restablecer contraseña
+import ResetPassword from '../pages/reset-password/ResetPassword'
 
 /* ---------- Guards ---------- */
 const isAuthed = () => !!localStorage.getItem('token')
@@ -24,7 +27,7 @@ const isAuthed = () => !!localStorage.getItem('token')
 function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation()
 
-  // 🔐 Si el URL trae parámetros del flujo de Supabase (access_token, code, type=recovery),
+  // Si el URL trae parámetros del flujo de Supabase (access_token, code, type=recovery),
   // no bloquees ni redirijas: deja pasar para que se procese.
   if (hasSupabaseAuthParams()) return children
 
@@ -36,7 +39,7 @@ function Protected({ children }: { children: JSX.Element }) {
 function GuestOnly({ children }: { children: JSX.Element }) {
   const location = useLocation()
 
-  // 🔓 Igual: si viene con params de Supabase, deja ver la vista pública (login/forgot) sin redirigir.
+  // Si viene con params de Supabase, deja ver la vista pública sin redirigir.
   if (hasSupabaseAuthParams()) return children
 
   return isAuthed()
@@ -52,10 +55,10 @@ export default function AppRouter() {
       <Header />
       <main id='main' tabIndex={-1}>
         <Routes>
-          {/* 📌 Ruta pública dedicada para procesar el callback de Supabase */}
+          {/* 📌 Ruta pública para procesar el callback de Supabase */}
           <Route path='/auth/callback' element={<AuthCallback />} />
 
-          {/* Rutas protegidas (requieren sesión con tu JWT) */}
+          {/* Rutas protegidas */}
           <Route path='/' element={<Protected><Home /></Protected>} />
           <Route path='/movies' element={<Protected><Movies /></Protected>} />
           <Route path='/movie/:id' element={<Protected><MovieDetail /></Protected>} />
@@ -64,12 +67,14 @@ export default function AppRouter() {
           <Route path='/about' element={<Protected><About /></Protected>} />
           <Route path='/site-map' element={<Protected><SiteMap /></Protected>} />
 
-          {/* Públicas solo para invitados */}
+          {/* Públicas (sin sesión requerida) */}
           <Route path='/login' element={<GuestOnly><Login /></GuestOnly>} />
           <Route path='/register' element={<GuestOnly><Register /></GuestOnly>} />
 
-          {/* 🔓 HAZ ESTA RUTA PÚBLICA para que funcione desde /account estando logueado */}
+          {/* Recuperación de contraseña */}
           <Route path='/forgot-password' element={<ForgotPassword />} />
+          {/* NUEVO: formulario dedicado que recibe el token y permite cambiar la clave */}
+          <Route path='/reset-password' element={<ResetPassword />} />
 
           {/* fallback */}
           <Route path='*' element={<Navigate to='/' replace />} />

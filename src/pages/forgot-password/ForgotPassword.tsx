@@ -19,6 +19,7 @@ export default function ForgotPassword() {
   const [caps1, setCaps1] = useState(false);
   const [caps2, setCaps2] = useState(false);
 
+  // Mantenemos el modo 'reset' como respaldo (por si alguien llega con un enlace viejo).
   const [mode, setMode] = useState<'request' | 'reset'>('request');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export default function ForgotPassword() {
     } catch {}
   };
 
-  // Escucha eventos de Supabase (por si crea sesión con el token antes de este efecto)
+  // Escucha eventos de Supabase (por si crea sesión con el token antes de este efecto).
   useEffect(() => {
     const { data: sub } = supa.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
@@ -51,9 +52,9 @@ export default function ForgotPassword() {
     };
   }, []);
 
-  // Detecta tokens en query/hash y hace exchange (si corresponde)
+  // Detecta tokens en query/hash y hace exchange (si corresponde).
   useEffect(() => {
-    // Si ya no hay hash ni code (porque venimos de /auth/callback), no intentes intercambiar de nuevo.
+    // Si ya no hay hash ni code (porque venimos de /reset-password), no intentes intercambiar de nuevo.
     const noHash = !window.location.hash;
     const noCode = !new URLSearchParams(window.location.search).get('code');
     if (noHash && noCode) return;
@@ -90,7 +91,7 @@ export default function ForgotPassword() {
     }
   }, []);
 
-  // Enfoca el resumen de error accesible
+  // Enfoca el resumen de error accesible.
   useEffect(() => {
     if (err) errRef.current?.focus();
   }, [err]);
@@ -101,8 +102,8 @@ export default function ForgotPassword() {
     setErr(null);
     setMsg(null);
     try {
-      // URL pública que procesa el token y vuelve aquí
-      const redirectTo = `${SITE_URL}/auth/callback`;
+      // 👇 NUEVO: enviamos al flujo dedicado de restablecimiento
+      const redirectTo = `${SITE_URL}/reset-password`;
       const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
       setMsg('Revisa tu correo. Te enviamos un enlace para restablecer tu contraseña.');
