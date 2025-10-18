@@ -1,18 +1,14 @@
 // src/pages/forgot-password/ForgotPassword.tsx
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './ForgotPassword.scss';
 import { supa } from '../../services/supa';
 
-/**
- * Comportamiento:
- * - Modo "solicitud": pide email y envía el correo de recuperación.
- * - Cuando el usuario hace clic en el correo, Supabase redirige a esta misma ruta con ?type=recovery&code=...
- *   -> Intercambiamos el code por una sesión (exchangeCodeForSession) y mostramos el formulario para nueva contraseña.
- * - Luego actualizamos la contraseña con supa.auth.updateUser({ password }).
- */
+const SITE_URL =
+  (import.meta as any).env?.VITE_SITE_URL ||
+  (typeof window !== 'undefined' ? window.location.origin : '');
+
 export default function ForgotPassword() {
-  const [params] = useSearchParams();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -24,30 +20,70 @@ export default function ForgotPassword() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  // Si viene desde el correo: ?type=recovery&code=...
+  // Helper: limpiar URL
+  const cleanUrl = () => {
+    try {
+      const clean = `${SITE_URL}/forgot-password`;
+      window.history.replaceState({}, document.title, clean);
+    } catch {/* no-op */}
+  };
+
+  // 1) Listener de eventos de Supabase (por si procesa los tokens antes que este efecto)
   useEffect(() => {
-    const type = params.get('type');
-    const code = params.get('code');
-
-    async function handleRecovery() {
-      try {
-        setLoading(true);
-        setErr(null);
-        // Intercambia el code por sesión
-        const { error } = await supa.auth.exchangeCodeForSession(window.location.href);
-        if (error) throw error;
+    const { data: sub } = supa.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
         setMode('reset');
-      } catch (e: any) {
-        setErr(e?.message || 'No se pudo validar el enlace de recuperación.');
-      } finally {
-        setLoading(false);
       }
+      if (event === 'SIGNED_IN') {
+        // Si ya hay sesión tras el intercambio, pasamos a reset
+        setMode('reset');
+        cleanUrl();
+      }
+    });
+    return () => {
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  // 2) Detección de tokens en query o hash + exchangeCodeForSession(href)
+  useEffect(() => {
+    const href = window.location.href;
+    const url = new URL(href);
+
+    const q = url.searchParams;
+    const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
+
+    // Errores de Supabase (enlace expirado, dominio no permitido, etc.)
+    const supaErr = q.get('error_description') || hashParams.get('error_description');
+    if (supaErr) {
+      setErr(decodeURIComponent(supaErr));
+      return;
     }
 
-    if (type === 'recovery' && code) {
-      handleRecovery();
+    const type = q.get('type') ?? hashParams.get('type');
+    const hasCodeOrToken =
+      q.get('code') ||
+      hashParams.get('code') ||
+      hashParams.get('access_token');
+
+    if (type === 'recovery' || hasCodeOrToken) {
+      (async () => {
+        try {
+          setLoading(true);
+          setErr(null);
+          const { error } = await supa.auth.exchangeCodeForSession(href);
+          if (error) throw error;
+
+          setMode('reset');
+          cleanUrl();
+        } catch (e: any) {
+          setErr(e?.message || 'No se pudo validar el enlace de recuperación.');
+        } finally {
+          setLoading(false);
+        }
+      })();
     }
-  }, [params]);
+  }, []);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +91,7 @@ export default function ForgotPassword() {
     setErr(null);
     setMsg(null);
     try {
-      const redirectTo = `${window.location.origin}/forgot-password`;
+      const redirectTo = `${SITE_URL}/forgot-password`; // dominio de prod
       const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
       setMsg('Revisa tu correo. Te enviamos un enlace para restablecer tu contraseña.');
@@ -79,7 +115,6 @@ export default function ForgotPassword() {
       if (error) throw error;
 
       setMsg('¡Contraseña actualizada! Ahora puedes iniciar sesión.');
-      // Pequeña pausa para mostrar el mensaje y redirigir
       setTimeout(() => navigate('/login', { replace: true }), 1200);
     } catch (e: any) {
       setErr(e?.message || 'No se pudo actualizar la contraseña.');
