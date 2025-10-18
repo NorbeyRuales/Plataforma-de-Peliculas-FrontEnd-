@@ -30,6 +30,7 @@
     color: $muted;
 }
 
+/* Inputs */
 .auth-form input[type="email"],
 .auth-form input[type="password"],
 .auth-form input[type="text"],
@@ -88,3 +89,15 @@
     white-space: nowrap !important;
     border: 0 !important;
 }
+
+/* --- ESTADOS DEL HINT (después del base y con más especificidad) --- */
+.field__hint.field__hint--ok {
+    color: #1e9e63;
+}
+
+/* verde OK */
+.field__hint.field__hint--bad {
+    color: crimson;
+}
+
+/* rojo error */
