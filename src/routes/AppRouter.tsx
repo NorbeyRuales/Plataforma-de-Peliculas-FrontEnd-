@@ -14,19 +14,33 @@ import Favorites from '../pages/favorites/Favorites'
 import About from '../pages/about/About'
 import SiteMap from '../site-map/SiteMap'
 
+// 👇 NUEVOS imports
+import AuthCallback from '../pages/auth-callback/AuthCallback'
+import { hasSupabaseAuthParams } from '../utils/authUrl'
+
 /* ---------- Guards ---------- */
 const isAuthed = () => !!localStorage.getItem('token')
 
 function Protected({ children }: { children: JSX.Element }) {
   const location = useLocation()
+
+  // 🔐 Si el URL trae parámetros del flujo de Supabase (access_token, code, type=recovery),
+  // no bloquees ni redirijas: deja pasar para que se procese.
+  if (hasSupabaseAuthParams()) return children
+
   return isAuthed()
     ? children
     : <Navigate to="/login" replace state={{ from: location }} />
 }
 
 function GuestOnly({ children }: { children: JSX.Element }) {
+  const location = useLocation()
+
+  // 🔓 Igual: si viene con params de Supabase, deja ver la vista pública (login/forgot) sin redirigir.
+  if (hasSupabaseAuthParams()) return children
+
   return isAuthed()
-    ? <Navigate to="/" replace />
+    ? <Navigate to="/" replace state={{ from: location }} />
     : children
 }
 /* ---------------------------- */
@@ -38,7 +52,10 @@ export default function AppRouter() {
       <Header />
       <main id='main' tabIndex={-1}>
         <Routes>
-          {/* Rutas protegidas (requieren sesión) */}
+          {/* 📌 Ruta pública dedicada para procesar el callback de Supabase */}
+          <Route path='/auth/callback' element={<AuthCallback />} />
+
+          {/* Rutas protegidas (requieren sesión con tu JWT) */}
           <Route path='/' element={<Protected><Home /></Protected>} />
           <Route path='/movies' element={<Protected><Movies /></Protected>} />
           <Route path='/movie/:id' element={<Protected><MovieDetail /></Protected>} />
