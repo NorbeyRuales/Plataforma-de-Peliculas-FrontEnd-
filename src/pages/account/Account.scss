@@ -9,7 +9,7 @@
 }
 .actions .btn{
   width: 100%;
-  min-height: 42px; /* miso alto para los 3 */
+  min-height: 42px; /* mismo alto para los 3 */
 }
 
 @media (max-width: 640px){
@@ -27,8 +27,8 @@
 
 /* ——— Estado de sólo lectura: texto más opaco ——— */
 .auth-form.is-readonly input[disabled]{
-  color: #6f6f77;     /* texto más tenue */
-  background: #e3e3e8;/* un pelín más gris para dejar claro que no es editable */
+  color: #6f6f77;      /* texto más tenue */
+  background: #e3e3e8; /* un pelín más gris para dejar claro que no es editable */
 }
 .auth-form.is-readonly .field__label{
   opacity: .85;
@@ -41,8 +41,45 @@
 .actions .btn,
 .auth-form .row .btn,
 .auth-form > .btn.danger {
-  min-height: 34px;      /* ↓ antes: 42px */
-  padding: .38rem .75rem;/* ↓ antes: .65rem 1rem desde el .btn global */
-  font-size: .95rem;     /* opcional: texto un pelín más compacto */
-  line-height: 1;        /* asegura que no “empuje” la altura */
+  min-height: 34px;       /* ↓ antes: 42px */
+  padding: .38rem .75rem; /* ↓ antes: .65rem 1rem desde el .btn global */
+  font-size: .95rem;      /* texto un pelín más compacto */
+  line-height: 1;         /* asegura que no “empuje” la altura */
+}
+
+/* ——— Estilos del modal (Confirmar eliminación) ——— */
+.modal .row{
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+
+/* Botón principal (Confirmar eliminación) */
+.modal .row .btn.danger{
+  background: $danger; /* ya definido en _auth */
+  color: #fff;
+}
+
+/* Botón Cancelar (neutral) */
+.modal .row .btn.ghost{
+  background: #f3f4f6;      /* gris claro */
+  color: #111;              /* texto oscuro */
+  border: 1px solid #d1d5db;
+  box-shadow: none;
+}
+.modal .row .btn.ghost:hover{
+  background: #e5e7eb;      /* hover */
+}
+.modal .row .btn.ghost:active{
+  background: #cbd5e1;      /* active */
+  transform: translateY(1px);
+}
+.modal .row .btn.ghost:focus-visible{
+  outline: 2px solid $brand;  /* foco accesible con tu color de marca */
+  outline-offset: 2px;
+}
+/* Si estuviera deshabilitado, que no se vea “apagado” de más */
+.modal .row .btn.ghost[disabled]{
+  opacity: .9;
+  filter: none;
 }
