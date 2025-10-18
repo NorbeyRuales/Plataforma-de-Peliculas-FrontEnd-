@@ -67,7 +67,9 @@ export default function AppRouter() {
           {/* Públicas solo para invitados */}
           <Route path='/login' element={<GuestOnly><Login /></GuestOnly>} />
           <Route path='/register' element={<GuestOnly><Register /></GuestOnly>} />
-          <Route path='/forgot-password' element={<GuestOnly><ForgotPassword /></GuestOnly>} />
+
+          {/* 🔓 HAZ ESTA RUTA PÚBLICA para que funcione desde /account estando logueado */}
+          <Route path='/forgot-password' element={<ForgotPassword />} />
 
           {/* fallback */}
           <Route path='*' element={<Navigate to='/' replace />} />
