@@ -1,3 +1,4 @@
+/* src/components/layout/Header.scss */
 .site-header {
     background: $card;
     position: sticky;
@@ -24,12 +25,9 @@
     font-size: 1.1rem;
 }
 
-.site-header .logo-square {
-    width: 28px;
-    height: 28px;
-    background: $brand;
-    border-radius: 6px;
-}
+/* (Eliminado el cuadrado naranja previo)
+.site-header .logo-square { ... }
+*/
 
 .site-header nav a {
     color: $text;
@@ -162,4 +160,12 @@
     .site-header .logout-btn {
         padding: 0 .7rem;
     }
+}
+
+/* Logo pequeño en el header */
+.site-header .brand-logo {
+    height: 28px;
+    /* ajusta al alto del header */
+    width: auto;
+    display: block;
 }

@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import './Header.scss'
@@ -12,14 +13,14 @@ export default function Header(){
   if(hide) return null
 
   function onSearch(e:React.FormEvent){
-    e.preventDefault();
-    navigate(`/movies?q=${encodeURIComponent(q)}`);
+    e.preventDefault()
+    navigate(`/movies?q=${encodeURIComponent(q)}`)
   }
 
-  // NUEVO: cerrar sesión
+  // Cerrar sesión
   async function onLogout(){
     try {
-      // (opcional) si tu backend tiene endpoint de logout, descomenta:
+      // Si tu backend tiene endpoint de logout, podrías llamar aquí:
       // await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, { method:'POST', credentials:'include' }).catch(()=>{})
     } finally {
       localStorage.removeItem('token')  // o donde guardes el token
@@ -31,7 +32,8 @@ export default function Header(){
     <header className='site-header'>
       <div className='container nav'>
         <Link to='/' className='brand' aria-label='Flimhub home'>
-          <span className='logo-square' aria-hidden/><span>Flimhub</span>
+          {/* Logo desde /public */}
+          <img src="/logo-flimhub.jpg" alt="Flimhub" className="brand-logo" />
         </Link>
 
         <nav aria-label='Main'>

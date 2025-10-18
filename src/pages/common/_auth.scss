@@ -6,13 +6,21 @@
   align-items: center;
 }
 
+/* Muestra el logo real en las pantallas públicas */
 .logo-big {
   width: 260px;
   height: 160px;
-  background: $brand;
+  margin: 1rem 0 1.3rem;
+
+  /* usa el archivo que dejaste en /public */
+  background-image: url('/logo-flimhub.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-color: transparent;
+
   border-radius: 10px;
   box-shadow: $shadow;
-  margin: 1rem 0 1.3rem;
 }
 
 .auth-form {
