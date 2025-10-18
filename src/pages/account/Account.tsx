@@ -46,6 +46,7 @@ export default function Account(){
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)   // ← NUEVO: feedback de guardado
 
   // Cargar usuario (solo con api.ts)
   useEffect(() => {
@@ -115,6 +116,8 @@ export default function Account(){
       })
       setProfile(form)
       setEditing(false)
+      setSaved(true)                        // ← NUEVO: mostrar feedback
+      window.setTimeout(()=>setSaved(false), 2500)
     } catch (err:any) {
       alert(err.message || 'Error al guardar')
     } finally {
@@ -179,6 +182,9 @@ export default function Account(){
             <button className='btn danger' type='button' onClick={()=>{ setForm(profile); setEditing(false) }}>Cancelar</button>
           </div>
         )}
+
+        {/* Feedback de guardado */}
+        {saved && <p role="status" className="muted" style={{ marginTop: '.5rem' }}>Datos guardados</p>}
 
         {/* Eliminar cuenta */}
         {!confirmDelete ? (
