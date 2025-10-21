@@ -5,7 +5,7 @@ import { Auth } from '../../services/auth'
 
 const EMAIL_KEY = 'last_email'
 
-export default function Login(){
+export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState(localStorage.getItem(EMAIL_KEY) || '')
   const [password, setPassword] = useState('')
@@ -13,7 +13,7 @@ export default function Login(){
   const [caps, setCaps] = useState(false)
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string|undefined>()
+  const [error, setError] = useState<string | undefined>()
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
@@ -29,25 +29,25 @@ export default function Login(){
     return true
   }
 
-  async function handleSubmit(e: React.FormEvent){
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(undefined)
     if (!validate()) { errSummaryRef.current?.focus(); return }
     setLoading(true)
-    try{
+    try {
       await Auth.login(email, password)
       navigate('/', { replace: true })
-    }catch(err:any){
+    } catch (err: any) {
       setError(err?.message || 'Error al iniciar sesión')
       errSummaryRef.current?.focus()
-    }finally{
+    } finally {
       setLoading(false)
     }
   }
 
   return (
     <section className='auth-screen container'>
-      <div className='logo-big' aria-label='Flimhub' />
+      <div className='logo-big' aria-label='PYRA' />
       <h1 className='sr-only'>Iniciar sesión</h1>
 
       {error && (
@@ -67,7 +67,7 @@ export default function Login(){
             autoComplete='email'
             placeholder='Ingresa tu correo electrónico'
             value={email}
-            onChange={e=>setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             aria-describedby='login_email_hint'
             aria-invalid={error?.toLowerCase().includes('correo') ? true : undefined}
           />
@@ -85,7 +85,7 @@ export default function Login(){
               autoComplete='current-password'
               placeholder='Contraseña'
               value={password}
-              onChange={e=>setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               onKeyUp={e => setCaps(e.getModifierState('CapsLock'))}
               aria-describedby='login_pwd_hint'
               aria-invalid={error?.toLowerCase().includes('contrase') ? true : undefined}
@@ -95,17 +95,18 @@ export default function Login(){
               className='pwd-toggle'
               aria-pressed={showPwd}
               aria-label={showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              onClick={()=>setShowPwd(s=>!s)}
+              onClick={() => setShowPwd(s => !s)}
             >
               {showPwd ? (
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36"/>
+                // 👁️ contraseña visible
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="none" stroke="currentColor" strokeWidth="2"
+                    d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
                 </svg>
               ) : (
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
-                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5"/>
-                </svg>
+                // 🙈 contraseña oculta
+                <span className="icon" role="img" aria-hidden="true">🙈</span>
               )}
               <span className="sr-only">{showPwd ? 'Ocultar' : 'Mostrar'}</span>
             </button>
@@ -121,7 +122,7 @@ export default function Login(){
       </form>
 
       <p className='muted'><Link to='/forgot-password'>¿Olvidaste la contraseña?</Link></p>
-      <p className='muted'>¿Primera vez en Flimhub? <Link to='/register'>Regístrate aquí</Link></p>
+      <p className='muted'>¿Primera vez en PYRA? <Link to='/register'>Regístrate aquí</Link></p>
     </section>
   )
 }

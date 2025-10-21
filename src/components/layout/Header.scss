@@ -1,171 +1,141 @@
-/* src/components/layout/Header.scss */
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
 .site-header {
-    background: $card;
     position: sticky;
     top: 0;
-    z-index: 5;
-    box-shadow: $shadow;
+    z-index: 500;
+    background: color.change(#0b0b0f, $alpha: .70);
+    /* glassy */
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid color.change(#fff, $alpha: .06);
 }
 
-.site-header .nav {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 1rem;
-    padding: .65rem 0;
-}
-
-.site-header .brand {
+.nav {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    color: $brand;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .6rem 0;
 }
 
-/* (Eliminado el cuadrado naranja previo)
-.site-header .logo-square { ... }
-*/
+.brand {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.brand-logo {
+    display: block;
+    height: 32px;
+    /* auto width */
+    width: auto;
+}
+
+/* --------- Nav --------- */
+.site-header nav {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
 
 .site-header nav a {
-    color: $text;
+    color: $muted;
     text-decoration: none;
-    margin-right: 1rem;
-    opacity: .95;
+    padding: .5rem .6rem;
+    border-radius: 10px;
+    transition: background .15s ease, color .15s ease;
+    white-space: nowrap;
+}
+
+.site-header nav a:hover {
+    color: #fff;
+    background: color.change(#fff, $alpha: .05);
 }
 
 .site-header nav a.active {
-    text-decoration: underline;
+    color: #fff;
+    background: color.change($brand, $alpha: .20);
+    box-shadow: 0 0 0 1px color.change($brand, $alpha: .25) inset;
 }
 
-.site-header .right {
+/* --------- Right side --------- */
+.right {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: .6rem;
 }
 
-.site-header .search {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
+/* Search */
+.search {
+    min-width: 180px;
 }
 
-.site-header .search input {
-    background: #d9d9d9;
-    color: #111;
-    border: 0;
-    border-radius: 6px;
-    padding: .45rem .6rem;
-    width: 260px;
-}
-
-.site-header .search input::placeholder {
-    color: #6b6b6b;
-}
-
-.site-header .icon-btn {
-    position: relative;
-    width: 34px;
-    height: 34px;
-    display: inline-block;
-    background: #fff;
-    border: 2px solid #111;
+.search__input {
+    background: #1a1a1f;
+    color: $text;
+    border: 1px solid #2b2b32;
     border-radius: 999px;
-    cursor: pointer;
+    padding: .45rem .75rem;
+    width: min(38ch, 48vw);
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 
-.site-header .icon-btn::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 12px;
-    height: 12px;
-    border: 2px solid #111;
-    border-radius: 50%;
+.search__input::placeholder {
+    color: color.adjust($muted, $lightness: 12%);
 }
 
-.site-header .icon-btn::after {
-    content: '';
-    position: absolute;
-    top: 18px;
-    left: 18px;
-    width: 8px;
-    height: 2px;
-    background: #111;
-    transform: rotate(45deg);
+.search__input:focus-visible {
+    @include focus-ring;
+    border-color: color.change($brand, $alpha: .55);
 }
 
-.site-header .avatar-btn {
-    width: 34px;
-    height: 34px;
+/* Avatar botón */
+.avatar-btn {
     display: grid;
     place-items: center;
-    background: #fff;
-    border: 2px solid #111;
+    width: 36px;
+    height: 36px;
     border-radius: 999px;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
+    background: #1c1c1f;
+    color: #fff;
+    border: 1px solid #2b2b32;
+    transition: transform .06s ease, background .15s ease, border-color .15s ease;
+    text-decoration: none;
 }
 
-@media(max-width:640px) {
-    .site-header .nav {
-        grid-template-columns: auto 1fr auto
-    }
-
-    .site-header nav {
-        display: none
-    }
-
-    .site-header .search input {
-        width: 100%
-    }
+.avatar-btn:hover {
+    background: #232327;
+    border-color: #3a3a44;
 }
 
-/* --- Botón Salir --- */
-.site-header .logout-btn {
-    height: 34px;
-    padding: 0 .9rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    color: #111;
-    border: 2px solid #111;
-    border-radius: 999px;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
-    transition: filter .15s ease, transform .06s ease;
-}
-
-.site-header .logout-btn:hover {
-    filter: brightness(.95);
-}
-
-.site-header .logout-btn:active {
+.avatar-btn:active {
     transform: translateY(1px);
 }
 
-.site-header .logout-btn:focus-visible {
-    outline: 2px solid $brand;
-    /* usa tu color de marca */
-    outline-offset: 2px;
+.avatar-btn:focus-visible {
+    @include focus-ring;
 }
 
-@media (max-width: 640px) {
-    .site-header .logout-btn {
-        padding: 0 .7rem;
+/* Logout botón */
+.logout-btn {
+    @include btn(#26262b, #fff);
+    border-radius: 10px;
+}
+
+.logout-btn:hover {
+    background: color.adjust(#26262b, $lightness: -6%);
+}
+
+/* --------- Responsive --------- */
+@media (max-width: 720px) {
+    .site-header nav a {
+        padding: .45rem .55rem;
     }
-}
 
-/* Logo pequeño en el header */
-.site-header .brand-logo {
-    height: 28px;
-    /* ajusta al alto del header */
-    width: auto;
-    display: block;
+    .search__input {
+        width: min(28ch, 60vw);
+    }
 }
