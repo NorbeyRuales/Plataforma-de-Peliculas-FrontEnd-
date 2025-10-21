@@ -1,4 +1,5 @@
 @use '../../styles/variables' as *;
+@use "sass:color";
 
 .auth-screen {
   display: flex;
@@ -6,56 +7,66 @@
   align-items: center;
 }
 
-/* Muestra el logo real en las pantallas públicas */
-.logo-big {
-  width: 260px;
-  height: 160px;
-  margin: 1rem 0 1.3rem;
-
-  /* usa el archivo que dejaste en /public */
-  background-image: url('/logo-flimhub.jpg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  background-color: transparent;
-
-  border-radius: 10px;
-  box-shadow: $shadow;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-  width: min(320px, 100%);
-}
-
-.auth-form input,
-.description {
-  background: #e6e6e6;
-  border: 0;
-  border-radius: 4px;
-  padding: .55rem .6rem;
-  color: #111;
-}
-
-$success: #1e9e63 !default;
-$danger: #d83a3a !default;
-
-/* Contenedor de pantallas de auth (Login/Register/Account) */
 .auth-screen.container {
   max-width: 36rem;
   margin: 0 auto;
   padding: 1rem;
 }
 
-/* Inputs: foco accesible con realce en el color de marca */
-.auth-form input:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba($brand, .25);
+/* Logo PYRA desde /public */
+.logo-big {
+  width: 260px;
+  height: 160px;
+  margin: 1rem 0 1.3rem;
+  background: url('/brand/pyra.svg') center / contain no-repeat transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* Filas de acciones (grupos de botones) */
+/* Formulario base */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  width: min(360px, 100%);
+}
+
+/* Inputs uniformes */
+.auth-form input,
+.description {
+  background: #e6e6e6;
+  color: #111;
+  border: 0;
+  border-radius: 6px;
+  padding: .6rem .75rem;
+  width: 100%;
+}
+
+.auth-form input::placeholder {
+  color: color.adjust($muted, $lightness: 15%);
+}
+
+.auth-form input:focus-visible {
+  @include focus-ring;
+}
+
+/* Estados de validación (frontend + nativo) */
+.auth-form input[aria-invalid="true"],
+.auth-form input:user-invalid {
+  box-shadow: 0 0 0 3px color.change($danger, $alpha: .25);
+}
+
+.auth-form input[aria-invalid="true"]:focus-visible,
+.auth-form input:user-invalid:focus-visible {
+  box-shadow: 0 0 0 3px color.change($danger, $alpha: .35);
+}
+
+/* opcional para marcar validados desde lógica */
+.auth-form input.is-valid {
+  box-shadow: 0 0 0 2px color.change($success, $alpha: .25);
+}
+
+/* Layout utilidades */
 .row {
   display: flex;
   gap: .5rem;
@@ -64,63 +75,47 @@ $danger: #d83a3a !default;
   margin: .25rem 0 .75rem;
 }
 
-/* Botones base + variantes (coinciden con clases usadas en Account.tsx) */
+.muted {
+  color: $muted;
+}
+
+/* Botones base + variantes */
 .btn {
-  appearance: none;
-  border: 0;
-  border-radius: 10px;
-  padding: .65rem 1rem;
-  font-weight: 600;
-  background: #1c1c1f;
-  /* fondo neutro oscuro para contraste */
-  color: #fff;
-  cursor: pointer;
-  transition: transform .06s ease, background .15s ease, opacity .2s;
+  @include btn(#1c1c1f, #fff);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset;
+  border-radius: 10px;
 }
 
 .btn:hover {
   background: #232327;
 }
 
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn:focus-visible {
-  outline: 2px solid $brand;
-  outline-offset: 2px;
-}
-
-.btn[disabled] {
-  opacity: .6;
-  cursor: not-allowed;
-}
-
+/* neutral */
 .btn.primary {
-  background: $brand;
-  color: #101;
+  @include btn($brand, #fff);
 }
 
+/* usa hover de mixin (brand -6%) */
 .btn.success {
-  background: $success;
+  @include btn($success, #0b0b0f);
 }
 
+/* contraste ok en verde */
 .btn.danger {
-  background: $danger;
+  @include btn($danger, #fff);
 }
 
 .btn.ghost {
   background: transparent;
-  border: 1px solid rgba(0, 0, 0, .18);
-  color: #111;
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: #fff;
 }
 
 .btn.block {
   width: 100%;
 }
 
-/* Modal de confirmación (Eliminar cuenta) */
+/* Modal */
 .modal {
   position: fixed;
   inset: 0;
@@ -157,8 +152,205 @@ $danger: #d83a3a !default;
   }
 }
 
-.btn[disabled] {
-  opacity: .6;
-  cursor: not-allowed;
-  filter: grayscale(10%);
+/* ====== Componentes de formulario reutilizables ====== */
+.form-summary {
+  margin: .5rem 0 1rem;
+  padding: .6rem .8rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.form-summary--error {
+  background: #3b0b0b;
+  color: #ffd7d7;
+}
+
+.form-summary--success {
+  background: color.adjust($success, $lightness: 35%);
+  color: #0b0b0f;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.field__label {
+  font-size: .9rem;
+  color: $muted;
+}
+
+.field__hint {
+  font-size: .8rem;
+  color: $muted;
+}
+
+.field__hint--ok {
+  color: $success;
+}
+
+.field__hint--bad {
+  color: crimson;
+}
+
+/* Password con toggle-ojito */
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 44px;
+}
+
+.pwd-toggle {
+  position: absolute;
+  top: 50%;
+  right: .35rem;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  color: #3b3b3b;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pwd-toggle:hover,
+.pwd-toggle:focus-visible {
+  color: #111;
+  outline: 2px solid color.change(#fff, $alpha: .25);
+  outline-offset: 2px;
+}
+
+/* === NUEVO: estado activo cuando la contraseña está visible === */
+.pwd-toggle[aria-pressed="true"] {
+  color: $brand;
+  background: color.change($brand, $alpha: .10);
+  outline: none;
+  box-shadow: 0 0 0 2px color.change($brand, $alpha: .20) inset;
+}
+
+/* tamaño consistente para svg/emoji dentro del botón del ojo */
+.pwd-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pwd-toggle .icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Accesibilidad */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Icono/feedback inline a la derecha de inputs */
+.input-hint-inline {
+  font-size: .8rem;
+  color: $muted;
+  margin-top: .15rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.input-hint-inline .ok {
+  color: $success;
+}
+
+.input-hint-inline .bad {
+  color: $danger;
+}
+
+/* Barra de fortaleza de contraseña */
+.pwd-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: #2b2b32;
+  overflow: hidden;
+}
+
+.pwd-meter__fill {
+  height: 100%;
+  width: 0%;
+  background: $danger;
+  transition: width .2s ease, background .2s ease;
+  border-radius: 999px;
+}
+
+.pwd-meter--2 .pwd-meter__fill {
+  width: 40%;
+  background: #f59e0b;
+}
+
+/* ámbar */
+.pwd-meter--3 .pwd-meter__fill {
+  width: 75%;
+  background: $info;
+}
+
+/* azul acero */
+.pwd-meter--4 .pwd-meter__fill {
+  width: 100%;
+  background: $success;
+}
+
+/* verde ok */
+
+/* Botón alternativo secundario (dorado) – p.ej. CTA secundarios */
+.btn.alt {
+  @include btn($secondary, #111);
+}
+
+/* Chips (p. ej. géneros) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  background: color.change($slate, $alpha: .18);
+  color: #fff;
+  font-size: .85rem;
+  border: 1px solid color.change($slate, $alpha: .22);
+}
+
+/* Alerts reutilizables */
+.alert {
+  border-radius: $radius;
+  padding: .7rem .9rem;
+}
+
+.alert--info {
+  background: color.change($info, $alpha: .18);
+  border: 1px solid color.change($info, $alpha: .28);
+}
+
+.alert--warn {
+  background: color.change($warning, $alpha: .18);
+  border: 1px solid color.change($warning, $alpha: .28);
+}
+
+.alert--success {
+  background: color.change($success, $alpha: .18);
+  border: 1px solid color.change($success, $alpha: .28);
+}
+
+.alert--danger {
+  background: color.change($danger, $alpha: .18);
+  border: 1px solid color.change($danger, $alpha: .28);
 }

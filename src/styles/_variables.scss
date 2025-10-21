@@ -1,12 +1,76 @@
-/* Global design tokens (variables only) - used by all SCSS files */
-$bg: #0b0b0f;
+@use "sass:color";
+
+/* ================================
+   Global design tokens (dark UI)
+   ================================ */
+
+/* Base dark */
+$bg: #1D2129;
+/* fondo app */
 $card: #141417;
+/* superficies elevadas */
 $text: #f3f3f3;
 $muted: #a9a9b1;
-$brand: #ff7a00;
 
-$primary: #3b82f6;
-$success: #22c55e;
-$danger: #ef4444;
+/* Paleta PYRA */
+$brand: #498DF5;
+/* Azul primario */
+$secondary: #F5BC49;
+/* Dorado */
+$steel: #6187C2;
+/* Acero */
+$khaki: #B59A64;
+/* Caqui */
+$slate: #64758F;
+/* Pizarra */
+$cream: #F9F1E1;
+/* Crema (para highlights) */
+
+/* Semánticos */
+$primary: $brand;
+$success: #1e9e63;
+$danger: #d83a3a;
+$warning: $khaki;
+$info: $steel;
+
 $radius: 14px;
-$shadow: 0 8px 24px rgba(0,0,0,.3);
+$shadow: 0 8px 24px rgba(0, 0, 0, .30);
+
+/* Helpers */
+@mixin focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 3px color.change($brand, $alpha: .25);
+}
+
+@mixin btn($bg, $fg) {
+    background: $bg;
+    color: $fg;
+    border: 1px solid transparent;
+    border-radius: $radius;
+    padding: .65rem 1rem;
+    font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    gap: .5rem;
+    align-items: center;
+    cursor: pointer;
+    transition: transform .02s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+
+    &:hover {
+        background: color.adjust($bg, $lightness: -6%);
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        @include focus-ring;
+    }
+
+    &:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+        filter: grayscale(10%);
+    }
+}

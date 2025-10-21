@@ -8,7 +8,10 @@ export default function Header(){
   const { pathname } = useLocation()
 
   // Ocultar header en pantallas públicas
-  const hide = useMemo(() => ['/login','/register','/forgot-password'].includes(pathname), [pathname])
+  const hide = useMemo(
+    () => ['/login','/register','/forgot-password','/reset-password'].includes(pathname),
+    [pathname]
+  )
   if (hide) return null
 
   function onSearch(e: React.FormEvent){
@@ -17,13 +20,12 @@ export default function Header(){
     navigate(term ? `/movies?q=${encodeURIComponent(term)}` : '/movies')
   }
 
-  // Cerrar sesión
   async function onLogout(){
     try {
       // Si tu backend tiene endpoint de logout, podrías llamar aquí:
       // await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, { method:'POST', credentials:'include' }).catch(()=>{})
     } finally {
-      localStorage.removeItem('token')  // o donde guardes el token
+      localStorage.removeItem('token')
       navigate('/login', { replace:true })
     }
   }
@@ -31,9 +33,9 @@ export default function Header(){
   return (
     <header className='site-header'>
       <div className='container nav'>
-        <Link to='/' className='brand' aria-label='Flimhub home'>
+        <Link to='/' className='brand' aria-label='PYRA home'>
           {/* Logo desde /public */}
-          <img src="/logo-flimhub.jpg" alt="Flimhub" className="brand-logo" />
+          <img src="/brand/pyra.svg" alt="PYRA" className="brand-logo" />
         </Link>
 
         <nav aria-label='Main'>
@@ -44,7 +46,6 @@ export default function Header(){
         </nav>
 
         <div className='right'>
-          {/* 🔎 Solo barra: sin botón ni icono */}
           <form className='search' onSubmit={onSearch} role='search' aria-label='Buscar'>
             <input
               className='search__input'
@@ -59,7 +60,6 @@ export default function Header(){
 
           <NavLink to='/account' className='avatar-btn' aria-label='Cuenta'>👤</NavLink>
 
-          {/* Botón Salir */}
           <button type='button' className='logout-btn' onClick={onLogout} aria-label='Cerrar sesión'>
             Salir
           </button>
