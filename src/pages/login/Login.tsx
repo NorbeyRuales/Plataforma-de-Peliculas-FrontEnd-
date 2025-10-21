@@ -58,7 +58,7 @@ export default function Login() {
 
       <form className='auth-form' onSubmit={handleSubmit} noValidate>
         <label className='field'>
-          <span className='field__label'>Correo</span>
+          <span className='field__label'>Tú correo</span>
           <input
             ref={emailRef}
             id='login_email'
@@ -71,11 +71,11 @@ export default function Login() {
             aria-describedby='login_email_hint'
             aria-invalid={error?.toLowerCase().includes('correo') ? true : undefined}
           />
-          <small id='login_email_hint' className='field__hint'>Usa tu correo de registro.</small>
+          <small id='login_email_hint' className='field__hint'>Usa el correo con el que te registraste.</small>
         </label>
 
         <label className='field'>
-          <span className='field__label'>Contraseña</span>
+          <span className='field__label'>Tú contraseña</span>
           <div className='password-field'>
             <input
               ref={pwdRef}

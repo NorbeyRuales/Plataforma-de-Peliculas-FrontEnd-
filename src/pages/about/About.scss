@@ -1,1 +1,22 @@
-.about-page h1{margin:1rem 0;}
+@use '../../styles/variables' as *;
+
+.about-page {
+    max-width: 840px;
+    margin: 0 auto;
+
+    h1 {
+        margin: 2rem 0 1rem;
+    }
+
+    p {
+        line-height: 1.7;
+    }
+
+    .card {
+        background: $card;
+        border: 1px solid $border;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        padding: 1rem 1.25rem;
+    }
+}

@@ -1,1 +1,115 @@
-.movie-detail .topbar{display:flex;justify-content:space-between;align-items:center;}.movie-detail .player{display:flex;gap:1rem;align-items:center;margin:1rem 0;}.movie-detail .player button{font-size:1.25rem;border:1px solid #444;background:#1a1a1a;color:$text;border-radius:50%;width:48px;height:48px;}.progress-track{height:4px;background:#444;border-radius:999px;position:relative;}.progress-thumb{height:100%;background:#777;border-radius:999px;}.progress-controls{display:flex;gap:1rem;justify-content:center;margin:.75rem 0 1rem;}.description{background:#e6e6e6;border:0;border-radius:4px;padding:.55rem .6rem;color:#111;width:100%;}
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.movie-detail {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* poster */
+.movie-detail .poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    border-radius: $radius;
+    overflow: hidden;
+    background: color.change($brand, $alpha: .06);
+    box-shadow: $shadow;
+}
+
+/* panel/info */
+.movie-detail .panel {
+    background: $card;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    padding: 1rem 1.25rem;
+}
+
+.movie-detail .title {
+    margin: 0 0 .25rem;
+    font-size: clamp(1.3rem, 1rem + 1vw, 1.8rem);
+}
+
+.movie-detail .sub {
+    color: $muted;
+    margin-bottom: .75rem;
+}
+
+.movie-detail .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: .5rem 0 1rem;
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .25rem .55rem;
+        border-radius: 999px;
+        background: color.change($slate, $alpha: .10);
+        border: 1px solid color.change($slate, $alpha: .18);
+        color: $text;
+        font-size: .85rem;
+    }
+}
+
+.movie-detail .actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin: .75rem 0 1rem;
+}
+
+.movie-detail .play {
+    @include btn($brand, #fff);
+}
+
+.movie-detail .fav {
+    @include btn($secondary, #111);
+}
+
+/* reproductor (si lo usas) */
+.movie-detail .player {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.movie-detail .player button {
+    font-size: 1.1rem;
+    border: 1px solid $border;
+    background: $card;
+    color: $text;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    box-shadow: $shadow;
+}
+
+.progress-track {
+    height: 6px;
+    background: color.change($slate, $alpha: .15);
+    border-radius: 999px;
+    position: relative;
+}
+
+.progress-thumb {
+    height: 100%;
+    background: $brand;
+    border-radius: 999px;
+}
+
+.progress-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: .75rem 0 1rem;
+}

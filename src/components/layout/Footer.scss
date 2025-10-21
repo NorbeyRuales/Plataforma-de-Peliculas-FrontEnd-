@@ -1,1 +1,135 @@
-.site-footer{margin-top:3rem;border-top:1px solid #222;padding:1.25rem 0;color:$muted;}
+@use '../../styles/variables' as *;
+@use 'sass:color';
+
+.site-footer {
+    margin-top: 3rem;
+    border-top: 1px solid $border;
+    background: transparent;
+    color: $muted;
+    font-size: .95rem;
+}
+
+/* Grid principal */
+.footer-grid {
+    display: grid;
+    gap: 1.25rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    padding: 1.25rem 0 0;
+}
+
+/* Bloque de marca */
+.brand-block {
+    display: grid;
+    gap: .5rem;
+}
+
+.brand-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    text-decoration: none;
+    color: $text;
+}
+
+.brand-mini img {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+.brand-name {
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.tagline {
+    margin: 0;
+    color: $muted;
+}
+
+/* Social */
+.social {
+    display: flex;
+    gap: .5rem;
+    margin-top: .25rem;
+}
+
+.social a {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: color.change($text, $alpha: .06);
+    color: $text;
+    border: 1px solid $border;
+    transition: transform .06s ease, background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.social a:hover {
+    background: color.change($brand, $alpha: .10);
+    color: $brand;
+    border-color: color.change($brand, $alpha: .35);
+}
+
+.social a:active {
+    transform: translateY(1px);
+}
+
+/* Listas */
+.footer-title {
+    margin: 0 0 .5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $text;
+}
+
+.footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: .35rem;
+}
+
+.footer-list a {
+    color: $muted;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: .15rem .25rem;
+    transition: background .15s ease, color .15s ease;
+}
+
+.footer-list a:hover {
+    color: $text;
+    background: color.change($text, $alpha: .06);
+}
+
+/* Bottom bar */
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .9rem 0 1.25rem;
+    border-top: 1px solid $border;
+    margin-top: 1rem;
+    color: $muted;
+}
+
+.to-top {
+    @include btn(color.change($brand, $alpha: .12), $text);
+    border: 1px solid color.change($brand, $alpha: .35);
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 560px) {
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
