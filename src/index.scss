@@ -1,8 +1,8 @@
+@use './styles/_variables.scss' as *;
+
 :root {
     color-scheme: light;
 }
-
-/* antes decía dark */
 
 * {
     box-sizing: border-box;
@@ -16,26 +16,44 @@ body,
 
 body {
     margin: 0;
-    font-family: system-ui, Segoe UI, Roboto, sans-serif;
+    font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     background: $bg;
-    /* ahora #F9F2E2 */
+    /* #F9F2E2 */
     color: $text;
-    /* ahora #1D2129 */
+    /* #1D2129 */
 }
 
-/* (resto igual) */
+a {
+    color: $brand;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
 }
 
+/* Grids de tarjetas */
 .grid {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 }
 
+.grid,
+.grid ul,
+.grid li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Accesibilidad */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -60,7 +78,7 @@ body {
     border-radius: 6px;
 }
 
-/* Botones globales (ya centrados por tus cambios) */
+/* Botones globales (centrados) */
 .btn {
     border: 0;
     border-radius: 6px;
@@ -105,4 +123,13 @@ body {
     display: flex;
     gap: .75rem;
     align-items: center;
+}
+
+/* Footer claro */
+.site-footer {
+    margin-top: 3rem;
+    border-top: 1px solid $border;
+    padding: 1.25rem 0;
+    color: $muted;
+    background: transparent;
 }

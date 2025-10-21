@@ -10,10 +10,7 @@ export interface User {
     updated_at?: string
 }
 
-export interface AuthResponse {
-    token: string
-    user: User
-}
+export interface AuthResponse { token: string; user: User }
 export interface MeResponse { user: User }
 
 const TOKEN_KEY = 'token'
@@ -23,14 +20,8 @@ export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
 
 export const Auth = {
     async signup(name: string, email: string, password: string, confirmPassword: string, birthdate?: string) {
-        const r = await api.post<AuthResponse>('/auth/signup', {
-            name,
-            email,
-            password,
-            confirmPassword,
-            birthdate: birthdate ?? null, // 'YYYY-MM-DD' o null
-        })
-        setToken(r.token)          // quita esta línea si NO quieres auto-login tras registrarse
+        const r = await api.post<AuthResponse>('/auth/signup', { name, email, password, confirmPassword, birthdate: birthdate ?? null })
+        setToken(r.token)
         return r
     },
 
@@ -46,5 +37,12 @@ export const Auth = {
 
     logout() {
         clearToken()
+    },
+    async changePassword(currentPassword: string, newPassword: string) {
+        
+        return api.post<{ ok: boolean }>('/auth/change-password', {
+            currentPassword,
+            newPassword,
+        })
     },
 }

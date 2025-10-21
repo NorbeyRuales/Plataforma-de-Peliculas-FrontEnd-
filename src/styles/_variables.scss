@@ -8,7 +8,7 @@ $text: #1D2129;
 $muted: #64758F;
 /* gris azulado legible en claro */
 $brand: #498DF5;
-/* azul de tu paleta: logo/acciones */
+/* azul primario */
 $primary: $brand;
 $secondary: #B59A64;
 /* dorado suave */
@@ -26,13 +26,14 @@ $border: #E6E0D6;
 /* borde suave para tema claro */
 
 $radius: 14px;
-$shadow: 0 8px 24px rgba(0, 0, 0, .08);
+$shadow: 0 10px 30px rgba(0, 0, 0, .06), 0 1px 0 rgba(0, 0, 0, .06);
 
 /* ===== Mixins reutilizables ===== */
 @mixin focus-ring($c: $primary) {
-    outline: 2px solid color.change($c, $alpha: .55);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 3px color.change($c, $alpha: .20);
+    outline: none;
+    box-shadow:
+        0 0 0 3px color.change($c, $alpha: .30),
+        0 0 0 1px color.change($c, $alpha: .55) inset;
 }
 
 @mixin btn($bgc, $fgc) {
