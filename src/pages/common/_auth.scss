@@ -34,9 +34,9 @@
 /* Inputs uniformes */
 .auth-form input,
 .description {
-  background: #e6e6e6;
+  background: #fff;
+  border: 1px solid $border;
   color: #111;
-  border: 0;
   border-radius: 6px;
   padding: .6rem .75rem;
   width: 100%;
@@ -84,6 +84,12 @@
   @include btn(#1c1c1f, #fff);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset;
   border-radius: 10px;
+
+  /* === NUEVO: centra el contenido del botón === */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .btn:hover {
@@ -226,7 +232,7 @@
   outline-offset: 2px;
 }
 
-/* === NUEVO: estado activo cuando la contraseña está visible === */
+/* estado activo cuando la contraseña está visible */
 .pwd-toggle[aria-pressed="true"] {
   color: $brand;
   background: color.change($brand, $alpha: .10);
@@ -311,7 +317,7 @@
 
 /* verde ok */
 
-/* Botón alternativo secundario (dorado) – p.ej. CTA secundarios */
+/* Botón alternativo secundario (dorado) – p. ej. CTA secundarios */
 .btn.alt {
   @include btn($secondary, #111);
 }

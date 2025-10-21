@@ -1,71 +1,62 @@
+/* src/styles/_variables.scss */
 @use "sass:color";
 
-/* ================================
-   Global design tokens (dark UI)
-   ================================ */
-
-/* Base dark */
-$bg: #1D2129;
-/* fondo app */
-$card: #141417;
-/* superficies elevadas */
-$text: #f3f3f3;
-$muted: #a9a9b1;
-
-/* Paleta PYRA */
+/* ===== Paleta (tema claro con fondo crema) ===== */
+$bg: #F9F2E2;
+$card: #ffffff;
+$text: #1D2129;
+$muted: #64758F;
+/* gris azulado legible en claro */
 $brand: #498DF5;
-/* Azul primario */
-$secondary: #F5BC49;
-/* Dorado */
-$steel: #6187C2;
-/* Acero */
-$khaki: #B59A64;
-/* Caqui */
-$slate: #64758F;
-/* Pizarra */
-$cream: #F9F1E1;
-/* Crema (para highlights) */
-
-/* Semánticos */
+/* azul de tu paleta: logo/acciones */
 $primary: $brand;
-$success: #1e9e63;
-$danger: #d83a3a;
-$warning: $khaki;
-$info: $steel;
+$secondary: #B59A64;
+/* dorado suave */
+$info: #6187C2;
+/* acero/azulado */
+$warning: #F5BC49;
+/* ámbar */
+$success: #22C55E;
+/* verde accesible */
+$danger: #EF4444;
+/* rojo accesible */
+$slate: #64758F;
+/* utilitario */
+$border: #E6E0D6;
+/* borde suave para tema claro */
 
 $radius: 14px;
-$shadow: 0 8px 24px rgba(0, 0, 0, .30);
+$shadow: 0 8px 24px rgba(0, 0, 0, .08);
 
-/* Helpers */
-@mixin focus-ring {
-    outline: none;
-    box-shadow: 0 0 0 3px color.change($brand, $alpha: .25);
+/* ===== Mixins reutilizables ===== */
+@mixin focus-ring($c: $primary) {
+    outline: 2px solid color.change($c, $alpha: .55);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px color.change($c, $alpha: .20);
 }
 
-@mixin btn($bg, $fg) {
-    background: $bg;
-    color: $fg;
-    border: 1px solid transparent;
+@mixin btn($bgc, $fgc) {
+    appearance: none;
+    border: 0;
     border-radius: $radius;
     padding: .65rem 1rem;
     font-weight: 600;
-    line-height: 1;
-    display: inline-flex;
-    gap: .5rem;
-    align-items: center;
+    background: $bgc;
+    color: $fgc;
     cursor: pointer;
-    transition: transform .02s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    transition: transform .06s ease, background .15s ease, box-shadow .15s ease;
+    display: inline-flex;
+    /* centra contenido */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 
     &:hover {
-        background: color.adjust($bg, $lightness: -6%);
+        background: color.adjust($bgc, $lightness: -6%);
     }
 
     &:active {
         transform: translateY(1px);
-    }
-
-    &:focus-visible {
-        @include focus-ring;
     }
 
     &:disabled {
