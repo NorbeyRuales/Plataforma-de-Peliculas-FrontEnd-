@@ -1,22 +1,284 @@
 @use '../../styles/variables' as *;
 
+/* Contenedor principal (scope total) */
 .about-page {
-    max-width: 840px;
+    /* ancho y centrado */
+    --maxw: min(1100px, 94vw);
+    width: var(--maxw);
     margin: 0 auto;
+    padding: 1.25rem 1rem 2rem;
+
+    /* colores base (derivados de tus tokens) */
+    --ink: #{$text};
+    --muted: #{$muted};
+
+    color: var(--ink);
 
     h1 {
-        margin: 2rem 0 1rem;
+        margin: 1.6rem 0 .8rem;
+        line-height: 1.2;
     }
 
     p {
         line-height: 1.7;
     }
 
+    /* Tarjeta base reutilizable */
     .card {
         background: $card;
         border: 1px solid $border;
         border-radius: $radius;
         box-shadow: $shadow;
         padding: 1rem 1.25rem;
+    }
+
+    /* ================= HERO ================= */
+    .about-hero {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 1rem;
+        align-items: center;
+        background: $card;
+        border: 1px solid $border;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        padding: 1rem 1.25rem;
+        position: relative;
+
+        .about-logo {
+            width: 90px;
+            height: auto;
+            justify-self: center;
+            display: block;
+        }
+
+        .about-hero-text {
+            h1 {
+                margin: .1rem 0 .4rem;
+            }
+
+            p {
+                margin: 0 0 .6rem;
+                color: var(--muted);
+            }
+        }
+
+        /* chips de navegación interna */
+        .about-quick {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                padding: .45rem .8rem;
+                border-radius: 999px;
+                background: rgba($brand, .10);
+                color: $text;
+                text-decoration: none;
+                border: 1px solid rgba($brand, .25);
+                transition: background .15s ease, color .15s ease, border-color .15s ease;
+
+                &:hover {
+                    background: rgba($brand, .16);
+                    border-color: rgba($brand, .45);
+                    color: $brand;
+                }
+
+                &:focus-visible {
+                    outline: 2px solid rgba($brand, .55);
+                    outline-offset: 2px;
+                }
+            }
+        }
+
+        /* back opcional si lo usas */
+        .about-back {
+            position: absolute;
+            top: .6rem;
+            right: .8rem;
+            text-decoration: none;
+            color: $text;
+            padding: .25rem .5rem;
+            border-radius: 8px;
+            transition: background .15s ease, color .15s ease;
+
+            &:hover {
+                color: $brand;
+                background: rgba($brand, .08);
+            }
+        }
+    }
+
+    /* =============== SECCIONES =============== */
+    .about-section {
+        margin-top: 1.25rem;
+        scroll-margin-top: 90px;
+        /* anclas con header fijo */
+        outline: none;
+
+        &:focus-visible {
+            box-shadow: 0 0 0 3px rgba($brand, .35);
+            border-radius: 10px;
+        }
+
+        h2 {
+            margin: 0 0 .5rem;
+        }
+
+        p {
+            color: var(--muted);
+        }
+    }
+
+    .bullets {
+        margin: .5rem 0 0;
+        padding-left: 1.25rem;
+        color: var(--ink);
+
+        li+li {
+            margin-top: .25rem;
+        }
+    }
+
+    /* =============== TIMELINE =============== */
+    .timeline {
+        display: grid;
+        gap: .8rem;
+        padding: .25rem .25rem .25rem 1rem;
+        border-left: 2px dashed rgba($text, .25);
+
+        .t-item {
+            display: grid;
+            grid-template-columns: 16px 1fr;
+            gap: .6rem;
+
+            .t-dot {
+                width: 12px;
+                height: 12px;
+                margin-left: -7px;
+                margin-top: .35rem;
+                background: $brand;
+                border-radius: 999px;
+                box-shadow: 0 0 0 3px rgba($brand, .15);
+            }
+
+            h3 {
+                margin: 0 0 .2rem;
+            }
+
+            p {
+                margin: 0;
+                color: var(--muted);
+            }
+        }
+    }
+
+    /* =============== FEATURES =============== */
+    .features {
+        display: grid;
+        gap: .8rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+        .card {
+            h3 {
+                margin: 0 0 .3rem;
+            }
+
+            p {
+                margin: 0;
+                color: var(--muted);
+            }
+        }
+    }
+
+    /* =============== EQUIPO =============== */
+    .team {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        padding: .25rem 0;
+    }
+
+    .member {
+        display: grid;
+        justify-items: center;
+        gap: .35rem;
+        padding: .8rem;
+        border-radius: 12px;
+        border: 1px solid $border;
+        background: $card;
+        box-shadow: $shadow;
+
+        img {
+            width: 96px;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid $border;
+            background: rgba($text, .06);
+            display: block;
+        }
+
+        .m-info {
+            text-align: center;
+        }
+
+        .m-name {
+            display: block;
+        }
+
+        .m-role {
+            color: var(--muted);
+            font-size: .95rem;
+        }
+    }
+
+    /* =============== CTA =============== */
+    .about-cta {
+        margin-top: 1.25rem;
+        background: $card;
+        border: 1px solid $border;
+        border-radius: $radius;
+        padding: 1rem 1.25rem;
+        display: flex;
+        gap: .75rem;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: $shadow;
+
+        p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .btn {
+            @include btn(rgba($brand, .12), $text);
+            border: 1px solid rgba($brand, .35);
+            border-radius: 10px;
+            text-decoration: none;
+            padding: .55rem .9rem;
+
+            &:hover {
+                color: $brand;
+            }
+        }
+    }
+
+    /* =============== RESPONSIVE =============== */
+    @media (max-width: 760px) {
+        .about-hero {
+            grid-template-columns: 80px 1fr;
+
+            .about-logo {
+                width: 72px;
+            }
+        }
+
+        .about-cta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 }
