@@ -19,6 +19,9 @@ import AuthCallback from '../pages/auth-callback/AuthCallback'
 import { hasSupabaseAuthParams } from '../utils/authUrl'
 import ResetPassword from '../pages/reset-password/ResetPassword'
 
+
+import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs'
+
 const isAuthed = () => !!localStorage.getItem('token')
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -65,6 +68,9 @@ export default function AppRouter() {
     <BrowserRouter>
       <a className='skip-link' href='#main'>Skip to content</a>
       <Header />
+
+      {/* 👇 NUEVO: migas de pan */}
+      <Breadcrumbs />
 
       {/* delay (ms)  */}
       <Suspense fallback={<DelayedFallback delay={95} />}>

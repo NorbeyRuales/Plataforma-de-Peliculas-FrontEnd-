@@ -333,7 +333,7 @@ export default function Account() {
                   <span className='sr-only'>{show1 ? 'Ocultar' : 'Mostrar'}</span>
                 </button>
               </div>
-              <small className='field__hint'>{caps1 ? 'Bloq Mayús activado.' : 'Es sensible a mayúsculas.'}</small>
+              <small className='field__hint'>{caps1 ? 'Bloq Mayús activado.' : ''}</small>
             </label>
 
             <label className='field'>
