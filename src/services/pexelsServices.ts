@@ -1,15 +1,27 @@
-// src/services/pexelsServices.ts
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
 
-export const getRandomPexelsVideo = async (query: string = "cinema") => {
-    try {
-        const res = await axios.get(`${API_BASE_URL}/pexels/${encodeURIComponent(query)}`);
-        // el backend debe responder { videoUrl: string | null }
-        return res.data.videoUrl ?? null;
-    } catch (err) {
-        console.error("Error al obtener video de Pexels:", err);
-        return null;
+/**
+ * Intenta ambas variantes del endpoint del backend:
+ *  - /pexels/:query
+ *  - /pexels?query=
+ * Devuelve la URL de video o null sin romper el flujo.
+ */
+export const getRandomPexelsVideo = async (query: string = "cinema"): Promise<string | null> => {
+    const candidates = [
+        `${API_BASE_URL}/pexels/${encodeURIComponent(query)}`,
+        `${API_BASE_URL}/pexels?query=${encodeURIComponent(query)}`,
+    ];
+
+    for (const url of candidates) {
+        try {
+            const res = await axios.get(url);
+            const urlOut: string | null = res?.data?.videoUrl ?? res?.data?.url ?? null;
+            if (urlOut) return urlOut;
+        } catch {
+            // probar el siguiente candidato
+        }
     }
+    return null;
 };
