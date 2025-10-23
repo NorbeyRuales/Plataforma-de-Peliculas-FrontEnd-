@@ -1,83 +1,55 @@
 @use '../../styles/variables' as *;
 @use "sass:color";
 
-.auth-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+.auth-screen { display: flex; flex-direction: column; align-items: center; }
 
-.auth-screen.container {
-  max-width: 36rem;
-  margin: 0 auto;
-  padding: 1rem;
-}
+.auth-screen.container { max-width: 36rem; margin: 0 auto; padding: 1rem; }
 
 /* Logo PYRA desde /public */
 .logo-big {
-  width: 260px;
-  height: 160px;
-  margin: 1rem 0 1.3rem;
+  width: 260px; height: 160px; margin: 1rem 0 1.3rem;
   background: url('/brand/pyra.svg') center / contain no-repeat transparent;
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 0; box-shadow: none;
 }
 
 /* Formulario base */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: .6rem;
-  width: min(360px, 100%);
-}
+.auth-form { display: flex; flex-direction: column; gap: .6rem; width: min(360px, 100%); }
 
 /* Inputs uniformes */
 .auth-form input,
 .description {
-  background: #fff;
-  border: 1px solid $border;
-  color: #111;
-  border-radius: 6px;
-  padding: .6rem .75rem;
-  width: 100%;
+  background: #fff; border: 1px solid $border; color: #111;
+  border-radius: 6px; padding: .6rem .75rem; width: 100%;
 }
 
 .auth-form input::placeholder {
-  color: color.adjust($muted, $lightness: 15%);
+  color: color-mix(in srgb, var(--mutedText) 85%, white);
 }
 
-.auth-form input:focus-visible {
-  @include focus-ring;
-}
+.auth-form input:focus-visible { @include focus-ring($brand); }
 
 /* Estados de validación (frontend + nativo) */
 .auth-form input[aria-invalid="true"],
 .auth-form input:user-invalid {
-  box-shadow: 0 0 0 3px color.change($danger, $alpha: .25);
+  /* antes: color.change($danger,.25) */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 .auth-form input[aria-invalid="true"]:focus-visible,
 .auth-form input:user-invalid:focus-visible {
-  box-shadow: 0 0 0 3px color.change($danger, $alpha: .35);
+  /* antes: color.change($danger,.35) */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 35%, transparent);
 }
 
 /* opcional para marcar validados desde lógica */
 .auth-form input.is-valid {
-  box-shadow: 0 0 0 2px color.change($success, $alpha: .25);
+  /* antes: color.change($success,.25) */
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--success) 25%, transparent);
 }
 
 /* Layout utilidades */
-.row {
-  display: flex;
-  gap: .5rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: .25rem 0 .75rem;
-}
-
-.muted {
-  color: $muted;
-}
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .25rem 0 .75rem; }
+.muted { color: $muted; }
 
 /* Botones base + variantes */
 .btn {
@@ -85,282 +57,148 @@
   box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset;
   border-radius: 10px;
 
-  /* === NUEVO: centra el contenido del botón === */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  /* centra contenido */
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
 }
+.btn:hover { background: #232327; }
 
-.btn:hover {
-  background: #232327;
-}
-
-/* neutral */
-.btn.primary {
-  @include btn($brand, #fff);
-}
-
-/* usa hover de mixin (brand -6%) */
-.btn.success {
-  @include btn($success, #0b0b0f);
-}
-
-/* contraste ok en verde */
-.btn.danger {
-  @include btn($danger, #fff);
-}
+.btn.primary { @include btn($brand, #fff); }
+.btn.success { @include btn($success, #0b0b0f); } /* contraste ok en verde */
+.btn.danger  { @include btn($danger, #fff); }
 
 .btn.ghost {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, .18);
-  color: #fff;
+  background: transparent; border: 1px solid rgba(255,255,255,.18); color: #fff;
 }
+.btn.block { width: 100%; }
 
-.btn.block {
-  width: 100%;
+/* Estados deshabilitados visibles/opacos */
+.auth-form button:disabled,
+.auth-form .btn:disabled,
+.auth-form .btn[disabled] {
+  opacity: .55;
+  cursor: not-allowed;
+  filter: saturate(.8);
+  box-shadow: none;
+  transform: none;
 }
+.auth-form .btn.primary:disabled { opacity: .5; }
+.auth-form .btn:disabled:hover { background: inherit; }
 
 /* Modal */
 .modal {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, .55);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  z-index: 1000;
-  animation: fadeIn .12s ease;
+  position: fixed; inset: 0; display: grid; place-items: center;
+  background: rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  z-index: 1000; animation: fadeIn .12s ease;
 }
-
 .modal-card {
-  width: min(520px, 92vw);
-  background: #fff;
-  color: #111;
-  border: 1px solid rgba(0, 0, 0, .10);
-  border-radius: 12px;
-  box-shadow: $shadow;
-  padding: 1rem 1.25rem;
+  width: min(520px, 92vw); background: #fff; color: #111;
+  border: 1px solid rgba(0,0,0,.10); border-radius: 12px;
+  box-shadow: $shadow; padding: 1rem 1.25rem;
 }
+.modal .row { justify-content: flex-end; }
 
-.modal .row {
-  justify-content: flex-end;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0
-  }
-
-  to {
-    opacity: 1
-  }
-}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
 /* ====== Componentes de formulario reutilizables ====== */
 .form-summary {
-  margin: .5rem 0 1rem;
-  padding: .6rem .8rem;
-  border-radius: 10px;
-  font-weight: 600;
+  margin: .5rem 0 1rem; padding: .6rem .8rem; border-radius: 10px; font-weight: 600;
 }
+.form-summary--error { background: #3b0b0b; color: #ffd7d7; }
 
-.form-summary--error {
-  background: #3b0b0b;
-  color: #ffd7d7;
-}
-
+/* antes: color.adjust($success, $lightness: 35%) */
 .form-summary--success {
-  background: color.adjust($success, $lightness: 35%);
+  background: color-mix(in srgb, var(--success) 65%, white);
   color: #0b0b0f;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: .35rem;
-}
-
-.field__label {
-  font-size: .9rem;
-  color: $muted;
-}
-
-.field__hint {
-  font-size: .8rem;
-  color: $muted;
-  
-  &.italic {
-    font-style: italic;
-  }
-}
-
-.field__hint--ok {
-  color: $success;
-}
-
-.field__hint--bad {
-  color: crimson;
-}
+.field { display: flex; flex-direction: column; gap: .35rem; }
+.field__label { font-size: .9rem; color: $muted; }
+.field__hint  { font-size: .8rem; color: $muted; &.italic { font-style: italic; } }
+.field__hint--ok  { color: $success; }
+.field__hint--bad { color: crimson; }
 
 /* Password con toggle-ojito */
-.password-field {
-  position: relative;
-}
-
-.password-field input {
-  padding-right: 44px;
-}
+.password-field { position: relative; }
+.password-field input { padding-right: 44px; }
 
 .pwd-toggle {
-  position: absolute;
-  top: 50%;
-  right: .35rem;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: 0;
-  color: #3b3b3b;
-  cursor: pointer;
-  border-radius: 6px;
+  position: absolute; top: 50%; right: .35rem; transform: translateY(-50%);
+  width: 34px; height: 34px; display: grid; place-items: center;
+  background: transparent; border: 0; color: #3b3b3b; cursor: pointer; border-radius: 6px;
 }
-
 .pwd-toggle:hover,
 .pwd-toggle:focus-visible {
   color: #111;
-  outline: 2px solid color.change(#fff, $alpha: .25);
-  outline-offset: 2px;
+  outline: 2px solid color.change(#fff, $alpha: .25); /* OK: #fff es color literal */
 }
 
 /* estado activo cuando la contraseña está visible */
 .pwd-toggle[aria-pressed="true"] {
   color: $brand;
-  background: color.change($brand, $alpha: .10);
+  /* antes: color.change($brand, .10/.20) */
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent) inset;
   outline: none;
-  box-shadow: 0 0 0 2px color.change($brand, $alpha: .20) inset;
 }
 
 /* tamaño consistente para svg/emoji dentro del botón del ojo */
-.pwd-toggle svg {
-  width: 20px;
-  height: 20px;
-}
-
-.pwd-toggle .icon {
-  font-size: 20px;
-  line-height: 1;
-}
+.pwd-toggle svg { width: 20px; height: 20px; }
+.pwd-toggle .icon { font-size: 20px; line-height: 1; }
 
 /* Accesibilidad */
 .sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
 }
 
 /* Icono/feedback inline a la derecha de inputs */
 .input-hint-inline {
-  font-size: .8rem;
-  color: $muted;
-  margin-top: .15rem;
-  display: flex;
-  align-items: center;
-  gap: .35rem;
+  font-size: .8rem; color: $muted; margin-top: .15rem;
+  display: flex; align-items: center; gap: .35rem;
 }
-
-.input-hint-inline .ok {
-  color: $success;
-}
-
-.input-hint-inline .bad {
-  color: $danger;
-}
+.input-hint-inline .ok  { color: $success; }
+.input-hint-inline .bad { color: $danger; }
 
 /* Barra de fortaleza de contraseña */
-.pwd-meter {
-  height: 6px;
-  border-radius: 999px;
-  background: #2b2b32;
-  overflow: hidden;
-}
-
+.pwd-meter { height: 6px; border-radius: 999px; background: #2b2b32; overflow: hidden; }
 .pwd-meter__fill {
-  height: 100%;
-  width: 0%;
-  background: $danger;
-  transition: width .2s ease, background .2s ease;
-  border-radius: 999px;
+  height: 100%; width: 0%; background: $danger;
+  transition: width .2s ease, background .2s ease; border-radius: 999px;
 }
-
-.pwd-meter--2 .pwd-meter__fill {
-  width: 40%;
-  background: #f59e0b;
-}
-
-/* ámbar */
-.pwd-meter--3 .pwd-meter__fill {
-  width: 75%;
-  background: $info;
-}
-
-/* azul acero */
-.pwd-meter--4 .pwd-meter__fill {
-  width: 100%;
-  background: $success;
-}
-
-/* verde ok */
+.pwd-meter--2 .pwd-meter__fill { width: 40%; background: #f59e0b; } /* ámbar */
+.pwd-meter--3 .pwd-meter__fill { width: 75%; background: $info; }   /* azul acero */
+.pwd-meter--4 .pwd-meter__fill { width: 100%; background: $success; } /* verde ok */
 
 /* Botón alternativo secundario (dorado) – p. ej. CTA secundarios */
-.btn.alt {
-  @include btn($secondary, #111);
-}
+.btn.alt { @include btn($secondary, #111); }
 
 /* Chips (p. ej. géneros) */
 .chip {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .25rem .55rem;
-  border-radius: 999px;
-  background: color.change($slate, $alpha: .18);
-  color: #fff;
-  font-size: .85rem;
-  border: 1px solid color.change($slate, $alpha: .22);
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .25rem .55rem; border-radius: 999px;
+  background: color.change($slate, $alpha: .18); /* OK: $slate es color literal */
+  color: #fff; font-size: .85rem;
+  border: 1px solid color.change($slate, $alpha: .22); /* OK */
 }
 
 /* Alerts reutilizables */
-.alert {
-  border-radius: $radius;
-  padding: .7rem .9rem;
-}
+.alert { border-radius: $radius; padding: .7rem .9rem; }
 
 .alert--info {
-  background: color.change($info, $alpha: .18);
-  border: 1px solid color.change($info, $alpha: .28);
+  background: color-mix(in srgb, var(--info) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--info) 28%, transparent);
 }
-
 .alert--warn {
-  background: color.change($warning, $alpha: .18);
-  border: 1px solid color.change($warning, $alpha: .28);
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning) 28%, transparent);
 }
-
 .alert--success {
-  background: color.change($success, $alpha: .18);
-  border: 1px solid color.change($success, $alpha: .28);
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 28%, transparent);
 }
-
 .alert--danger {
-  background: color.change($danger, $alpha: .18);
-  border: 1px solid color.change($danger, $alpha: .28);
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 28%, transparent);
 }

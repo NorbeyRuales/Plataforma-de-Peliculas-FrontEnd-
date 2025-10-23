@@ -1,97 +1,101 @@
-/* src/components/navigation/Breadcrumbs.scss */
+/* src/components/Breadcrumbs.scss */
 @use '../../styles/variables' as *;
 
 .breadcrumbs {
-    --bc-bg: #f4ecda;
-    /* fondo más claro que el beige base */
-    --bc-fg: #3b2e23;
-    /* marrón oscuro para texto */
-    --bc-fg-active: #2a2a2a;
-    /* negro suave para la miga actual */
-    --bc-sep: #9b948a;
-    /* gris cálido */
-    --bc-link-hover: #6ea4ff;
-    /* azul pastel hover */
-    --bc-link-active: #89b4fa;
-    /* azul principal */
-    --bc-radius: 10px;
-    --bc-pad-y: .5rem;
-    --bc-pad-x: 1rem;
-    --bc-gap: .35rem;
+  /* === Paleta LIGHT por defecto (igual a la tuya) === */
+  --bc-bg: #f4ecda;            /* fondo claro cremita */
+  --bc-fg: #3b2e23;            /* marrón oscuro texto */
+  --bc-fg-active: #2a2a2a;     /* miga actual */
+  --bc-sep: #9b948a;           /* separador gris cálido */
+  --bc-link-hover: #6ea4ff;    /* azul pastel hover */
+  --bc-link-active: #89b4fa;   /* azul activo */
+  --bc-radius: 10px;
+  --bc-pad-y: .5rem;
+  --bc-pad-x: 1rem;
+  --bc-gap: .35rem;
 
-    /* ⬇️ Alineado a la izquierda (antes tenía max-width + margin: 0 auto) */
-    width: 100%;
+  /* === Overrides DARK (solo cambia vars; el resto del layout se conserva) === */
+  :root[data-theme='dark'] & {
+    --bc-bg: color-mix(in srgb, var(--text) 6%, transparent);
+    --bc-fg: var(--text);
+    --bc-fg-active: var(--text);
+    --bc-sep: color-mix(in srgb, var(--text) 40%, transparent);
+    --bc-link-hover: color-mix(in srgb, var(--primary) 75%, white);
+    --bc-link-active: var(--primary);
+  }
+
+  /* Alineado a la izquierda */
+  width: 100%;
+  margin: 0;
+  padding: var(--bc-pad-y) var(--bc-pad-x);
+  font-size: clamp(.85rem, 1.2vw, .95rem);
+  line-height: 1.4;
+  color: var(--bc-fg);
+  background: var(--bc-bg);
+  border-radius: var(--bc-radius);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  ol {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--bc-gap);
     margin: 0;
-    padding: var(--bc-pad-y) var(--bc-pad-x);
-    font-size: clamp(.85rem, 1.2vw, .95rem);
-    line-height: 1.4;
+    padding: 0;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    max-width: 220px;
+    white-space: nowrap;
+    min-height: 28px;
+  }
+
+  li + li::before {
+    content: "›";
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--bc-sep);
+    margin: 0 .3rem;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
     color: var(--bc-fg);
-    background: var(--bc-bg);
-    border-radius: var(--bc-radius);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: .2rem .5rem;
+    border-radius: 999px;
+    transition: background-color .2s ease, color .2s ease;
 
-    ol {
-        list-style: none;
-        display: flex;
-        align-items: center;
-        gap: var(--bc-gap);
-        margin: 0;
-        padding: 0;
-        overflow-x: auto;
-        justify-content: flex-start;
-        /* asegura alineación izquierda */
+    &:hover {
+      color: var(--bc-link-hover);
+      /* funciona igual en light/dark gracias a primary */
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
     }
 
-    li {
-        display: inline-flex;
-        align-items: center;
-        max-width: 220px;
-        white-space: nowrap;
-        min-height: 28px;
+    &:focus-visible {
+      outline: 2px solid var(--bc-link-hover);
+      outline-offset: 2px;
     }
+  }
 
-    li+li::before {
-        content: "›";
-        font-size: 1rem;
-        line-height: 1;
-        color: var(--bc-sep);
-        margin: 0 .3rem;
-    }
+  [aria-current="page"] {
+    font-weight: 600;
+    color: var(--bc-link-active);
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    /* elimina rgba fija; usa primary + transparencia (tema-aware) */
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+  }
 
-    a {
-        display: inline-flex;
-        align-items: center;
-        text-decoration: none;
-        color: var(--bc-fg);
-        padding: .2rem .5rem;
-        border-radius: 999px;
-        transition: background-color .2s ease, color .2s ease;
+  @media (max-width: 420px) {
+    --bc-pad-x: .75rem;
+    --bc-gap: .25rem;
 
-        &:hover {
-            color: var(--bc-link-hover);
-            background: rgba(142, 170, 255, 0.15);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--bc-link-hover);
-            outline-offset: 2px;
-        }
-    }
-
-    [aria-current="page"] {
-        font-weight: 600;
-        color: var(--bc-link-active);
-        padding: .2rem .6rem;
-        border-radius: 999px;
-        background: rgba(137, 180, 250, 0.15);
-    }
-
-    @media (max-width: 420px) {
-        --bc-pad-x: .75rem;
-        --bc-gap: .25rem;
-
-        li {
-            max-width: 160px;
-        }
-    }
+    li { max-width: 160px; }
+  }
 }

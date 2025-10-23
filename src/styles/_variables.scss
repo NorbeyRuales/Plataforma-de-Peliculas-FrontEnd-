@@ -1,68 +1,73 @@
 /* src/styles/_variables.scss */
-@use "sass:color";
 
-/* ===== Paleta (tema claro con fondo crema) ===== */
-$bg: #F9F2E2;
-$card: #ffffff;
-$text: #1D2129;
-$muted: #64758F;
-/* gris azulado legible en claro */
-$brand: #498DF5;
-/* azul primario */
-$primary: $brand;
-$secondary: #B59A64;
-/* dorado suave */
-$info: #6187C2;
-/* acero/azulado */
-$warning: #F5BC49;
-/* ámbar */
-$success: #22C55E;
-/* verde accesible */
-$danger: #EF4444;
-/* rojo accesible */
-$slate: #64758F;
-/* utilitario */
-$border: #E6E0D6;
-/* borde suave para tema claro */
+/* === Puente SCSS -> CSS custom props del tema === */
+$bg: var(--bg, #f8f9fb);
+$surface: var(--surface, #ffffff);
+$text: var(--text, #1a1a1a);
+$muted: var(--mutedText, #5a5a5a);
+$primary: var(--primary, #2266ff);
+$accent: var(--accent, #0044cc);
+$border: var(--border, rgba(0, 0, 0, 0.08));
+$shadow: var(--shadow, 0 3px 6px rgba(0, 0, 0, 0.15));
 
-$radius: 14px;
-$shadow: 0 10px 30px rgba(0, 0, 0, .06), 0 1px 0 rgba(0, 0, 0, .06);
+/* Alias usados en componentes */
+$brand: $primary;
+$secondary: var(--accent, #4f9dff);
 
-/* ===== Mixins reutilizables ===== */
-@mixin focus-ring($c: $primary) {
-    outline: none;
-    box-shadow:
-        0 0 0 3px color.change($c, $alpha: .30),
-        0 0 0 1px color.change($c, $alpha: .55) inset;
+/* Extras que piden tus estilos */
+$card: var(--card, #ffffff);
+$success: var(--success, #4cc38a);
+$warning: var(--warning, #e6b800);
+$danger: var(--danger, #ff5c5c);
+$info: var(--info, #3399ff);
+
+/* Gris base para efectos (constante Sass, NO var()) */
+$slate: #6b7280;
+/* tailwind-slate-500 aprox. */
+
+/* Dimensiones y helpers */
+$radius: 12px;
+$radius-sm: 6px;
+$radius-lg: 20px;
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 40px;
+
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 6px 12px rgba(0, 0, 0, 0.25);
+
+/* Mixins usados en varios lugares */
+@mixin focus-ring($color) {
+    outline: 2px solid $color;
+    outline-offset: 2px;
 }
 
-@mixin btn($bgc, $fgc) {
-    appearance: none;
-    border: 0;
-    border-radius: $radius;
-    padding: .65rem 1rem;
-    font-weight: 600;
-    background: $bgc;
-    color: $fgc;
-    cursor: pointer;
-    transition: transform .06s ease, background .15s ease, box-shadow .15s ease;
+/* Mixin de botón genérico para About.scss */
+@mixin btn($bg, $color) {
+    background: $bg;
+    color: $color;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    padding: 0.5rem 0.75rem;
     display: inline-flex;
-    /* centra contenido */
     align-items: center;
-    justify-content: center;
-    text-align: center;
+    gap: .5rem;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
 
     &:hover {
-        background: color.adjust($bgc, $lightness: -6%);
+        filter: brightness(1.05);
     }
 
     &:active {
         transform: translateY(1px);
     }
 
-    &:disabled {
-        opacity: .6;
-        cursor: not-allowed;
-        filter: grayscale(10%);
+    &:focus-visible {
+        @include focus-ring(var(--primary));
     }
 }

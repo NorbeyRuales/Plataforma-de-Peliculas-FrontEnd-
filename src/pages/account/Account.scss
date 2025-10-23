@@ -12,43 +12,29 @@
   gap: .5rem;
   margin: .35rem 0 .9rem;
 }
-
-.actions .btn {
-  width: 100%;
-  min-height: 42px;
-}
+.actions .btn { width: 100%; min-height: 42px; }
 
 @media (max-width: 640px) {
-  .actions {
-    grid-template-columns: 1fr;
-  }
+  .actions { grid-template-columns: 1fr; }
 }
 
 /* Asegura misma altura en los botones de Guardar/Cancelar también */
-.auth-form .row .btn {
-  min-height: 42px;
-}
+.auth-form .row .btn { min-height: 42px; }
 
 /* ——— Estado de sólo lectura: texto más opaco ——— */
 .auth-form.is-readonly input[disabled] {
   color: #6f6f77;
   background: #e3e3e8;
 }
-
-.auth-form.is-readonly .field__label {
-  opacity: .85;
-}
+.auth-form.is-readonly .field__label { opacity: .85; }
 
 /* Errores bajo los campos */
-.field__error {
-  color: salmon;
-  font-size: .85rem;
-}
+.field__error { color: salmon; font-size: .85rem; }
 
 /* Botones más compactos en la pantalla de Cuenta */
 .actions .btn,
 .auth-form .row .btn,
-.auth-form>.btn.danger {
+.auth-form > .btn.danger {
   min-height: 34px;
   padding: .38rem .75rem;
   font-size: .95rem;
@@ -56,17 +42,19 @@
 }
 
 /* ——— Panel de cambio de contraseña (vía enlace) ——— */
+/* Ahora usa colores del tema para verse bien en DARK */
 .pwd-panel {
   margin: .25rem 0 1rem;
   padding: .9rem .9rem 1rem;
   border: 1px solid $border;
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
+  color: $text;
 
   legend {
     font-weight: 700;
     padding: 0 .25rem;
-    color: #111;
+    color: $text;     /* antes #111 */
   }
 }
 
@@ -84,15 +72,8 @@
   box-shadow: none;
 }
 
-.modal .row .btn.ghost:hover {
-  background: #e5e7eb;
-}
-
-.modal .row .btn.ghost:active {
-  background: #cbd5e1;
-  transform: translateY(1px);
-}
-
+.modal .row .btn.ghost:hover   { background: #e5e7eb; }
+.modal .row .btn.ghost:active  { background: #cbd5e1; transform: translateY(1px); }
 .modal .row .btn.ghost:focus-visible {
   outline: 2px solid $brand;
   outline-offset: 2px;

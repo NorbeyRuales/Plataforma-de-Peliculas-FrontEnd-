@@ -1,10 +1,7 @@
 @use '../../styles/variables' as *;
 @use 'sass:color';
 
-/* ────────────────────────────────────────────────────────────
-   Layout global (sticky footer): NO anidar dentro de .site-footer
-   Esto hace que el <main> crezca y el footer quede al fondo.
-   ──────────────────────────────────────────────────────────── */
+/* ───── Layout global (sticky footer) ───── */
 :root {
     --app-maxw: min(1200px, 92vw);
 }
@@ -21,24 +18,20 @@ body,
     flex-direction: column;
 }
 
-/* Header y breadcrumbs ocupan su altura natural */
 header,
 .breadcrumbs {
     flex: 0 0 auto;
 }
 
-/* El main ocupa el espacio restante y empuja el footer abajo */
 main {
     flex: 1 0 auto;
     display: block;
 }
 
-/* Footer al final */
 .site-footer {
     flex: 0 0 auto;
 }
 
-/* (Opcional) contenedor central para páginas que no tengan su propio wrapper */
 main>.home,
 main>.page,
 main>section:not(.full-bleed) {
@@ -47,9 +40,6 @@ main>section:not(.full-bleed) {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
 }
-
-/* ──────────────────────────────────────────────────────────── */
-
 
 /* ====== Estilos existentes del footer ====== */
 .site-footer {
@@ -111,16 +101,17 @@ main>section:not(.full-bleed) {
     width: 34px;
     height: 34px;
     border-radius: 999px;
-    background: color.change($text, $alpha: .06);
+    background: color-mix(in srgb, var(--text) 6%, transparent);
     color: $text;
     border: 1px solid $border;
     transition: transform .06s ease, background .15s ease, color .15s ease, border-color .15s ease;
 }
 
 .social a:hover {
-    background: color.change($brand, $alpha: .10);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
     color: $brand;
-    border-color: color.change($brand, $alpha: .35);
+    /* ⬇️ antes: color.change($brand, .35) —> rompe con var() */
+    border-color: color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .social a:active {
@@ -153,7 +144,7 @@ main>section:not(.full-bleed) {
 
 .footer-list a:hover {
     color: $text;
-    background: color.change($text, $alpha: .06);
+    background: color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 /* Bottom bar */
@@ -169,8 +160,10 @@ main>section:not(.full-bleed) {
 }
 
 .to-top {
-    @include btn(color.change($brand, $alpha: .12), $text);
-    border: 1px solid color.change($brand, $alpha: .35);
+    /* ⬇️ antes: @include btn(color.change($brand,.12), $text) */
+    @include btn(color-mix(in srgb, var(--primary) 12%, transparent), $text);
+    /* ⬇️ antes: color.change($brand,.35) */
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
     width: 36px;
     height: 36px;
     padding: 0;

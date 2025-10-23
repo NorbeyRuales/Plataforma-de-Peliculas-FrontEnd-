@@ -15,7 +15,7 @@ declare module 'styled-components' {
       border: string;
       shadow: string;
 
-      // tokens extra (opcionales, típicos de dark)
+      // tokens extra (opcionales)
       primaryHover?: string;
       primaryActive?: string;
 

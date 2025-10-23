@@ -1,17 +1,9 @@
 // src/theme/GlobalStyle.ts
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from 'styled-components'
 
-/**
- * Solo definimos variables cuando el tema es "dark".
- * El tema "light" NO toca nada: tu SCSS existente sigue mandando.
- * AppThemeProvider ya pone data-theme="light|dark" en <html>.
- */
 export const GlobalStyle = createGlobalStyle`
-  /* --------- DARK MODE (aplica solo cuando el switch está activo) --------- */
-  html[data-theme='dark'] {
-    color-scheme: dark;
-
-    /* Tokens base */
+  /* Variables por tema (se activan con <html data-theme="...">) */
+  html[data-theme='light'] {
     --bg: ${({ theme }) => theme.colors.bg};
     --surface: ${({ theme }) => theme.colors.surface};
     --text: ${({ theme }) => theme.colors.text};
@@ -20,28 +12,75 @@ export const GlobalStyle = createGlobalStyle`
     --accent: ${({ theme }) => theme.colors.accent};
     --border: ${({ theme }) => theme.colors.border};
     --shadow: ${({ theme }) => theme.colors.shadow};
+    --card: ${({ theme }) => theme.colors.surface};
 
-    /* (Opcionales) tokens extra de dark si los tienes en el theme */
-    --primaryHover: ${({ theme }) => (theme as any).colors?.primaryHover};
-    --primaryActive: ${({ theme }) => (theme as any).colors?.primaryActive};
-    --successBg: ${({ theme }) => (theme as any).colors?.successBg};
-    --successBorder: ${({ theme }) => (theme as any).colors?.successBorder};
-    --warningBg: ${({ theme }) => (theme as any).colors?.warningBg};
-    --warningBorder: ${({ theme }) => (theme as any).colors?.warningBorder};
-    --dangerBg: ${({ theme }) => (theme as any).colors?.dangerBg};
-    --dangerBorder: ${({ theme }) => (theme as any).colors?.dangerBorder};
-    --infoBg: ${({ theme }) => (theme as any).colors?.infoBg};
-    --infoBorder: ${({ theme }) => (theme as any).colors?.infoBorder};
+    --success: ${({ theme }) => theme.colors.success ?? '#009d5a'};
+    --warning: ${({ theme }) => theme.colors.warning ?? '#ffb300'};
+    --danger:  ${({ theme }) => theme.colors.danger ?? '#d93025'};
+    --info:    ${({ theme }) => theme.colors.info ?? '#007bff'};
   }
 
-  /* Fondo/Texto globales: solo forzamos cuando es dark */
-  html[data-theme='dark'],
-  html[data-theme='dark'] body,
-  html[data-theme='dark'] #root {
-    background: var(--bg);
+  html[data-theme='dark'] {
+    color-scheme: dark;
+    --bg: ${({ theme }) => theme.colors.bg};
+    --surface: ${({ theme }) => theme.colors.surface};
+    --text: ${({ theme }) => theme.colors.text};
+    --mutedText: ${({ theme }) => theme.colors.mutedText};
+    --primary: ${({ theme }) => theme.colors.primary};
+    --accent: ${({ theme }) => theme.colors.accent};
+    --border: ${({ theme }) => theme.colors.border};
+    --shadow: ${({ theme }) => theme.colors.shadow};
+    --card: ${({ theme }) => theme.colors.surface};
+
+    --success: ${({ theme }) => theme.colors.success ?? '#4cc38a'};
+    --warning: ${({ theme }) => theme.colors.warning ?? '#e6b800'};
+    --danger:  ${({ theme }) => theme.colors.danger ?? '#ff5c5c'};
+    --info:    ${({ theme }) => theme.colors.info ?? '#3399ff'};
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+  }
+
+  html, body, #root { height: 100%; }
+
+  html, body, #root {
+    background-color: var(--bg) !important;
     color: var(--text);
   }
 
-  /* Reset general que no cambia tu paleta de light */
-  * { box-sizing: border-box; }
-`;
+  body {
+    margin: 0;
+    font-family: 'Poppins','Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,h2,h3,h4,h5,h6 { color: var(--text); margin: 0; font-weight: 600; }
+  p,span,li,small { color: var(--mutedText); }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { color: var(--accent); }
+
+  input, select, textarea, button {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  ::selection { background: var(--primary); color: #fff; }
+
+  img, video { max-width: 100%; height: auto; }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.3rem; }
+  }
+`
