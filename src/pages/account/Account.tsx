@@ -1,3 +1,4 @@
+// src/pages/account/Account.tsx
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './Account.scss'
@@ -7,33 +8,39 @@ import { Auth } from '../../services/auth'
 type Profile = {
   id: string
   name: string
-  birthdate: string   // yyyy-mm-dd
+  age: number | undefined
   email: string
 }
 
 type Errors = Partial<Record<keyof Profile, string>>
 
-function pick(...vals: Array<string | undefined | null>) {
+function pickStr(...vals: Array<string | undefined | null>) {
   for (const v of vals) if (typeof v === 'string' && v.trim() !== '') return v
   return ''
 }
 
-function formatDateForInput(v?: string | null) {
-  if (!v) return ''
-  const s = String(v)
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
-  const beforeT = s.split('T')[0]
-  if (/^\d{4}-\d{2}-\d{2}$/.test(beforeT)) return beforeT
-  const d = new Date(s)
-  if (isNaN(d.getTime())) return ''
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${dd}`
+function toNum(v: unknown): number | undefined {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : undefined
 }
 
-const MIN_DATE = '1900-01-01'
-const TODAY = new Date().toISOString().split('T')[0]
+function calcAgeFromBirthdate(dateISO?: string | null): number | undefined {
+  if (!dateISO) return undefined
+  const s = String(dateISO)
+  const ymd = /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : s.split('T')[0]
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return undefined
+  const [y, m, d] = ymd.split('-').map(Number)
+  const birth = new Date(y, m - 1, d)
+  if (Number.isNaN(birth.getTime())) return undefined
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const mDiff = today.getMonth() - birth.getMonth()
+  if (mDiff < 0 || (mDiff === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
+const AGE_MIN = 13
+const AGE_MAX = 120
 
 export default function Account() {
   const [params] = useSearchParams()
@@ -88,13 +95,17 @@ export default function Account() {
 
         const pObj: any = (fromDb && 'profile' in fromDb) ? fromDb.profile : fromDb
 
+        // edad: primero DB (age/edad), si no, intenta derivar de birthdate si existe
+        const ageFromDb = toNum(pObj?.age ?? pObj?.edad)
+        const ageFromMeta = calcAgeFromBirthdate(
+          pObj?.birthdate ?? pObj?.birth_date ?? pObj?.dob ?? me?.user?.user_metadata?.birthdate
+        )
+
         const p: Profile = {
           id,
-          email: pick(pObj?.email, email),
-          name: pick(pObj?.name, me?.user?.user_metadata?.name),
-          birthdate: formatDateForInput(
-            pick(pObj?.birthdate, pObj?.birth_date, pObj?.dob, me?.user?.user_metadata?.birthdate)
-          ),
+          email: pickStr(pObj?.email, email),
+          name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
+          age: ageFromDb ?? ageFromMeta,
         }
 
         setProfile(p)
@@ -119,7 +130,7 @@ export default function Account() {
     if (!profile || !form) return false
     return (
       profile.name !== form.name ||
-      profile.birthdate !== form.birthdate ||
+      profile.age !== form.age ||
       profile.email !== form.email
     )
   }, [form, profile])
@@ -139,8 +150,11 @@ export default function Account() {
     const e: Errors = {}
     if (!f.name || f.name.trim().length < 2) e.name = 'Escribe tu nombre (min. 2 caracteres).'
     if (!/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Correo inválido.'
-    if (!f.birthdate) e.birthdate = 'Selecciona tu fecha.'
-    else if (f.birthdate < MIN_DATE || f.birthdate > TODAY) e.birthdate = 'Fecha fuera de rango.'
+    if (f.age === undefined || f.age === null || Number.isNaN(f.age)) {
+      e.age = 'Escribe tu edad.'
+    } else if (f.age < AGE_MIN || f.age > AGE_MAX) {
+      e.age = `La edad debe estar entre ${AGE_MIN} y ${AGE_MAX}.`
+    }
     return e
   }
 
@@ -153,9 +167,35 @@ export default function Account() {
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target
-    const v = name === 'birthdate' ? formatDateForInput(value) : value
-    setForm(f => f ? { ...f, [name]: v } : f)
-    if (form) setErrors(validate({ ...form, [name]: v } as Profile))
+
+    // Solo tratamiento especial para `age`
+    const v =
+      name === 'age'
+        ? (() => {
+            if (value === '') return undefined
+            // Sanear: quitar no-dígitos, limitar a 3 chars (max 120)
+            const digits = value.replace(/[^\d]/g, '').slice(0, 3)
+            if (digits === '') return undefined
+            const n = Math.trunc(Number(digits))
+            return Number.isFinite(n) ? n : undefined
+          })()
+        : value
+
+    setForm(f => f ? { ...f, [name]: v } as Profile : f)
+    if (form) setErrors(validate({ ...(form as Profile), [name]: v } as Profile))
+  }
+
+  // Al salir del input, forzar al rango si hay valor
+  function onAgeBlur() {
+    setForm(f => {
+      if (!f) return f
+      if (f.age === undefined || f.age === null || Number.isNaN(f.age)) return f
+      const clamped = Math.max(AGE_MIN, Math.min(AGE_MAX, Math.trunc(f.age)))
+      if (clamped === f.age) return f
+      const next = { ...f, age: clamped }
+      setErrors(validate(next))
+      return next
+    })
   }
 
   async function onSave(e?: React.FormEvent) {
@@ -170,7 +210,7 @@ export default function Account() {
     try {
       await api.put(`/users/${profile.id}`, {
         name: form.name,
-        birthdate: formatDateForInput(form.birthdate),
+        age: form.age ?? null,   // ⬅️ se envía como number o null
         email: form.email,
       })
       setProfile(form)
@@ -246,20 +286,24 @@ export default function Account() {
         </label>
 
         <label className='field'>
-          <span className='field__label'>Fecha de nacimiento</span>
+          <span className='field__label'>Edad</span>
           <input
-            name='birthdate'
-            placeholder='Fecha de nacimiento'
-            type='date'
-            value={form.birthdate}
+            name='age'
+            placeholder='Edad'
+            type='number'
+            inputMode='numeric'
+            step={1}
+            min={AGE_MIN}
+            max={AGE_MAX}
+            value={form.age ?? ''}
             onChange={onChange}
+            onBlur={onAgeBlur}
             disabled={!editing}
-            min={MIN_DATE}
-            max={TODAY}
-            aria-invalid={!!errors.birthdate || undefined}
-            aria-describedby={errors.birthdate ? 'err_birth' : undefined}
+            aria-invalid={!!errors.age || undefined}
+            aria-describedby={errors.age ? 'err_age' : undefined}
           />
-          {errors.birthdate && <small id='err_birth' className='field__error'>{errors.birthdate}</small>}
+          {errors.age && <small id='err_age' className='field__error'>{errors.age}</small>}
+          <small className='field__hint italic'>Debes tener al menos {AGE_MIN} años.</small>
         </label>
 
         <label className='field'>

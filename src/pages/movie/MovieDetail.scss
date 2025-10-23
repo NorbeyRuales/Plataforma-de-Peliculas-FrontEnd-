@@ -10,106 +10,181 @@
     @media (max-width: 900px) {
         grid-template-columns: 1fr;
     }
-}
 
-/* poster */
-.movie-detail .poster {
-    width: 100%;
-    aspect-ratio: 2/3;
-    border-radius: $radius;
-    overflow: hidden;
-    background: color-mix(in srgb, var(--primary) 6%, transparent);
-    box-shadow: $shadow;
-}
-
-/* panel/info */
-.movie-detail .panel {
-    background: $card;
-    border: 1px solid $border;
-    border-radius: $radius;
-    box-shadow: $shadow;
-    padding: 1rem 1.25rem;
-}
-
-.movie-detail .title {
-    margin: 0 0 .25rem;
-    font-size: clamp(1.3rem, 1rem + 1vw, 1.8rem);
-}
-
-.movie-detail .sub {
-    color: $muted;
-    margin-bottom: .75rem;
-}
-
-.movie-detail .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    margin: .5rem 0 1rem;
-
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-        padding: .25rem .55rem;
-        border-radius: 999px;
-        background: color-mix(in srgb, #6b7280 10%, transparent);
-        border: 1px solid color.change($slate, $alpha: .18);
-        color: $text;
-        font-size: .85rem;
+    /* ---------- poster ---------- */
+    .poster {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        border-radius: $radius;
+        overflow: hidden;
+        /* mezcla suave con el color primario (fallback a color.change para compat) */
+        background: color-mix(in srgb, var(--primary) 6%, transparent);
+        box-shadow: $shadow;
     }
-}
 
-.movie-detail .actions {
-    display: flex;
-    gap: .5rem;
-    flex-wrap: wrap;
-    margin: .75rem 0 1rem;
-}
+    /* ---------- panel/info ---------- */
+    .panel {
+        background: $card;
+        border: 1px solid $border;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        padding: 1rem 1.25rem;
+    }
 
-.movie-detail .play {
-    @include btn($brand, #fff);
-}
+    .title {
+        margin: 0 0 .25rem;
+        font-size: clamp(1.3rem, 1rem + 1vw, 1.8rem);
+    }
 
-.movie-detail .fav {
-    @include btn($secondary, #111);
-}
+    .sub {
+        color: $muted;
+        margin-bottom: .75rem;
+    }
 
-/* reproductor (si lo usas) */
-.movie-detail .player {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    margin: 1rem 0;
-}
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        margin: .5rem 0 1rem;
 
-.movie-detail .player button {
-    font-size: 1.1rem;
-    border: 1px solid $border;
-    background: $card;
-    color: $text;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    box-shadow: $shadow;
-}
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .25rem .55rem;
+            border-radius: 999px;
+            background: color-mix(in srgb, #6b7280 10%, transparent);
+            border: 1px solid color.change($slate, $alpha: .18);
+            color: $text;
+            font-size: .85rem;
+        }
+    }
 
-.progress-track {
-    height: 6px;
-    background: color.change($slate, $alpha: .15);
-    border-radius: 999px;
-    position: relative;
-}
+    .actions {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin: .75rem 0 1rem;
+    }
 
-.progress-thumb {
-    height: 100%;
-    background: $brand;
-    border-radius: 999px;
-}
+    .play {
+        @include btn($brand, #fff);
+    }
 
-.progress-controls {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin: .75rem 0 1rem;
+    .fav {
+        @include btn($secondary, #111);
+    }
+
+    /* ---------- reproductor / video ---------- */
+    .player {
+        display: flex;
+        flex-direction: column;
+        /* de la segunda versión */
+        gap: 1rem;
+        margin: 1rem 0;
+
+        video {
+            width: 100%;
+            max-width: 100%;
+            border-radius: $radius;
+            object-fit: cover;
+            background: $card;
+            /* mientras carga */
+        }
+
+        .player-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+
+            button {
+                font-size: 1.1rem;
+                border: 1px solid $border;
+                background: $card;
+                color: $text;
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                box-shadow: $shadow;
+                cursor: pointer;
+
+                &:hover {
+                    filter: brightness(1.1);
+                }
+
+                &.play {
+                    background: $brand;
+                    color: #fff;
+                }
+
+                &.fav {
+                    background: $secondary;
+                    color: #111;
+                }
+            }
+        }
+    }
+
+    .progress-track {
+        height: 6px;
+        background: color.change($slate, $alpha: .15);
+        border-radius: 999px;
+        position: relative;
+    }
+
+    .progress-thumb {
+        height: 100%;
+        background: $brand;
+        border-radius: 999px;
+    }
+
+    .progress-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: .75rem 0 1rem;
+    }
+
+    /* ---------- barra superior del detalle ---------- */
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .25rem;
+
+        .back {
+            @include btn(#f3f4f6, #111);
+            border: 1px solid $border;
+            border-radius: 999px;
+            padding: .25rem .6rem;
+            line-height: 1;
+        }
+    }
+
+    /* ---------- descripción (textarea) ---------- */
+    .description {
+        width: 100%;
+        border: 1px solid $border;
+        border-radius: 8px;
+        padding: .75rem;
+        background: #fff;
+        color: #111;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .description {
+            background: $card;
+            color: $text;
+        }
+    }
+
+    /* responsive extra */
+    @media (max-width: 900px) {
+
+        .player video,
+        .poster {
+            width: 100%;
+        }
+    }
 }

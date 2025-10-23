@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import './Register.scss'
 import { Auth } from '../../services/auth'
 
+const AGE_MIN = 13
+const AGE_MAX = 120
+
 export default function Register() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
-  const [dob, setDob] = useState('')
+  const [age, setAge] = useState<number | ''>('')       // ← antes: dob
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -21,6 +24,7 @@ export default function Register() {
   const [error, setError] = useState<string | undefined>()
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
+  const ageRef = useRef<HTMLInputElement>(null)         // ← para focus en errores
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
@@ -87,9 +91,11 @@ export default function Register() {
   const confirmHintClass =
     'field__hint ' + (!password2 ? '' : (same ? 'field__hint--ok' : 'field__hint--bad'))
 
+  const ageOk = age !== '' && Number(age) >= AGE_MIN && Number(age) <= AGE_MAX
+
   const canSubmit =
     !!name.trim() &&
-    !!dob &&
+    ageOk &&
     emailOk &&
     !validatePassword(password) &&
     same &&
@@ -97,6 +103,7 @@ export default function Register() {
 
   function validate(): boolean {
     if (!name.trim()) { setError('Escribe tu nombre.'); nameRef.current?.focus(); return false }
+    if (!ageOk) { setError(`La edad debe estar entre ${AGE_MIN} y ${AGE_MAX}.`); ageRef.current?.focus(); return false }
     if (!emailOk) { setError('El correo no es válido.'); emailRef.current?.focus(); return false }
     if (pwdError) { setError(pwdError); pwdRef.current?.focus(); return false }
     if (!same) { setError('Las contraseñas no coinciden.'); pwd2Ref.current?.focus(); return false }
@@ -110,7 +117,13 @@ export default function Register() {
     setLoading(true)
     try {
       // usa la sugerencia si el usuario aún tiene el dominio mal escrito
-      await Auth.signup(name, emailSuggestion || email, password, password2, dob)
+      await Auth.signup(
+        name,
+        emailSuggestion || email,
+        password,
+        password2,
+        typeof age === 'number' ? age : Number(age)     
+      )
       navigate('/login')
     } catch (err: any) {
       const fieldErrors = err?.response?.data?.error?.fieldErrors || {}
@@ -147,17 +160,24 @@ export default function Register() {
           />
         </label>
 
+        {/* ← Cambiado: Fecha de nacimiento → Edad */}
         <label className='field'>
-          <span className='field__label'>Fecha de nacimiento</span>
+          <span className='field__label'>Edad</span>
           <input
-            placeholder='Fecha de nacimiento'
-            type='date'
+            ref={ageRef}
+            placeholder='Edad'
+            type='number'
+            inputMode='numeric'
             required
-            autoComplete='bday'
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
+            min={AGE_MIN}
+            max={AGE_MAX}
+            value={age === '' ? '' : age}
+            onChange={(e) => {
+              const v = e.target.value
+              setAge(v === '' ? '' : Math.max(0, Math.trunc(Number(v))))
+            }}
           />
-          <small className='field__hint'>Formato: AAAA-MM-DD</small>
+          <small className='field__hint italic'>Digita tú edad</small>
         </label>
 
         <label className='field'>
