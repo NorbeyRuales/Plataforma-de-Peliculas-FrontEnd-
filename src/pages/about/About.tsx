@@ -1,159 +1,201 @@
 // src/pages/about/About.tsx
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import FlipCard from '../../components/team/FlipCard'
 import './About.scss'
 
 type TeamMate = {
   name: string
   role: string
-  avatar?: string // url opcional
-  bio?: string
-  links?: { label: string; href: string }[]
+  avatar?: string
+  iconUrl?: string
+  backText?: string   // texto en la cara trasera (si no, usa role)
 }
 
 const TEAM: TeamMate[] = [
-  { name: 'Diego', role: 'Frontend', avatar: '/brand/placeholder-poster.png' },
-  { name: 'Yoel', role: 'Backend', avatar: '/brand/placeholder-poster.png' },
-  { name: 'Cristian', role: 'UI/UX', avatar: '/brand/placeholder-poster.png' },
-  { name: 'Dully', role: 'QA/Soporte', avatar: '/brand/placeholder-poster.png' },
+  { name: 'Joel',     role: 'Backend',       avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/tsnode.svg',  backText: 'Joel: Responsable del Backend (TypeScript)' },
+  { name: 'Norbey',   role: 'Frontend',      avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/vite.svg',     backText: 'Norbey: Responsable del Frontend (Vite)' },
+  { name: 'Diego',    role: 'QA',            avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/testin.svg',  backText: 'Diego: Encargado de QA / Testing' },
+  { name: 'Cristian', role: 'Product Owner', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/trello.svg',   backText: 'Cristian: Product Owner' },
 ]
 
 export default function About() {
-  // Enlaza navegación interna con desplazamiento suave
+  // desplazamiento suave en anclas (#intro, #team, etc.)
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const el = e.target as HTMLElement
-      const a = el.closest('a[href^="#"]') as HTMLAnchorElement | null
-      if (!a) return
-      const id = a.getAttribute('href')!.slice(1)
-      const target = document.getElementById(id)
-      if (target) {
-        e.preventDefault()
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        // manejo de foco accesible
-        target.focus({ preventScroll: true })
-      }
+    const onClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null
+      if (!target) return
+      const id = target.getAttribute('href')!.slice(1)
+      const el = document.getElementById(id)
+      if (!el) return
+      e.preventDefault()
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      el.focus({ preventScroll: true })
     }
-    document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
   }, [])
 
   return (
-    <section className="about">
-      {/* Hero */}
-      <header className="about-hero">
-        <img src="/brand/pyra.svg" alt="PYRA" className="about-logo" />
-        <div className="about-hero-text">
-          <h1>Sobre nosotros</h1>
-          <p>
-            En <strong>PYRA</strong> creemos que ver películas debe ser simple, rápido y agradable.
-            Construimos una plataforma ligera y honesta: sin enredos, centrada en las personas.
+    <section className="about-page">
+      {/* HERO */}
+      <header className="about-hero" aria-labelledby="about-title">
+        <div className="hero-media" aria-hidden="true">
+          <img src="/brand/pyra.svg" alt="" className="hero-logo" />
+        </div>
+
+        <div className="hero-copy">
+          <p className="eyebrow">Desde 2024 · Plataforma de cine</p>
+          <h1 id="about-title">Tu próxima película, sin vueltas</h1>
+          <p className="lead">
+            En <strong>PYRA</strong> reunimos estrenos, clásicos y joyas ocultas en una
+            experiencia rápida y clara. Explora, guarda y decide en menos de <b>30&nbsp;segundos</b>.
           </p>
-          <nav className="about-quick">
-            {/* Botones como en tu Figma */}
+
+          <nav className="quick-links" aria-label="Secciones de esta página">
             <a href="#intro" className="chip">Introducción</a>
-            <a href="#origin" className="chip">Cómo nació la idea</a>
-            <a href="#offer" className="chip">¿Qué ofrecemos?</a>
-            <a href="#team" className="chip">Equipo de trabajo</a>
+            <a href="#principles" className="chip">Principios</a>
+            <a href="#origin" className="chip">Historia</a>
+            <a href="#offer" className="chip">Qué ofrecemos</a>
+            <a href="#team" className="chip">Equipo</a>
           </nav>
         </div>
 
-        {/* Back minimal (opcional, ya tienes Header) */}
         <Link to="/" className="about-back" aria-label="Volver al inicio">←</Link>
       </header>
 
-      {/* Introducción */}
+      {/* MÉTRICAS / HIGHLIGHTS */}
+      <section className="metrics" aria-label="Indicadores principales">
+        <article className="kpi">
+          <div className="num">+10k</div>
+          <div className="lbl">Títulos en catálogo</div>
+        </article>
+        <article className="kpi">
+          <div className="num">~22 s</div>
+          <div className="lbl">Tiempo promedio para decidir</div>
+        </article>
+        <article className="kpi">
+          <div className="num">99.9%</div>
+          <div className="lbl">Disponibilidad del servicio</div>
+        </article>
+      </section>
+
+      {/* INTRO */}
       <section id="intro" className="about-section" tabIndex={-1}>
         <h2>Introducción</h2>
         <p>
-          PYRA es un proyecto académico convertido en producto: una plataforma web de
-          catálogo y exploración de películas con foco en <em>rendimiento</em>, <em>accesibilidad</em>
-          y <em>experiencia</em>. Nuestro objetivo: que encuentres algo para ver en menos de 30 segundos.
+          PYRA te ayuda a descubrir qué ver hoy. Recomendaciones honestas,
+          filtros útiles y una navegación que no estorba. El plan: sentarte y disfrutar.
         </p>
         <ul className="bullets">
-          <li>Interfaz clara y consistente (mismo patrón de tarjetas y navegación).</li>
-          <li>Accesible por teclado, contrastes revisados y avisos comprensibles.</li>
-          <li>Arquitectura simple: menos fricción, más velocidad.</li>
+          <li>Catálogo curado por temas, estados de ánimo y géneros.</li>
+          <li>Listas personales y recordatorios para seguir donde quedaste.</li>
+          <li>Interfaz accesible, rápida y consistente en todos tus dispositivos.</li>
         </ul>
       </section>
 
-      {/* Origen / timeline breve */}
+      {/* PRINCIPIOS DE DISEÑO */}
+      <section id="principles" className="about-section" tabIndex={-1}>
+        <h2>Principios de diseño</h2>
+        <div className="principles">
+          <article>
+            <h3>Menos clics</h3>
+            <p>Encuentra lo que buscas con filtros claros y búsqueda inteligente.</p>
+          </article>
+          <article>
+            <h3>Accesible por defecto</h3>
+            <p>Contrastes reales, foco visible, soporte de teclado y lector de pantalla.</p>
+          </article>
+          <article>
+            <h3>Velocidad que se siente</h3>
+            <p>Cargas progresivas y prefetch para que la app se sienta instantánea.</p>
+          </article>
+        </div>
+      </section>
+
+      {/* HISTORIA / TIMELINE */}
       <section id="origin" className="about-section" tabIndex={-1}>
-        <h2>Cómo nació la idea</h2>
+        <h2>Nuestra historia</h2>
         <div className="timeline">
           <div className="t-item">
             <span className="t-dot" aria-hidden />
             <div>
-              <h3>El problema</h3>
-              <p>Perder tiempo entre catálogos y menús complejos. Queríamos algo directo.</p>
+              <h3>El dolor</h3>
+              <p>Demasiadas opciones, demasiado tiempo para elegir. Queríamos algo directo.</p>
             </div>
           </div>
           <div className="t-item">
             <span className="t-dot" aria-hidden />
             <div>
-              <h3>El enfoque</h3>
-              <p>Diseño minimal, búsqueda y filtros útiles, y rutas claras (migajas de pan incluidas).</p>
+              <h3>La solución</h3>
+              <p>Diseño minimal, reseñas cortas y señales visuales que guían la elección.</p>
             </div>
           </div>
           <div className="t-item">
             <span className="t-dot" aria-hidden />
             <div>
               <h3>Hoy</h3>
-              <p>PYRA crece con feedback real de usuarios y mejoras continuas en rendimiento.</p>
+              <p>Seguimos creciendo con feedback de la comunidad y datos de uso reales.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Oferta / value props */}
+      {/* QUÉ OFRECEMOS */}
       <section id="offer" className="about-section" tabIndex={-1}>
         <h2>¿Qué ofrecemos?</h2>
         <div className="features">
           <article className="card">
-            <h3>Navegación clara</h3>
-            <p>Rutas predecibles, estado visible y accesos directos a lo importante.</p>
+            <h3>Descubrimiento inteligente</h3>
+            <p>Recomendaciones por estado de ánimo, duración y plataformas donde ver.</p>
           </article>
           <article className="card">
-            <h3>Rendimiento</h3>
-            <p>Carga rápida, recursos livianos y caché donde aporta valor.</p>
+            <h3>Perfiles y listas</h3>
+            <p>Guarda favoritos, crea colecciones y compártelas con tus amigos.</p>
           </article>
           <article className="card">
-            <h3>Accesibilidad</h3>
-            <p>Atajos, foco visible, textos entendibles y soporte a lector de pantalla.</p>
+            <h3>Ficha clara</h3>
+            <p>Tráiler, reparto, puntuación y críticas en un diseño limpio y legible.</p>
           </article>
           <article className="card">
-            <h3>Transparencia</h3>
-            <p>Sin sorpresas: mensajes claros ante errores y controles comprensibles.</p>
+            <h3>Sin ruido</h3>
+            <p>Interfaz sin banners invasivos ni pasos innecesarios. Solo cine.</p>
           </article>
         </div>
       </section>
 
-      {/* Equipo */}
-      <section id="team" className="about-section" tabIndex={-1}>
-        <h2>Equipo de trabajo</h2>
-        <ul className="team" role="list">
-          {TEAM.map((t) => (
-            <li key={t.name} className="member">
-              <img
-                src={t.avatar}
-                alt={`Foto de ${t.name}`}
-                loading="lazy"
-                width={96}
-                height={96}
-              />
-              <div className="m-info">
-                <strong className="m-name">{t.name}</strong>
-                <span className="m-role">{t.role}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {/* CITA / MISIÓN */}
+      <section className="about-quote" aria-label="Nuestra misión">
+        <blockquote>
+          “Elegir una película debería tomar menos tiempo que hacer palomitas.”
+        </blockquote>
+        <cite>Equipo PYRA</cite>
       </section>
 
-      {/* CTA suave */}
+      {/* EQUIPO (se mantiene tu grilla de FlipCards) */}
+      <section id="team" className="about-section" tabIndex={-1}>
+        <h2>Equipo de trabajo</h2>
+        <div className="team-grid">
+          {TEAM.map((t) => (
+            <FlipCard
+              key={t.name}
+              name={t.name}
+              role={t.role}
+              avatarUrl={t.avatar}
+              iconUrl={t.iconUrl}
+              backText={t.backText}
+              accentA="#f4ecda"
+              accentB="#89b4fa"
+              accentC="#6ea4ff"
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
       <footer className="about-cta">
-        <p>¿Sugerencias o ideas? Nos encanta escuchar a quienes usan PYRA.</p>
-        <Link to="/account" className="btn">Escríbenos por tu cuenta</Link>
+        <p>¿Tienes una idea, una lista épica o encontraste un bug?</p>
+        <Link to="/account" className="btn">Escríbenos desde tu cuenta</Link>
       </footer>
     </section>
   )

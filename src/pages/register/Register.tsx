@@ -209,18 +209,17 @@ export default function Register() {
               className='pwd-toggle'
               aria-pressed={showPwd1}
               aria-label={showPwd1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              onClick={() => setShowPwd1((s) => !s)}
+              onClick={() => setShowPwd1(!showPwd1)}
             >
               {showPwd1 ? (
-                // 👁️ visible
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="none" stroke="currentColor" strokeWidth="2"
-                    d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
-                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
                 </svg>
               ) : (
-                // 🙈 oculta
-                <span className="icon" role="img" aria-hidden="true">🙈</span>
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                </svg>
               )}
               <span className='sr-only'>{showPwd1 ? 'Ocultar' : 'Mostrar'}</span>
             </button>
@@ -254,18 +253,17 @@ export default function Register() {
               className='pwd-toggle'
               aria-pressed={showPwd2}
               aria-label={showPwd2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              onClick={() => setShowPwd2((s) => !s)}
+              onClick={() => setShowPwd2(!showPwd2)}
             >
               {showPwd2 ? (
-                // 👁️ visible
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="none" stroke="currentColor" strokeWidth="2"
-                    d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
-                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
                 </svg>
               ) : (
-                // 🙈 oculta
-                <span className="icon" role="img" aria-hidden="true">🙈</span>
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                </svg>
               )}
               <span className='sr-only'>{showPwd2 ? 'Ocultar' : 'Mostrar'}</span>
             </button>
