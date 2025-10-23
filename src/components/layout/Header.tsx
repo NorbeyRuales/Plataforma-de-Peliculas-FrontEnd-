@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState, useEffect } from 'react'
+import Switch from '../../components/Switch/Switch'
 import './Header.scss'
 
 export default function Header() {
@@ -45,7 +46,6 @@ export default function Header() {
             aria-controls="primary-navigation"
             onClick={() => setMenuOpen(o => !o)}
           >
-            {/* icono hamburguesa / close */}
             {menuOpen ? (
               <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
@@ -87,6 +87,11 @@ export default function Header() {
             <button type='button' className='logout-btn' onClick={onLogout} aria-label='Cerrar sesión'>
               Salir
             </button>
+
+            {/* Switch a la DERECHA del botón Salir, tamaño compacto */}
+            <div className='theme-toggle'>
+              <Switch size={12} />
+            </div>
           </div>
         </div>
       </header>

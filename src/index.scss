@@ -1,5 +1,6 @@
 @use './styles/_variables.scss' as *;
 
+
 :root {
     color-scheme: light;
 }
@@ -133,3 +134,62 @@ a:hover {
     color: $muted;
     background: transparent;
 }
+
+
+/* =========================
+   Overrides DARK en runtime
+   ========================= */
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Fondo y texto global */
+  body, #root { background: var(--bg); color: var(--text); }
+
+  /* Links */
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+
+  /* Header / navbar genérico (si tienes esas clases en SCSS de header, esto las gana) */
+  .site-header { background: var(--bg); border-bottom: 1px solid var(--border); }
+  .nav-links a { color: var(--text); }
+  .nav-links a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-links a.active {
+    color: #fff;
+    /* si tu build no soporta color-mix, descomenta la línea de fallback */
+    /* background: var(--accent); */
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent) inset;
+  }
+
+  /* Inputs */
+  .search__input,
+  input, select, textarea {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  ::placeholder { color: var(--mutedText); }
+
+  /* Tarjetas / paneles (ajusta a tus clases reales) */
+  .card, .panel, .box, .movie-card {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 24px var(--shadow);
+  }
+
+  /* Botones globales */
+  .btn { color: var(--text); border: 1px solid var(--border); }
+  .btn.primary { background: var(--primary); color: #fff; border-color: color-mix(in srgb, var(--primary) 40%, transparent); }
+  .btn.success { background: var(--success, #22C55E); color: #0b0b0f; }
+  .btn.danger  { background: var(--danger,  #F87171); color: #fff; }
+  .btn.ghost   { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+  /* Footer */
+  .site-footer {
+    background: var(--bg);
+    color: var(--mutedText);
+    border-top: 1px solid var(--border);
+  }
+}
+

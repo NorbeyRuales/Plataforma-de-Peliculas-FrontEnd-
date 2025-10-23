@@ -190,6 +190,10 @@
 .field__hint {
   font-size: .8rem;
   color: $muted;
+  
+  &.italic {
+    font-style: italic;
+  }
 }
 
 .field__hint--ok {

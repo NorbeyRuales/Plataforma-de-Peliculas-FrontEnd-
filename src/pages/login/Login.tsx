@@ -71,7 +71,7 @@ export default function Login() {
             aria-describedby='login_email_hint'
             aria-invalid={error?.toLowerCase().includes('correo') ? true : undefined}
           />
-          <small id='login_email_hint' className='field__hint'>Usa el correo con el que te registraste.</small>
+          <small id='login_email_hint' className='field__hint italic'>Usa el correo con el que te registraste.</small>
         </label>
 
         <label className='field'>
@@ -111,7 +111,7 @@ export default function Login() {
               <span className="sr-only">{showPwd ? 'Ocultar' : 'Mostrar'}</span>
             </button>
           </div>
-          <small id='login_pwd_hint' className='field__hint'>
+          <small id='login_pwd_hint' className='field__hint italic'>
             {caps ? 'Tienes Bloq Mayús activado.' : 'Es sensible a mayúsculas.'}
           </small>
         </label>
