@@ -11,18 +11,15 @@
         grid-template-columns: 1fr;
     }
 
-    /* ---------- poster ---------- */
     .poster {
         width: 100%;
-        aspect-ratio: 2 / 3;
+        aspect-ratio: 2/3;
         border-radius: $radius;
         overflow: hidden;
-        /* mezcla suave con el color primario (fallback a color.change para compat) */
         background: color-mix(in srgb, var(--primary) 6%, transparent);
         box-shadow: $shadow;
     }
 
-    /* ---------- panel/info ---------- */
     .panel {
         background: $card;
         border: 1px solid $border;
@@ -75,11 +72,11 @@
         @include btn($secondary, #111);
     }
 
-    /* ---------- reproductor / video ---------- */
+    /* Reproductor / video */
     .player {
+        position: relative;
         display: flex;
         flex-direction: column;
-        /* de la segunda versión */
         gap: 1rem;
         margin: 1rem 0;
 
@@ -89,80 +86,84 @@
             border-radius: $radius;
             object-fit: cover;
             background: $card;
-            /* mientras carga */
         }
 
-        .player-controls {
+        .toolbar {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: .75rem;
             flex-wrap: wrap;
 
-            button {
-                font-size: 1.1rem;
+            .group {
+                display: inline-flex;
+                gap: .5rem;
+                flex-wrap: wrap;
+            }
+
+            .spacer {
+                flex: 1 1 auto;
+            }
+
+            .ctrl {
                 border: 1px solid $border;
                 background: $card;
                 color: $text;
-                border-radius: 50%;
-                width: 44px;
-                height: 44px;
+                border-radius: 999px;
+                padding: .45rem .7rem;
+                line-height: 1;
                 box-shadow: $shadow;
                 cursor: pointer;
+                font-size: .95rem;
 
                 &:hover {
-                    filter: brightness(1.1);
+                    filter: brightness(1.05);
                 }
 
-                &.play {
-                    background: $brand;
-                    color: #fff;
+                &[disabled] {
+                    opacity: .5;
+                    cursor: not-allowed;
                 }
 
-                &.fav {
-                    background: $secondary;
-                    color: #111;
+                &[aria-pressed="true"] {
+                    background: color-mix(in srgb, var(--primary, #2266ff) 12%, transparent);
+                    border-color: color-mix(in srgb, var(--primary, #2266ff) 40%, transparent);
                 }
+            }
+
+            .volume {
+                display: inline-flex;
+                align-items: center;
+                gap: .4rem;
+
+                .range {
+                    width: 120px;
+                    accent-color: var(--primary, #2266ff);
+                }
+            }
+
+            .rate {
+                display: inline-flex;
+                align-items: center;
+
+                select {
+                    border: 1px solid $border;
+                    background: $card;
+                    color: $text;
+                    border-radius: 8px;
+                    padding: .25rem .4rem;
+                }
+            }
+        }
+
+        .actions--video {
+            justify-content: center;
+
+            .btn.primary {
+                min-width: 280px;
             }
         }
     }
 
-    .progress-track {
-        height: 6px;
-        background: color.change($slate, $alpha: .15);
-        border-radius: 999px;
-        position: relative;
-    }
-
-    .progress-thumb {
-        height: 100%;
-        background: $brand;
-        border-radius: 999px;
-    }
-
-    .progress-controls {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin: .75rem 0 1rem;
-    }
-
-    /* ---------- barra superior del detalle ---------- */
-    .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .75rem;
-        margin-bottom: .25rem;
-
-        .back {
-            @include btn(#f3f4f6, #111);
-            border: 1px solid $border;
-            border-radius: 999px;
-            padding: .25rem .6rem;
-            line-height: 1;
-        }
-    }
-
-    /* ---------- descripción (textarea) ---------- */
     .description {
         width: 100%;
         border: 1px solid $border;
@@ -170,6 +171,8 @@
         padding: .75rem;
         background: #fff;
         color: #111;
+        resize: none; 
+        overflow: auto;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -179,7 +182,10 @@
         }
     }
 
-    /* responsive extra */
+    .btn.primary.is-active {
+        background: color-mix(in srgb, var(--primary, #2266ff) 70%, #000 30%);
+    }
+
     @media (max-width: 900px) {
 
         .player video,
@@ -188,3 +194,28 @@
         }
     }
 }
+
+/* Variante “single” para centrar título y panel */
+.movie-detail--single {
+    display: block;
+    /* sin grid en esta vista */
+}
+
+.movie-detail--single .detail-title {
+    text-align: center;
+    margin: 0 0 .75rem;
+    font-size: clamp(1.8rem, 1.2rem + 2.2vw, 2.4rem);
+}
+
+.movie-detail--single .player {
+    max-width: 980px;
+    margin: 0 auto 1rem;
+}
+
+/* ancho del bloque */
+.container.movie-detail {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: clamp(.75rem, 2vw, 1.25rem);
+}
+
