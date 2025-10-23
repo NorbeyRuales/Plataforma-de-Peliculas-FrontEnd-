@@ -1,5 +1,6 @@
 @use './styles/_variables.scss' as *;
 
+
 :root {
     color-scheme: light;
 }
@@ -37,6 +38,71 @@ a:hover {
     margin: 0 auto;
     padding: 1rem;
 }
+
+/* === Breadcrumb theming === */
+:root[data-theme='light'] {
+  --crumb-bg: #F2E9D9;                 /* cremita como tu login */
+  --crumb-border: rgba(0,0,0,.10);
+}
+
+:root[data-theme='dark'] {
+  --crumb-bg: color-mix(in srgb, var(--text) 6%, transparent);   /* banda oscura sutil */
+  --crumb-border: color-mix(in srgb, var(--text) 18%, transparent);
+}
+
+
+/* === THEMING (light / dark) ============================================= */
+
+:root[data-theme='light'] {
+  /* Paleta cremita como en tu captura */
+  --bg: #F6EDD9;              /* fondo de la página */
+  --surface: #ffffff;         /* tarjetas/superficies */
+  --card: #ffffff;
+
+  --text: #1f2937;            /* gris 800 */
+  --mutedText: #6b7280;       /* gris 500-600 */
+
+  --primary: #2266ff;         /* marca (botones azules) */
+  --accent: #4f9dff;
+
+  --success: #4cc38a;
+  --warning: #e6b800;
+  --danger:  #ff5c5c;
+  --info:    #3399ff;
+
+  --border: rgba(0,0,0,.12);
+  --shadow: 0 3px 6px rgba(0,0,0,.08);
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b0b0f;
+  --surface: #15151b;
+  --card: #15151b;
+
+  --text: #e5e7eb;
+  --mutedText: #9ca3af;
+
+  --primary: #6ea8ff;
+  --accent:  #4f9dff;
+
+  --success: #4cc38a;
+  --warning: #e6b800;
+  --danger:  #ff5c5c;
+  --info:    #3399ff;
+
+  --border: rgba(255,255,255,.12);
+  --shadow: 0 6px 18px rgba(0,0,0,.45);
+}
+
+/* Aplicación global de fondo y color de texto */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Por si algún reset te estaba imponiendo blanco */
+body { background-color: var(--bg) !important; }
+
 
 /* Grids de tarjetas */
 .grid {
@@ -133,3 +199,62 @@ a:hover {
     color: $muted;
     background: transparent;
 }
+
+
+/* =========================
+   Overrides DARK en runtime
+   ========================= */
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Fondo y texto global */
+  body, #root { background: var(--bg); color: var(--text); }
+
+  /* Links */
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+
+  /* Header / navbar genérico (si tienes esas clases en SCSS de header, esto las gana) */
+  .site-header { background: var(--bg); border-bottom: 1px solid var(--border); }
+  .nav-links a { color: var(--text); }
+  .nav-links a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-links a.active {
+    color: #fff;
+    /* si tu build no soporta color-mix, descomenta la línea de fallback */
+    /* background: var(--accent); */
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent) inset;
+  }
+
+  /* Inputs */
+  .search__input,
+  input, select, textarea {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  ::placeholder { color: var(--mutedText); }
+
+  /* Tarjetas / paneles (ajusta a tus clases reales) */
+  .card, .panel, .box, .movie-card {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 24px var(--shadow);
+  }
+
+  /* Botones globales */
+  .btn { color: var(--text); border: 1px solid var(--border); }
+  .btn.primary { background: var(--primary); color: #fff; border-color: color-mix(in srgb, var(--primary) 40%, transparent); }
+  .btn.success { background: var(--success, #22C55E); color: #0b0b0f; }
+  .btn.danger  { background: var(--danger,  #F87171); color: #fff; }
+  .btn.ghost   { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+  /* Footer */
+  .site-footer {
+    background: var(--bg);
+    color: var(--mutedText);
+    border-top: 1px solid var(--border);
+  }
+}
+

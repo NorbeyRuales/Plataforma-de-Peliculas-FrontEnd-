@@ -1,0 +1,116 @@
+/* src/styles/dark-overrides.scss */
+/* Se aplica SOLO en dark gracias al atributo del <html> */
+html[data-theme='dark'] {
+
+    /* Fondo y texto global */
+    body,
+    #root {
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    /* Header / navbar */
+    .site-header {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links a {
+        color: var(--text);
+    }
+
+    .nav-links a:hover {
+        background: rgba(255, 255, 255, .06);
+        color: #fff;
+    }
+
+    .nav-links a.active {
+        color: #fff;
+        /* usa accent como “pill” activa */
+        background: color-mix(in srgb, var(--accent) 22%, transparent);
+        /* si tu build no soporta color-mix, usa background: var(--accent); */
+    }
+
+    /* Buscador / inputs */
+    .search__input,
+    input,
+    select,
+    textarea {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    ::placeholder {
+        color: var(--mutedText);
+    }
+
+    /* Tarjetas, paneles, cajas (ajusta a tus clases reales) */
+    .card,
+    .panel,
+    .box,
+    .movie-card {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 24px var(--shadow);
+    }
+
+    /* Breadcrumb / chips suaves */
+    .breadcrumb,
+    .chip,
+    .tag {
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
+        border: 1px solid var(--border);
+        color: var(--mutedText);
+    }
+
+    /* Botones genéricos */
+    .btn {
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .btn:hover {
+        background: rgba(255, 255, 255, .04);
+    }
+
+    /* Primario (marca) */
+    .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+
+    .btn-primary:hover {
+        background: var(--primaryHover, var(--primary));
+    }
+
+    .btn-primary:active {
+        background: var(--primaryActive, var(--primary));
+    }
+
+    /* Footer */
+    footer,
+    .site-footer {
+        background: var(--bg);
+        color: var(--mutedText);
+        border-top: 1px solid var(--border);
+    }
+
+    footer a,
+    .site-footer a {
+        color: var(--accent);
+    }
+
+    /* Formularios de cuenta y modales (si usas estas clases) */
+    .form,
+    .modal,
+    .dialog {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    /* Estrellitas/ratings: deja el color del icono tal como lo tengas */
+}

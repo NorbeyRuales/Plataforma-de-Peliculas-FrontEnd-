@@ -12,7 +12,6 @@
 
     /* Tokens de tamaño para toda la barra */
     --header-h: 52px;
-    /* alto total de la navbar */
     --control: 36px;
     /* alto de controles (input, avatar, botones) */
     --logo-scale: 1.25;
@@ -27,10 +26,8 @@
     align-items: center;
     justify-content: space-between;
     gap: .75rem;
-    /* alto = control + padding calculado, la barra no crece al escalar el logo */
     padding-block: calc((var(--header-h) - var(--control)) / 2);
     overflow: visible;
-    /* deja que el logo escalado “pinte” por fuera si hace falta */
 }
 
 /* ====== Brand / Logo ====== */
@@ -40,7 +37,6 @@
     text-decoration: none;
 }
 
-/* El logo usa la altura de control y se agranda solo visualmente con scale */
 .brand-logo {
     display: block;
     height: var(--control);
@@ -102,8 +98,8 @@
 
 .nav-links a.active {
     color: #fff;
-    background: color.change($brand, $alpha: .22);
-    box-shadow: 0 0 0 1px color.change($brand, $alpha: .28) inset;
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent) inset;
 }
 
 /* ====== Lado derecho (buscador, avatar, salir) ====== */
@@ -113,7 +109,15 @@
     gap: .6rem;
 }
 
-/* Input de búsqueda con altura fija para no engordar la barra */
+/* pequeñito contenedor para el switch */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    margin-left: .25rem;
+    /* separadito del botón Salir */
+}
+
+/* Input de búsqueda con altura fija */
 .search {
     min-width: 180px;
     position: relative;
@@ -137,10 +141,11 @@
 
 .search__input:focus-visible {
     @include focus-ring($brand);
-    border-color: color.change($brand, $alpha: .55);
+    /* ⬇️ antes: color.change($brand, .55) —> rompe con var() */
+    border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
-/* Avatar del usuario con tamaño unificado */
+/* Avatar */
 .avatar-btn {
     display: grid;
     place-items: center;
