@@ -1,4 +1,3 @@
-// src/pages/movie/MovieDetail.tsx
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './MovieDetail.scss'
@@ -25,46 +24,38 @@ export default function MovieDetail() {
   const [added, setAdded] = useState(false)
   const [playing, setPlaying] = useState(false)
 
-  // ❗ Guardar rápido: si el id no existe o literalmente es "undefined", evita pegarle al backend
+  // Guard: id inválido
   useEffect(() => {
-    if (!id || id === 'undefined') {
-      setError('ID de película inválido')
-    }
+    if (!id || id === 'undefined') setError('ID de película inválido')
   }, [id])
 
   // Cargar película desde el backend
   useEffect(() => {
     if (!id || id === 'undefined') return
-    (async () => {
-      setLoading(true)
-      setError(undefined)
-      try {
-        const resp = await api.get<Movie | { movie: Movie }>(`/movies/${id}`)
-        const m = (resp as any)?.movie ?? resp
-        setMovie(m as Movie)
-      } catch (e: any) {
-        setError(e?.message || 'No se pudo cargar la película')
-      } finally {
-        setLoading(false)
-      }
-    })()
+      ; (async () => {
+        setLoading(true)
+        setError(undefined)
+        try {
+          const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
+          const m = (resp as any)?.movie ?? resp
+          setMovie(m as Movie)
+        } catch (e: any) {
+          setError(e?.message || 'No se pudo cargar la película')
+        } finally {
+          setLoading(false)
+        }
+      })()
   }, [id])
 
-  // Si la película no tiene streamUrl, obtener uno de Pexels
+  // Si la película no tiene streamUrl, obtener uno de Pexels (con fallback a "cinema")
   useEffect(() => {
     if (!movie?.title || movie.streamUrl) return
-
     let canceled = false
-    ;(async () => {
-      try {
+      ; (async () => {
         let url = await getRandomPexelsVideo(movie.title)
-        if (!url) url = await getRandomPexelsVideo('cinema') // fallback general
-        if (!canceled && url) setPexelsVideoUrl(url)
-      } catch (err) {
-        console.error('Error obteniendo video de Pexels:', err)
-      }
-    })()
-
+        if (!url) url = await getRandomPexelsVideo('cinema')
+        if (!canceled) setPexelsVideoUrl(url)
+      })()
     return () => { canceled = true }
   }, [movie?.title, movie?.streamUrl])
 

@@ -16,7 +16,6 @@ function guessPoster(m: any): string | undefined {
 }
 
 function calcStars(m: any) {
-  // Acepta rating en 0–5 o 0–10 (lo normaliza a 5)
   let r = Number(m?.rating ?? m?.score ?? m?.vote_average ?? 0)
   if (Number.isNaN(r)) r = 0
   if (r > 5) r = r / 2
@@ -27,11 +26,20 @@ function calcStars(m: any) {
   return { stars, aria }
 }
 
-const PRELOAD_MARGIN = '200px' //  Aqui se ajusta que tan pronto empieza a cargar el póster
+const PRELOAD_MARGIN = '200px'
 
 export default function MovieCard({ movie }: { movie: Movie }) {
   const posterUrl = useMemo(() => guessPoster(movie as any), [movie])
   const { stars, aria } = useMemo(() => calcStars(movie as any), [movie])
+
+  // ✅ ID robusto (evita /movie/undefined)
+  const movieId =
+    (movie as any)._id ??
+    (movie as any).id ??
+    (movie as any).slug ??
+    null
+
+  const to = movieId ? `/movie/${encodeURIComponent(String(movieId))}` : '/movies'
 
   const [shouldLoad, setShouldLoad] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -56,14 +64,13 @@ export default function MovieCard({ movie }: { movie: Movie }) {
 
   return (
     <article className='movie-card'>
-      <Link to={`/movie/${(movie as any)._id}`} aria-label={`Abrir ${movie.title}`}>
+      <Link to={to} aria-label={`Abrir ${movie.title}`} state={{ breadcrumb: movie.title }}>
         <div className='poster' ref={posterRef}>
-          {/* Imagen si hay URL y no falló y ya “toca” cargar */}
           {posterUrl && !imgError && shouldLoad && (
             <img
               src={posterUrl}
               alt={`Póster de ${movie.title}`}
-              loading='eager'         // el IO decide cuándo empezar
+              loading='eager'
               decoding='async'
               onLoad={() => setLoaded(true)}
               onError={() => setImgError(true)}
@@ -75,7 +82,6 @@ export default function MovieCard({ movie }: { movie: Movie }) {
               }}
             />
           )}
-          {/* Placeholder si no hay imagen, falló o aún no cargó */}
           {(!posterUrl || imgError || !loaded || !shouldLoad) && (
             <div className='poster-placeholder'>
               <span className='sr-only'>Sin póster disponible</span>
