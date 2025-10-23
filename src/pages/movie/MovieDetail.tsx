@@ -25,8 +25,16 @@ export default function MovieDetail() {
   const [added, setAdded] = useState(false)
   const [playing, setPlaying] = useState(false)
 
+  // ❗ Guardar rápido: si el id no existe o literalmente es "undefined", evita pegarle al backend
+  useEffect(() => {
+    if (!id || id === 'undefined') {
+      setError('ID de película inválido')
+    }
+  }, [id])
+
   // Cargar película desde el backend
   useEffect(() => {
+    if (!id || id === 'undefined') return
     (async () => {
       setLoading(true)
       setError(undefined)
@@ -47,19 +55,17 @@ export default function MovieDetail() {
     if (!movie?.title || movie.streamUrl) return
 
     let canceled = false
-      ; (async () => {
-        try {
-          let url = await getRandomPexelsVideo(movie.title)
-          if (!url) url = await getRandomPexelsVideo('cinema') // fallback general
-          if (!canceled && url) setPexelsVideoUrl(url)
-        } catch (err) {
-          console.error('Error obteniendo video de Pexels:', err)
-        }
-      })()
+    ;(async () => {
+      try {
+        let url = await getRandomPexelsVideo(movie.title)
+        if (!url) url = await getRandomPexelsVideo('cinema') // fallback general
+        if (!canceled && url) setPexelsVideoUrl(url)
+      } catch (err) {
+        console.error('Error obteniendo video de Pexels:', err)
+      }
+    })()
 
-    return () => {
-      canceled = true
-    }
+    return () => { canceled = true }
   }, [movie?.title, movie?.streamUrl])
 
   // Sincroniza estado local `playing` con eventos del <video>
@@ -74,7 +80,7 @@ export default function MovieDetail() {
       v.removeEventListener('play', onPlay)
       v.removeEventListener('pause', onPause)
     }
-  }, [playerRef])
+  }, [])
 
   function play() { playerRef.current?.play() }
   function pause() { playerRef.current?.pause() }
