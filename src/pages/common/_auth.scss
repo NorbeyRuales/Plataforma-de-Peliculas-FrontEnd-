@@ -63,6 +63,10 @@
 .btn:hover { background: #232327; }
 
 .btn.primary { @include btn($brand, #fff); }
+/* Mantener color sólido en hover/active (evita sensación de “transparencia”) */
+.btn.primary:hover  { background: color-mix(in srgb, var(--primary) 92%, #000 8%); }
+.btn.primary:active { background: color-mix(in srgb, var(--primary) 88%, #000 12%); }
+
 .btn.success { @include btn($success, #0b0b0f); } /* contraste ok en verde */
 .btn.danger  { @include btn($danger, #fff); }
 
@@ -71,18 +75,28 @@
 }
 .btn.block { width: 100%; }
 
-/* Estados deshabilitados visibles/opacos */
+/* Estados deshabilitados visibles (sin transparencia en hover) */
 .auth-form button:disabled,
 .auth-form .btn:disabled,
 .auth-form .btn[disabled] {
-  opacity: .55;
+  opacity: 1; /* antes .55: mantenemos legibilidad en light/dark */
   cursor: not-allowed;
-  filter: saturate(.8);
+  filter: saturate(.9) brightness(.98);
   box-shadow: none;
   transform: none;
 }
-.auth-form .btn.primary:disabled { opacity: .5; }
-.auth-form .btn:disabled:hover { background: inherit; }
+
+/* Fondo sólido para el botón principal deshabilitado (adaptado a light/dark) */
+.auth-form .btn.primary:disabled {
+  background: color-mix(in srgb, var(--primary) 60%, var(--surface) 40%);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border) 60%);
+  color: color-mix(in srgb, #fff 85%, var(--text) 15%);
+}
+
+/* Evita que el hover del disabled herede/transparente */
+.auth-form .btn:disabled:hover {
+  background: color-mix(in srgb, var(--primary) 60%, var(--surface) 40%);
+}
 
 /* Modal */
 .modal {

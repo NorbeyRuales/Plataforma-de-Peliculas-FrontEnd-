@@ -12,18 +12,22 @@ const ThemeContext = createContext<ThemeCtx | null>(null);
 const THEME_LS_KEY = "app-theme";
 
 export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Por defecto: LIGHT. Si el usuario ya eligió, respetar localStorage.
   const getInitial = (): ThemeName => {
-    const stored = localStorage.getItem(THEME_LS_KEY) as ThemeName | null;
-    if (stored === "light" || stored === "dark") return stored;
-    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
+    const stored = (typeof localStorage !== "undefined"
+      ? (localStorage.getItem(THEME_LS_KEY) as ThemeName | null)
+      : null);
+    return stored ?? "light";
   };
 
   const [themeName, setTheme] = useState<ThemeName>(getInitial);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", themeName);
-    localStorage.setItem(THEME_LS_KEY, themeName);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", themeName);
+    // Ayuda a inputs/selects nativos a usar el esquema correcto
+    (root.style as any).colorScheme = themeName === "dark" ? "dark" : "light";
+    try { localStorage.setItem(THEME_LS_KEY, themeName); } catch (_) { }
   }, [themeName]);
 
   const value = useMemo(
