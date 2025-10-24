@@ -29,10 +29,11 @@ function calcStars(m: any) {
 const PRELOAD_MARGIN = '200px'
 
 export default function MovieCard({ movie }: { movie: Movie }) {
+  const titleText = (movie?.title ?? '').toString().trim() || 'Película sin título'
   const posterUrl = useMemo(() => guessPoster(movie as any), [movie])
   const { stars, aria } = useMemo(() => calcStars(movie as any), [movie])
 
-  // ✅ ID robusto (evita /movie/undefined)
+  // ID robusto (evita /movie/undefined)
   const movieId =
     (movie as any)._id ??
     (movie as any).id ??
@@ -62,16 +63,22 @@ export default function MovieCard({ movie }: { movie: Movie }) {
     return () => io.disconnect()
   }, [])
 
+  const showImage = posterUrl && !imgError && shouldLoad
+
   return (
     <article className='movie-card'>
-      <Link to={to} aria-label={`Abrir ${movie.title}`} state={{ breadcrumb: movie.title }}>
+      {/* Quitamos aria-label aquí para que el nombre accesible del link sea el contenido (título) */}
+      <Link to={to} state={{ breadcrumb: titleText }}>
         <div className='poster' ref={posterRef}>
-          {posterUrl && !imgError && shouldLoad && (
+          {showImage && (
             <img
-              src={posterUrl}
-              alt={`Póster de ${movie.title}`}
-              loading='eager'
+              src={posterUrl!}
+              alt={`Póster de ${titleText}`}
+              loading='lazy'
               decoding='async'
+              fetchPriority='low'
+              width={300}
+              height={450}
               onLoad={() => setLoaded(true)}
               onError={() => setImgError(true)}
               style={{
@@ -82,19 +89,28 @@ export default function MovieCard({ movie }: { movie: Movie }) {
               }}
             />
           )}
-          {(!posterUrl || imgError || !loaded || !shouldLoad) && (
-            <div className='poster-placeholder'>
-              <span className='sr-only'>Sin póster disponible</span>
-            </div>
+
+          {/* Placeholder solo “habla” a lectores cuando realmente NO hay imagen */}
+          {(!showImage || !loaded) && (
+            <div
+              className='poster-placeholder'
+              role='img'
+              aria-label='Sin póster disponible'
+              aria-hidden={Boolean(posterUrl) && !imgError} // oculto mientras solo está cargando
+            />
           )}
         </div>
 
         <div className='info'>
-          <h3>{movie.title}</h3>
+          <h3>{titleText}</h3>
           <p className='meta'>
             {(movie as any).year} • {((movie as any).genres || []).slice(0, 2).join(' / ')}
           </p>
-          <p className='stars' aria-label={`Rating: ${aria}`}>{stars}</p>
+
+          {/* Estrellas decorativas; el valor real se anuncia via aria-label */}
+          <p className='stars' aria-label={`Calificación: ${aria}`}>
+            <span aria-hidden='true'>{stars}</span>
+          </p>
         </div>
       </Link>
     </article>

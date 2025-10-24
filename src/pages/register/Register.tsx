@@ -1,3 +1,4 @@
+// src/pages/register/Register.tsx
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Register.scss'
@@ -10,7 +11,8 @@ export default function Register() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
-  const [age, setAge] = useState<number | ''>('')       // ← antes: dob
+  const [apellido, setApellido] = useState('')            // ✅ nuevo
+  const [age, setAge] = useState<number | ''>('')         // ← antes: dob
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -24,7 +26,8 @@ export default function Register() {
   const [error, setError] = useState<string | undefined>()
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
-  const ageRef = useRef<HTMLInputElement>(null)         // ← para focus en errores
+  const apellidoRef = useRef<HTMLInputElement>(null)       // ✅ nuevo
+  const ageRef = useRef<HTMLInputElement>(null)            // ← para focus en errores
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
@@ -95,6 +98,7 @@ export default function Register() {
 
   const canSubmit =
     !!name.trim() &&
+    !!apellido.trim() &&           // ✅ requerido
     ageOk &&
     emailOk &&
     !validatePassword(password) &&
@@ -103,6 +107,7 @@ export default function Register() {
 
   function validate(): boolean {
     if (!name.trim()) { setError('Escribe tu nombre.'); nameRef.current?.focus(); return false }
+    if (!apellido.trim()) { setError('Escribe tu apellido.'); apellidoRef.current?.focus(); return false } // ✅
     if (!ageOk) { setError(`La edad debe estar entre ${AGE_MIN} y ${AGE_MAX}.`); ageRef.current?.focus(); return false }
     if (!emailOk) { setError('El correo no es válido.'); emailRef.current?.focus(); return false }
     if (pwdError) { setError(pwdError); pwdRef.current?.focus(); return false }
@@ -119,10 +124,11 @@ export default function Register() {
       // usa la sugerencia si el usuario aún tiene el dominio mal escrito
       await Auth.signup(
         name,
+        apellido,                                   // ✅ nuevo argumento
         emailSuggestion || email,
         password,
         password2,
-        typeof age === 'number' ? age : Number(age)     
+        typeof age === 'number' ? age : Number(age)
       )
       navigate('/login')
     } catch (err: any) {
@@ -149,14 +155,26 @@ export default function Register() {
 
       <form className='auth-form' onSubmit={handleSubmit} noValidate>
         <label className='field'>
-          <span className='field__label'>Nombre completo</span>
+          <span className='field__label'>Nombre</span>
           <input
             ref={nameRef}
-            placeholder='Nombre completo'
+            placeholder='Nombre'
             required
-            autoComplete='name'
+            autoComplete='given-name'
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+
+        <label className='field'>
+          <span className='field__label'>Apellido</span>
+          <input
+            ref={apellidoRef}
+            placeholder='Apellido'
+            required
+            autoComplete='family-name'
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
           />
         </label>
 

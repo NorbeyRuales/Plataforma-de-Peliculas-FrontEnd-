@@ -4,6 +4,7 @@ import { api } from './api'
 export interface User {
     id: string
     name: string
+    apellido?: string | null
     email: string
     age?: number | null
     birthdate?: string | null
@@ -37,12 +38,13 @@ export const Auth = {
      */
     async signup(
         name: string,
+        apellido: string,
         email: string,
         password: string,
         confirmPassword: string,
         ageOrDob?: number | string
     ) {
-        const body: any = { name, email, password, confirmPassword }
+        const body: any = { name, apellido, email, password, confirmPassword } // ← añadimos apellido ✅
 
         if (typeof ageOrDob === 'number' && Number.isFinite(ageOrDob)) {
             body.age = ageOrDob

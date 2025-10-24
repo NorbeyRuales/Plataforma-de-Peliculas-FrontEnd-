@@ -8,6 +8,7 @@ import { Auth } from '../../services/auth'
 type Profile = {
   id: string
   name: string
+  apellido: string        // ✅ nuevo
   age: number | undefined
   email: string
 }
@@ -105,6 +106,7 @@ export default function Account() {
           id,
           email: pickStr(pObj?.email, email),
           name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
+          apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅
           age: ageFromDb ?? ageFromMeta,
         }
 
@@ -130,6 +132,7 @@ export default function Account() {
     if (!profile || !form) return false
     return (
       profile.name !== form.name ||
+      profile.apellido !== form.apellido ||  // ✅
       profile.age !== form.age ||
       profile.email !== form.email
     )
@@ -149,6 +152,7 @@ export default function Account() {
   function validate(f: Profile): Errors {
     const e: Errors = {}
     if (!f.name || f.name.trim().length < 2) e.name = 'Escribe tu nombre (min. 2 caracteres).'
+    if (!f.apellido || f.apellido.trim().length < 2) e.apellido = 'Escribe tu apellido (min. 2 caracteres).' // ✅
     if (!/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Correo inválido.'
     if (f.age === undefined || f.age === null || Number.isNaN(f.age)) {
       e.age = 'Escribe tu edad.'
@@ -172,13 +176,13 @@ export default function Account() {
     const v =
       name === 'age'
         ? (() => {
-            if (value === '') return undefined
-            // Sanear: quitar no-dígitos, limitar a 3 chars (max 120)
-            const digits = value.replace(/[^\d]/g, '').slice(0, 3)
-            if (digits === '') return undefined
-            const n = Math.trunc(Number(digits))
-            return Number.isFinite(n) ? n : undefined
-          })()
+          if (value === '') return undefined
+          // Sanear: quitar no-dígitos, limitar a 3 chars (max 120)
+          const digits = value.replace(/[^\d]/g, '').slice(0, 3)
+          if (digits === '') return undefined
+          const n = Math.trunc(Number(digits))
+          return Number.isFinite(n) ? n : undefined
+        })()
         : value
 
     setForm(f => f ? { ...f, [name]: v } as Profile : f)
@@ -210,7 +214,8 @@ export default function Account() {
     try {
       await api.put(`/users/${profile.id}`, {
         name: form.name,
-        age: form.age ?? null,   // ⬅️ se envía como number o null
+        apellido: form.apellido,       // ✅ enviar apellido
+        age: form.age ?? null,
         email: form.email,
       })
       setProfile(form)
@@ -283,6 +288,20 @@ export default function Account() {
             aria-describedby={errors.name ? 'err_name' : undefined}
           />
           {errors.name && <small id='err_name' className='field__error'>{errors.name}</small>}
+        </label>
+
+        <label className='field'>
+          <span className='field__label'>Apellido</span>
+          <input
+            name='apellido'
+            placeholder='Apellido'
+            value={form.apellido}
+            onChange={onChange}
+            disabled={!editing}
+            aria-invalid={!!errors.apellido || undefined}
+            aria-describedby={errors.apellido ? 'err_apellido' : undefined}
+          />
+          {errors.apellido && <small id='err_apellido' className='field__error'>{errors.apellido}</small>}
         </label>
 
         <label className='field'>
