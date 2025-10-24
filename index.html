@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="es">
-
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,11 +10,23 @@
   <meta property="og:title" content="PYRA" />
 
   <title>PYRA</title>
+
+  <!-- Boot del tema ANTES de que cargue React/CSS -->
+  <script>
+    (function () {
+      var KEY = 'app-theme';
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (_) {}
+      var theme = (saved === 'dark' || saved === 'light') ? saved : 'light';
+      var root = document.documentElement;
+      root.setAttribute('data-theme', theme);
+      root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+    })();
+  </script>
 </head>
 
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
-
 </html>
