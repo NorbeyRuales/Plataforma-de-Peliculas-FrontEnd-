@@ -1,4 +1,3 @@
-// src/pages/about/About.tsx
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import FlipCard from '../../components/team/FlipCard'
@@ -13,10 +12,10 @@ type TeamMate = {
 }
 
 const TEAM: TeamMate[] = [
-  { name: 'Joel',     role: 'Backend',       avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/tsnode.svg',  backText: 'Joel: Responsable del Backend (TypeScript)' },
-  { name: 'Norbey',   role: 'Frontend',      avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/vite.svg',     backText: 'Norbey: Responsable del Frontend (Vite)' },
-  { name: 'Diego',    role: 'QA',            avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/testin.svg',  backText: 'Diego: Encargado de QA / Testing' },
-  { name: 'Cristian', role: 'Product Owner', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/trello.svg',   backText: 'Cristian: Product Owner' },
+  { name: 'Joel', role: 'Backend', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/tsnode.svg', backText: 'Joel: Responsable del Backend (TypeScript)' },
+  { name: 'Norbey', role: 'Frontend', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/vite.svg', backText: 'Norbey: Responsable del Frontend (Vite)' },
+  { name: 'Diego', role: 'QA', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/testin.svg', backText: 'Diego: Encargado de QA / Testing' },
+  { name: 'Cristian', role: 'Product Owner', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/trello.svg', backText: 'Cristian: Product Owner' },
 ]
 
 export default function About() {
@@ -46,7 +45,7 @@ export default function About() {
 
         <div className="hero-copy">
           <p className="eyebrow">Desde 2024 · Plataforma de cine</p>
-          <h1 id="about-title">Tu próxima película, sin vueltas</h1>
+          <h1 id="about-title" data-skip-target>Tu próxima película, sin vueltas</h1>
           <p className="lead">
             En <strong>PYRA</strong> reunimos estrenos, clásicos y joyas ocultas en una
             experiencia rápida y clara. Explora, guarda y decide en menos de <b>30&nbsp;segundos</b>.
@@ -61,7 +60,8 @@ export default function About() {
           </nav>
         </div>
 
-        <Link to="/" className="about-back" aria-label="Volver al inicio">←</Link>
+        {/* 👇 hit-24 para asegurar 24x24px mínimo (WCAG 2.5.8) */}
+        <Link to="/" className="about-back hit-24" aria-label="Volver al inicio">←</Link>
       </header>
 
       {/* MÉTRICAS / HIGHLIGHTS */}

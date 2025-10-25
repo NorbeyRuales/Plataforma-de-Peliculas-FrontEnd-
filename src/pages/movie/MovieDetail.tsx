@@ -1,3 +1,4 @@
+// src/pages/movie/MovieDetail.tsx
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './MovieDetail.scss'
@@ -237,7 +238,7 @@ export default function MovieDetail() {
           <div className="group">
             <button
               type="button"
-              className="ctrl"
+              className="ctrl hit-24"
               onClick={togglePlay}
               aria-pressed={playing}
               disabled={!videoSrc}
@@ -245,14 +246,14 @@ export default function MovieDetail() {
               {playing ? '⏸ Pausa' : '▶ Reproducir'}
             </button>
 
-            <button type="button" className="ctrl" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s</button>
-            <button type="button" className="ctrl" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭</button>
+            <button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s</button>
+            <button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭</button>
           </div>
 
           <div className="group volume">
             <button
               type="button"
-              className="ctrl"
+              className="ctrl hit-24"
               onClick={toggleMute}
               aria-pressed={muted}
               disabled={!videoSrc}
@@ -289,15 +290,15 @@ export default function MovieDetail() {
           <div className="group">
             <button
               type="button"
-              className="ctrl"
+              className="ctrl hit-24"
               onClick={toggleLoop}
               aria-pressed={loop}
               disabled={!videoSrc}
             >
               {loop ? '🔁 Loop ON' : 'Loop OFF'}
             </button>
-            <button type="button" className="ctrl" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP</button>
-            <button type="button" className="ctrl" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full</button>
+            <button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP</button>
+            <button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full</button>
           </div>
         </div>
 

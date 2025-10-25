@@ -215,7 +215,7 @@ export default function Register() {
               ¿Quisiste decir{' '}
               <button
                 type="button"
-                className="btn ghost"
+                className="btn ghost hit-24"
                 onClick={() => setEmail(emailSuggestion)}
                 aria-label={`Usar ${emailSuggestion}`}
                 style={{ padding: '.2rem .5rem', borderRadius: 8 }}
@@ -244,7 +244,7 @@ export default function Register() {
             />
             <button
               type='button'
-              className='pwd-toggle'
+              className='pwd-toggle hit-24'
               aria-pressed={showPwd1}
               aria-label={showPwd1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               onClick={() => setShowPwd1(!showPwd1)}
@@ -288,7 +288,7 @@ export default function Register() {
             />
             <button
               type='button'
-              className='pwd-toggle'
+              className='pwd-toggle hit-24'
               aria-pressed={showPwd2}
               aria-label={showPwd2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               onClick={() => setShowPwd2(!showPwd2)}

@@ -1,3 +1,4 @@
+// src/pages/login/Login.tsx
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './Login.scss'
@@ -92,7 +93,7 @@ export default function Login() {
             />
             <button
               type='button'
-              className='pwd-toggle'
+              className='pwd-toggle hit-24'
               aria-pressed={showPwd}
               aria-label={showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               onClick={() => setShowPwd(!showPwd)}

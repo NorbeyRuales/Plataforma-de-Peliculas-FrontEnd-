@@ -1,4 +1,3 @@
-// src/pages/movies/Movies.tsx
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import { useSearchParams } from 'react-router-dom'
@@ -58,7 +57,7 @@ export default function MoviesPage() {
 
     return (
         <section className="home">
-            <h1 className="title">
+            <h1 className="title" data-skip-target>
                 {hasQuery ? `Resultados para “${q}”` : 'Películas'}
             </h1>
 

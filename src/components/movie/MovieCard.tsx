@@ -1,3 +1,4 @@
+// src/components/movie/MovieCard.tsx
 import { Link } from 'react-router-dom'
 import { useMemo, useRef, useEffect, useState } from 'react'
 import type { Movie } from '../../types'

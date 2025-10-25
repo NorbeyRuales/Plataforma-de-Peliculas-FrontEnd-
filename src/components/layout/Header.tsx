@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState, useEffect } from 'react'
 import Switch from '../../components/Switch/Switch'
@@ -40,7 +41,7 @@ export default function Header() {
           {/* Botón hamburguesa (solo móvil) */}
           <button
             type="button"
-            className="menu-btn"
+            className="menu-btn hit-24"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={menuOpen}
             aria-controls="primary-navigation"
@@ -82,14 +83,14 @@ export default function Header() {
               />
             </form>
 
-            <NavLink to='/account' className='avatar-btn' aria-label='Cuenta'>👤</NavLink>
+            <NavLink to='/account' className='avatar-btn hit-24' aria-label='Cuenta'>👤</NavLink>
 
-            <button type='button' className='logout-btn' onClick={onLogout} aria-label='Cerrar sesión'>
+            <button type='button' className='logout-btn hit-24' onClick={onLogout} aria-label='Cerrar sesión'>
               Salir
             </button>
 
             {/* Switch a la DERECHA del botón Salir, tamaño compacto */}
-            <div className='theme-toggle'>
+            <div className='theme-toggle hit-24'>
               <Switch size={12} />
             </div>
           </div>

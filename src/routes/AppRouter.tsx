@@ -19,8 +19,8 @@ import AuthCallback from '../pages/auth-callback/AuthCallback'
 import { hasSupabaseAuthParams } from '../utils/authUrl'
 import ResetPassword from '../pages/reset-password/ResetPassword'
 
-
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs'
+import SkipLink from '../components/a11y/SkipLink'
 
 const isAuthed = () => !!localStorage.getItem('token')
 
@@ -66,7 +66,9 @@ function DelayedFallback({ delay = 200 }: { delay?: number }) {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <a className='skip-link' href='#main'>Skip to content</a>
+      {/* WCAG 2.4.1 - Bypass Blocks */}
+      <SkipLink />
+
       <Header />
 
       {/* 👇 NUEVO: migas de pan */}
