@@ -1,13 +1,39 @@
 // src/pages/reset-password/ResetPassword.tsx
+
+/**
+ * @file src/pages/reset-password/ResetPassword.tsx
+ * @summary Final step of the Supabase password recovery flow (set a new password).
+ * @module Pages/ResetPassword
+ *
+ * @description
+ * This page is intended to be the `redirectTo` target used in the password
+ * recovery email. It:
+ *  1) Silently exchanges the Supabase `code` or `access_token` in the URL
+ *     for a session (so the user is authenticated just for the reset).
+ *  2) Validates the new password against basic rules (length, uppercase,
+ *     digit, symbol) and requires confirmation.
+ *  3) Calls `supa.auth.updateUser({ password })` to persist the new password.
+ *
+ * A11Y:
+ *  - Error/status feedback uses live regions (`role="alert"` / `role="status"`).
+ *  - Error summary is focusable to announce changes to screen readers.
+ *  - Buttons show disabled and busy state to prevent double submits.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ResetPassword.scss';
 import { supa } from '../../services/supa';
 
+/**
+ * ResetPassword page component.
+ * Handles token exchange, password validation and password update.
+ * @returns {JSX.Element}
+ */
 export default function ResetPassword() {
     const navigate = useNavigate();
 
-    // form state
+    // --- form state ---
     const [pass1, setPass1] = useState('');
     const [pass2, setPass2] = useState('');
     const [show1, setShow1] = useState(false);
@@ -15,33 +41,39 @@ export default function ResetPassword() {
     const [caps1, setCaps1] = useState(false);
     const [caps2, setCaps2] = useState(false);
 
-    // ui state
+    // --- UI state ---
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState<string | null>(null);
     const [err, setErr] = useState<string | null>(null);
     const errRef = useRef<HTMLParagraphElement>(null);
 
-    // reglas de contraseña
+    /** Password rules used to validate strength. */
     const rules = [
         { re: /.{8,}/, text: 'Mínimo 8 caracteres' },
         { re: /[A-Z]/, text: 'Al menos 1 mayúscula' },
         { re: /\d/, text: 'Al menos 1 número' },
         { re: /[^A-Za-z0-9]/, text: 'Al menos 1 símbolo' },
     ];
+
     const passStrong = rules.every((r) => r.re.test(pass1));
     const same = pass1 === pass2;
     const canSave = passStrong && same && !loading;
 
-    // medidor de fuerza
+    // --- strength meter ---
     const [strength, setStrength] = useState(0);
     useEffect(() => {
         const passed = rules.reduce((n, r) => n + (r.re.test(pass1) ? 1 : 0), 0);
         setStrength(passed);
     }, [pass1]);
 
+    // Move focus to the error region when an error appears
     useEffect(() => { if (err) errRef.current?.focus(); }, [err]);
 
-    // Intercambio de código -> sesión (silencioso)
+    /**
+     * Silently exchanges Supabase code/token from URL into a session.
+     * This enables `updateUser` to succeed without asking the user to log in.
+     * URL is cleaned afterwards to avoid reprocessing on refresh.
+     */
     useEffect(() => {
         (async () => {
             try {
@@ -49,18 +81,24 @@ export default function ResetPassword() {
                 const hasHash = !!window.location.hash;
                 const hasCode = !!url.searchParams.get('code');
                 if (!hasHash && !hasCode) {
-                    console.warn('[reset-password] Falta auth code o hash en la URL.');
+                    console.warn('[reset-password] Missing auth code or hash in URL.');
                     return;
                 }
                 const { error } = await supa.auth.exchangeCodeForSession(window.location.href);
                 if (error) console.warn('[reset-password] exchangeCodeForSession:', error.message);
                 window.history.replaceState({}, document.title, '/reset-password');
             } catch (e: any) {
-                console.warn('[reset-password] No se pudo validar el enlace:', e?.message || e);
+                console.warn('[reset-password] Could not validate recovery link:', e?.message || e);
             }
         })();
     }, []);
 
+    /**
+     * Handles the password update submit.
+     * Validates strength & match, updates via Supabase and then navigates to /login.
+     * @param {React.FormEvent} e - Form submit event.
+     * @returns {Promise<void>}
+     */
     async function handleReset(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true); setErr(null); setMsg(null);
@@ -70,6 +108,7 @@ export default function ResetPassword() {
             const { error } = await supa.auth.updateUser({ password: pass1 });
             if (error) throw error;
             setMsg('¡Contraseña actualizada! Te llevamos al inicio de sesión…');
+            // Sign out the temporary recovery session (defensive, not strictly required)
             try { await supa.auth.signOut(); } catch { }
             setTimeout(() => navigate('/login', { replace: true }), 1200);
         } catch (e: any) {
@@ -99,7 +138,7 @@ export default function ResetPassword() {
             )}
 
             <form className="auth-form" onSubmit={handleReset} noValidate>
-                {/* Nueva contraseña */}
+                {/* New password */}
                 <label className="field">
                     <span className="field__label">Nueva contraseña</span>
                     <div className="password-field">
@@ -138,7 +177,7 @@ export default function ResetPassword() {
                         </button>
                     </div>
 
-                    {/* Ayuda: se oculta cuando todos los criterios pasan */}
+                    {/* Helper: hidden once all criteria pass */}
                     <div id="rp_help" aria-live="polite">
                         {showRules ? (
                             <ul className="pwd-rules" role="list">
@@ -158,7 +197,7 @@ export default function ResetPassword() {
                         )}
                     </div>
 
-                    {/* Medidor de fuerza siempre visible mientras escribes */}
+                    {/* Strength meter visible while typing */}
                     {pass1.length > 0 && (
                         <div className="pwd-meter" aria-hidden="true">
                             <i style={{ width: `${(strength / rules.length) * 100}%` }} />
@@ -170,7 +209,7 @@ export default function ResetPassword() {
                     </small>
                 </label>
 
-                {/* Confirmar contraseña */}
+                {/* Confirm password */}
                 <label className="field">
                     <span className="field__label">Confirmar contraseña</span>
                     <div className="password-field">

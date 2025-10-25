@@ -1,30 +1,68 @@
 // src/pages/account/Account.tsx
+
+/**
+ * @file Account.tsx
+ * @summary User account page to view/edit profile data and change password.
+ * @module Pages/Account
+ * @description
+ * - Loads the authenticated user's profile, lets them edit name/last name/age/email,
+ *   and update their password in the same screen.
+ * - Adds guardrails (min/max age, email format) and basic A11Y patterns:
+ *   focus management, `aria-*` error wiring, and `role="dialog"` for the delete modal.
+ * - WCAG notes:
+ *   - 3.3.1/3.3.3: Error identification & hints (inline errors + hints).
+ *   - 2.4.3: Focus sent to first field when entering edit mode.
+ *   - 3.2.2: No unexpected context changes on input; actions require explicit user intent.
+ */
+
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './Account.scss'
 import { api } from '../../services/api'
 import { Auth } from '../../services/auth'
 
+/**
+ * Shape of a user profile persisted by the backend.
+ */
 type Profile = {
   id: string
   name: string
-  apellido: string        // ✅ nuevo
+  apellido: string        // ✅ new field on your model
   age: number | undefined
   email: string
 }
 
+/**
+ * Simple per-field error bag keyed by Profile properties.
+ */
 type Errors = Partial<Record<keyof Profile, string>>
 
+/**
+ * Returns the first non-empty string from a list of candidates.
+ * @param {...(string|undefined|null)} vals - Candidate values ordered by priority.
+ * @returns {string} First non-empty string or empty string if none.
+ */
 function pickStr(...vals: Array<string | undefined | null>) {
   for (const v of vals) if (typeof v === 'string' && v.trim() !== '') return v
   return ''
 }
 
+/**
+ * Parses a value to finite number or returns `undefined`.
+ * @param {unknown} v - Input value that might represent a number.
+ * @returns {number|undefined} Finite number or `undefined` if invalid.
+ */
 function toNum(v: unknown): number | undefined {
   const n = Number(v)
   return Number.isFinite(n) ? n : undefined
 }
 
+/**
+ * Calculates age (in years) from an ISO date (YYYY-MM-DD or ISO full).
+ * Gracefully returns `undefined` on invalid input.
+ * @param {string|null|undefined} dateISO - ISO date or full ISO datetime.
+ * @returns {number|undefined} Age in years, or `undefined` if invalid.
+ */
 function calcAgeFromBirthdate(dateISO?: string | null): number | undefined {
   if (!dateISO) return undefined
   const s = String(dateISO)
@@ -40,9 +78,18 @@ function calcAgeFromBirthdate(dateISO?: string | null): number | undefined {
   return age
 }
 
+/** Minimum and maximum allowed age boundaries (server-side should mirror). */
 const AGE_MIN = 13
 const AGE_MAX = 120
 
+/**
+ * Account page component.
+ * @component
+ * @description
+ * - Loads current user (`/auth/me`) and augments it with DB profile (`/users/:id`).
+ * - Two main flows: profile edit/save and password change.
+ * - Prevents accidental navigation with the beforeunload prompt if there are unsaved changes.
+ */
 export default function Account() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -57,7 +104,7 @@ export default function Account() {
 
   const nameRef = useRef<HTMLInputElement>(null)
 
-  // ---- Cambiar contraseña (misma vista) ----
+  // ---- Change password (inline panel) ----
   const [pwdOpen, setPwdOpen] = useState(false)
   const [currPwd, setCurrPwd] = useState('')
   const [newPwd, setNewPwd] = useState('')
@@ -72,6 +119,11 @@ export default function Account() {
   const [pwdSaved, setPwdSaved] = useState(false)
   const [pwdErrorMsg, setPwdErrorMsg] = useState<string | undefined>()
 
+  /**
+   * Validates password against basic complexity rules.
+   * @param {string} pwd - Password to validate.
+   * @returns {string|null} Error message or `null` if valid.
+   */
   function validatePassword(pwd: string): string | null {
     if (pwd.length < 8) return 'La contraseña debe tener al menos 8 caracteres.'
     if (!/[A-Z]/.test(pwd)) return 'Debe contener al menos una letra mayúscula.'
@@ -84,6 +136,7 @@ export default function Account() {
   const samePwd = newPwd === newPwd2
   const canChangePwd = !!currPwd && newPwdOk && samePwd && !pwdSaving
 
+  // Load profile (auth + DB profile). Tolerant to different shapes.
   useEffect(() => {
     (async () => {
       try {
@@ -92,11 +145,11 @@ export default function Account() {
         const email = me?.user?.email ?? me?.email ?? ''
 
         let fromDb: any = {}
-        try { fromDb = await api.get(`/users/${id}`) } catch { }
+        try { fromDb = await api.get(`/users/${id}`) } catch { /* ignore if not found */ }
 
         const pObj: any = (fromDb && 'profile' in fromDb) ? fromDb.profile : fromDb
 
-        // edad: primero DB (age/edad), si no, intenta derivar de birthdate si existe
+        // Age: DB first; else try to derive from birthdate if present.
         const ageFromDb = toNum(pObj?.age ?? pObj?.edad)
         const ageFromMeta = calcAgeFromBirthdate(
           pObj?.birthdate ?? pObj?.birth_date ?? pObj?.dob ?? me?.user?.user_metadata?.birthdate
@@ -106,7 +159,7 @@ export default function Account() {
           id,
           email: pickStr(pObj?.email, email),
           name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
-          apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅
+          apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅ last name
           age: ageFromDb ?? ageFromMeta,
         }
 
@@ -118,26 +171,33 @@ export default function Account() {
     })()
   }, [])
 
+  // Handle deep-link actions (?mode=edit|delete)
   useEffect(() => {
     const mode = params.get('mode')
     if (mode === 'edit') setEditing(true)
     if (mode === 'delete') setConfirmDelete(true)
   }, [params])
 
+  // Focus first field when entering edit mode (A11Y).
   useEffect(() => {
     if (editing) setTimeout(() => nameRef.current?.focus(), 60)
   }, [editing])
 
+  /**
+   * Whether the current form differs from the last saved profile.
+   * Used to enable Save button and the beforeunload guard.
+   */
   const hasChanges = useMemo(() => {
     if (!profile || !form) return false
     return (
       profile.name !== form.name ||
-      profile.apellido !== form.apellido ||  // ✅
+      profile.apellido !== form.apellido ||
       profile.age !== form.age ||
       profile.email !== form.email
     )
   }, [form, profile])
 
+  // Warn on tab close/reload if there are unsaved changes.
   useEffect(() => {
     function onUnload(e: BeforeUnloadEvent) {
       if (hasChanges && editing) {
@@ -149,10 +209,15 @@ export default function Account() {
     return () => window.removeEventListener('beforeunload', onUnload)
   }, [editing, hasChanges])
 
+  /**
+   * Synchronous profile validation.
+   * @param {Profile} f - Current form state.
+   * @returns {Errors} Per-field errors (empty object if valid).
+   */
   function validate(f: Profile): Errors {
     const e: Errors = {}
     if (!f.name || f.name.trim().length < 2) e.name = 'Escribe tu nombre (min. 2 caracteres).'
-    if (!f.apellido || f.apellido.trim().length < 2) e.apellido = 'Escribe tu apellido (min. 2 caracteres).' // ✅
+    if (!f.apellido || f.apellido.trim().length < 2) e.apellido = 'Escribe tu apellido (min. 2 caracteres).'
     if (!/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Correo inválido.'
     if (f.age === undefined || f.age === null || Number.isNaN(f.age)) {
       e.age = 'Escribe tu edad.'
@@ -162,22 +227,28 @@ export default function Account() {
     return e
   }
 
+  /** Overall form validity derived from current state. */
   const isValid = useMemo(() => {
     if (!form) return false
     return Object.keys(validate(form)).length === 0
   }, [form])
 
+  /** Enables save button if editing + dirty + valid + not already saving. */
   const canSave = editing && hasChanges && isValid && !saving
 
+  /**
+   * Generic change handler for text/number inputs.
+   * - Special handling for `age`: strip non-digits and clamp digits length.
+   */
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target
 
-    // Solo tratamiento especial para `age`
+    // Special treatment for `age`
     const v =
       name === 'age'
         ? (() => {
           if (value === '') return undefined
-          // Sanear: quitar no-dígitos, limitar a 3 chars (max 120)
+          // Sanitize: keep only digits and limit to 3 chars (max 120).
           const digits = value.replace(/[^\d]/g, '').slice(0, 3)
           if (digits === '') return undefined
           const n = Math.trunc(Number(digits))
@@ -189,7 +260,7 @@ export default function Account() {
     if (form) setErrors(validate({ ...(form as Profile), [name]: v } as Profile))
   }
 
-  // Al salir del input, forzar al rango si hay valor
+  /** Clamp age after blur to keep it in the allowed range. */
   function onAgeBlur() {
     setForm(f => {
       if (!f) return f
@@ -202,6 +273,10 @@ export default function Account() {
     })
   }
 
+  /**
+   * Persist profile changes to the backend.
+   * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   */
   async function onSave(e?: React.FormEvent) {
     e?.preventDefault()
     if (!profile || !form) return
@@ -214,7 +289,7 @@ export default function Account() {
     try {
       await api.put(`/users/${profile.id}`, {
         name: form.name,
-        apellido: form.apellido,       // ✅ enviar apellido
+        apellido: form.apellido,       // send last name
         age: form.age ?? null,
         email: form.email,
       })
@@ -229,6 +304,10 @@ export default function Account() {
     }
   }
 
+  /**
+   * Change password flow. Uses Auth.changePassword and local inline panel feedback.
+   * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   */
   async function onChangePassword(e?: React.FormEvent) {
     e?.preventDefault()
     setPwdErrorMsg(undefined)
@@ -253,6 +332,7 @@ export default function Account() {
     }
   }
 
+  /** Permanently deletes the account and clears local auth token. */
   async function handleDelete() {
     if (!profile) return
     try {
@@ -265,6 +345,7 @@ export default function Account() {
     navigate('/login', { replace: true })
   }
 
+  // Skeleton state while fetching the initial profile.
   if (!form) {
     return <section className='auth-screen container'><p aria-busy='true'>Cargando…</p></section>
   }

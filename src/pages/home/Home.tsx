@@ -1,9 +1,21 @@
+// src/pages/home/Home.tsx
+/**
+ * @file Home.tsx
+ * @description Landing grid that shows a subset of movies.
+ * Accessibility notes:
+ * - The visible heading is an <h2> for styling, but we expose it as a level-1
+ *   heading to assistive tech via role="heading" aria-level={1}.
+ * - The heading is marked with [data-skip-target] so the global skip-link
+ *   can land here immediately (WCAG 2.4.1 Bypass Blocks).
+ * - Clear loading/error/empty states improve UX for everyone.
+ */
+
 import { useEffect, useState } from 'react'
-import { api } from '../../services/api'      // 👈 usa tu cliente ya existente
+import { api } from '../../services/api'      // reuse your existing API client
 import MovieCard from '../../components/movie/MovieCard'
 import './Home.scss'
 
-// Ajusta el tipo mínimo que tu MovieCard necesita
+/** Minimal shape required by MovieCard */
 type Movie = {
   _id?: string
   id?: string | number
@@ -14,43 +26,48 @@ type Movie = {
 }
 
 export default function Home() {
+  // Basic page state
   const [movies, setMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let alive = true
-      ; (async () => {
-        try {
-          setError(null)
+    ;(async () => {
+      try {
+        setError(null)
 
-          // 👇 mismo endpoint que usas en /movies
-          // si tu API devuelve { data: [...] } ajusto abajo
-          const res = await api.get<any>('/movies')
+        // Same endpoint used by /movies; if your API returns { data: [...] },
+        // we normalize below to keep a consistent array shape.
+        const res = await api.get<any>('/movies')
 
-          // Normaliza posibles formas de respuesta (array directo o {data: [...]})
-          const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
+        // Normalize possible response shapes (array vs { data: [...] })
+        const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
 
-          // Asegura que tengamos una key estable para MovieCard
-          const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
+        // Ensure a stable key for MovieCard
+        const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
 
-          if (alive) setMovies(list)
-        } catch (e: any) {
-          if (alive) setError(e?.message || 'No se pudieron cargar las películas')
-        } finally {
-          if (alive) setLoading(false)
-        }
-      })()
+        if (alive) setMovies(list)
+      } catch (e: any) {
+        if (alive) setError(e?.message || 'No se pudieron cargar las películas')
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
 
     return () => { alive = false }
   }, [])
 
   return (
     <section className='container home-page'>
-      {/* Mantengo tu H2 (por estilos), pero lo declaro como heading nivel 1 para SR
-         y lo uso como destino del skip-link */}
+      {/**
+       * Visible heading kept as <h2> (to match current styles), but exposed
+       * as the main page heading to SR using role/aria-level.
+       * Marked as [data-skip-target] so the skip-link focuses here.
+       */}
       <h2 data-skip-target role="heading" aria-level={1}>Películas</h2>
 
+      {/* Loading skeletons for perceived performance while fetching */}
       {loading && (
         <div className='grid'>
           {Array.from({ length: 8 }).map((_, i) => (
@@ -59,8 +76,10 @@ export default function Home() {
         </div>
       )}
 
+      {/* Short error state; message kept in Spanish to match UI language */}
       {error && <p style={{ color: 'salmon' }}>{error}</p>}
 
+      {/* Normal render once loaded and not errored */}
       {!loading && !error && (
         <div className='grid'>
           {movies.map(m => (

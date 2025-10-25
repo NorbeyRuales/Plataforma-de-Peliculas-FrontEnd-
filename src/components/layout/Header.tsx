@@ -1,30 +1,55 @@
-// src/components/layout/Header.tsx
+/**
+ * @file Header.tsx
+ * @description Top navigation bar with brand, primary links, search box, account actions and theme switch.
+ * It hides itself on public auth screens and provides a responsive mobile menu.
+ * Includes a few a11y enhancements: explicit labels, hit-targets ≥24px, and roles/ARIA on the search form.
+ */
+
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState, useEffect } from 'react'
 import Switch from '../../components/Switch/Switch'
 import './Header.scss'
 
+/**
+ * Site header component. Renders the brand, main navigation, search form and actions.
+ * The header is hidden on public auth routes (/login, /register, /forgot-password, /reset-password).
+ * @component
+ * @returns {JSX.Element | null}
+ */
 export default function Header() {
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  // Ocultar header en pantallas públicas
+  // Hide header on public screens
   const hide = useMemo(
     () => ['/login', '/register', '/forgot-password', '/reset-password'].includes(pathname),
     [pathname]
   )
-  // Cierra el menú cuando cambias de ruta
+
+  // Close mobile menu on route change
   useEffect(() => { setMenuOpen(false) }, [pathname])
+
   if (hide) return null
 
+  /**
+   * Handles the search submit and navigates to the movies catalog.
+   * It trims the query and falls back to /movies when empty.
+   * @param {React.FormEvent<HTMLFormElement>} e
+   * @returns {void}
+   */
   function onSearch(e: React.FormEvent) {
     e.preventDefault()
     const term = q.trim()
     navigate(term ? `/movies?q=${encodeURIComponent(term)}` : '/movies')
   }
 
+  /**
+   * Signs the user out client-side and redirects to /login.
+   * The API logout request is optional (kept commented here for simplicity).
+   * @returns {Promise<void>}
+   */
   async function onLogout() {
     try {
       // await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, { method:'POST', credentials:'include' }).catch(()=>{})
@@ -38,7 +63,7 @@ export default function Header() {
     <>
       <header className='site-header'>
         <div className='container nav'>
-          {/* Botón hamburguesa (solo móvil) */}
+          {/* Mobile menu button (hamburger) */}
           <button
             type="button"
             className="menu-btn hit-24"
@@ -89,7 +114,7 @@ export default function Header() {
               Salir
             </button>
 
-            {/* Switch a la DERECHA del botón Salir, tamaño compacto */}
+            {/* Theme switch (compact size) */}
             <div className='theme-toggle hit-24'>
               <Switch size={12} />
             </div>
@@ -97,7 +122,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* backdrop para cerrar tocando fuera (solo móvil) */}
+      {/* backdrop to close by tapping outside (mobile only) */}
       <div className={`menu-backdrop ${menuOpen ? 'show' : ''}`} onClick={() => setMenuOpen(false)} />
     </>
   )

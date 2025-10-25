@@ -1,16 +1,44 @@
+/**
+ * @file src/pages/about/About.tsx
+ * @module pages/about/About
+ * @component About
+ * @summary Marketing/About page: brand intro, principles, history, features and team.
+ * @description React page component. Adds smooth-scrolling for in-page anchors and cooperates
+ * with the global SkipLink (`data-skip-target` on the H1). No business logic changed.
+ * @remarks
+ * - A11y: H1 has `data-skip-target`; in-page anchors (#intro, #team, …) move focus to target;
+ *   back link uses `.hit-24` to meet WCAG 2.5.8 Target Size (Minimum).
+ * - Performance: Static content; FlipCards keyed by `name`.
+ * - Dependencies: react-router-dom (Link), FlipCard, ./About.scss.
+ * @see ../../components/a11y/SkipLink.tsx
+ * @since 1.0.0
+ */
+
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import FlipCard from '../../components/team/FlipCard'
 import './About.scss'
 
+/**
+ * Represents a team member card content.
+ */
 type TeamMate = {
+  /** Full name to be shown in the card front */
   name: string
+  /** Role or responsibility (shown on the card) */
   role: string
+  /** Optional avatar URL used by the FlipCard */
   avatar?: string
+  /** Optional icon shown on the card front */
   iconUrl?: string
-  backText?: string   // texto en la cara trasera (si no, usa role)
+  /** Optional back face custom text (fallbacks to `role` if omitted) */
+  backText?: string
 }
 
+/**
+ * Static roster rendered in the "Team" section.
+ * Kept local on purpose; replace with API data when available.
+ */
 const TEAM: TeamMate[] = [
   { name: 'Joel', role: 'Backend', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/tsnode.svg', backText: 'Joel: Responsable del Backend (TypeScript)' },
   { name: 'Norbey', role: 'Frontend', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/vite.svg', backText: 'Norbey: Responsable del Frontend (Vite)' },
@@ -18,8 +46,22 @@ const TEAM: TeamMate[] = [
   { name: 'Cristian', role: 'Product Owner', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/trello.svg', backText: 'Cristian: Product Owner' },
 ]
 
+/**
+ * About page: highlights brand, principles and the team.
+ * A11y notes:
+ * - Uses `data-skip-target` on the H1 to cooperate with the global SkipLink.
+ * - Provides smooth scrolling for in-page anchors (#intro, #team, ...).
+ * - Uses `.hit-24` on the back link to meet WCAG 2.5.8 target size (24×24px).
+ *
+ * @returns JSX.Element
+ */
 export default function About() {
-  // desplazamiento suave en anclas (#intro, #team, etc.)
+  /**
+   * Enhances in-page anchor navigation (#intro, #team, etc.):
+   * - Intercepts clicks on `<a href="#...">`.
+   * - Smoothly scrolls to the target and moves focus for screen readers.
+   * - Cleans up the listener on unmount.
+   */
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null
@@ -60,11 +102,11 @@ export default function About() {
           </nav>
         </div>
 
-        {/* 👇 hit-24 para asegurar 24x24px mínimo (WCAG 2.5.8) */}
+        {/* hit-24 ensures a minimum 24×24px interactive area (WCAG 2.5.8) */}
         <Link to="/" className="about-back hit-24" aria-label="Volver al inicio">←</Link>
       </header>
 
-      {/* MÉTRICAS / HIGHLIGHTS */}
+      {/* METRICS / HIGHLIGHTS */}
       <section className="metrics" aria-label="Indicadores principales">
         <article className="kpi">
           <div className="num">+10k</div>
@@ -94,7 +136,7 @@ export default function About() {
         </ul>
       </section>
 
-      {/* PRINCIPIOS DE DISEÑO */}
+      {/* DESIGN PRINCIPLES */}
       <section id="principles" className="about-section" tabIndex={-1}>
         <h2>Principios de diseño</h2>
         <div className="principles">
@@ -113,7 +155,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* HISTORIA / TIMELINE */}
+      {/* HISTORY / TIMELINE */}
       <section id="origin" className="about-section" tabIndex={-1}>
         <h2>Nuestra historia</h2>
         <div className="timeline">
@@ -141,7 +183,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* QUÉ OFRECEMOS */}
+      {/* WHAT WE OFFER */}
       <section id="offer" className="about-section" tabIndex={-1}>
         <h2>¿Qué ofrecemos?</h2>
         <div className="features">
@@ -164,7 +206,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* CITA / MISIÓN */}
+      {/* QUOTE / MISSION */}
       <section className="about-quote" aria-label="Nuestra misión">
         <blockquote>
           “Elegir una película debería tomar menos tiempo que hacer palomitas.”
@@ -172,7 +214,7 @@ export default function About() {
         <cite>Equipo PYRA</cite>
       </section>
 
-      {/* EQUIPO (se mantiene tu grilla de FlipCards) */}
+      {/* TEAM */}
       <section id="team" className="about-section" tabIndex={-1}>
         <h2>Equipo de trabajo</h2>
         <div className="team-grid">

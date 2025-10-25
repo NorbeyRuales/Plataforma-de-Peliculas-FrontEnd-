@@ -1,11 +1,28 @@
-// src/pages/login/Login.tsx
+/**
+ * @file Login.tsx
+ * @description Login screen with accessible form, client-side validation and CapsLock hint.
+ * Persists the last used email in localStorage to speed up subsequent logins.
+ */
+
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './Login.scss'
 import { Auth } from '../../services/auth'
 
+/**
+ * LocalStorage key used to remember the last email the user typed.
+ * This improves UX without storing sensitive data like passwords.
+ * @constant
+ */
 const EMAIL_KEY = 'last_email'
 
+/**
+ * Login page component.
+ * Renders an accessible login form, validates on submit,
+ * and redirects to the home page on success.
+ * @component
+ * @returns {JSX.Element}
+ */
 export default function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState(localStorage.getItem(EMAIL_KEY) || '')
@@ -19,17 +36,32 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
 
+  // Persist last email typed to speed up future logins
   useEffect(() => { if (email) localStorage.setItem(EMAIL_KEY, email) }, [email])
 
   const emailOk = /^\S+@\S+\.\S+$/.test(email.trim())
   const canSubmit = emailOk && password.length > 0 && !loading
 
+  /**
+   * Basic client-side validation.
+   * Focuses the first invalid field and sets an error message for the summary.
+   * @returns {boolean} True when the form is valid and can be submitted.
+   */
   function validate(): boolean {
     if (!emailOk) { setError('El formato del correo no es válido.'); emailRef.current?.focus(); return false }
     if (!password) { setError('Ingresa tu contraseña.'); pwdRef.current?.focus(); return false }
     return true
   }
 
+  /**
+   * Handles the submit flow:
+   * - clears previous errors
+   * - validates fields
+   * - calls Auth.login and redirects on success
+   * - focuses the error summary on failure
+   * @param {React.FormEvent<HTMLFormElement>} e
+   * @returns {Promise<void>}
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(undefined)
@@ -99,7 +131,7 @@ export default function Login() {
               onClick={() => setShowPwd(!showPwd)}
             >
               {showPwd ? (
-                // (mismo SVG que ResetPassword cuando show=true)
+                // (same SVG as ResetPassword when show=true)
                 <svg viewBox="0 0 24 24" width="20" height="20">
                   <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
                 </svg>

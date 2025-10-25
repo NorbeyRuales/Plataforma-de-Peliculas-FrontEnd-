@@ -1,14 +1,57 @@
+// src/pages/favorites/Favorites.tsx
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import MovieCard from '../../components/movie/MovieCard'
 import { Favorites as FavService, Favorite } from '../../services/favorites'
+import '../home/Home.scss'
 import './Favorites.scss'
 
 type FavMovie = {
   id: string
   title: string
+  poster?: string
   posterUrl?: string
-  description?: string
+  year?: number | string
+  genres?: string[] | string
+  rating?: number
   avgRating?: number
+  vote_average?: number
+  release_date?: string
+  release_year?: string | number
+}
+
+function guessPoster(m: any): string | undefined {
+  return (
+    m?.poster ||
+    m?.posterUrl ||
+    m?.poster_url ||
+    m?.image ||
+    m?.cover ||
+    m?.thumbnail ||
+    m?.images?.poster
+  )
+}
+
+function normRating(x: any): number {
+  let r = Number(x ?? 0)
+  if (Number.isNaN(r)) r = 0
+  if (r > 5) r = r / 2
+  return Math.max(0, Math.min(5, r))
+}
+
+function favToMovie(f: FavMovie) {
+  const poster = guessPoster(f)
+  return {
+    id: f.id,
+    title: f.title || 'Sin título',
+    poster,
+    posterUrl: poster,
+    rating: normRating(f.rating ?? f.avgRating ?? f.vote_average ?? 0),
+    year:
+      f.year ??
+      f.release_year ??
+      (typeof f.release_date === 'string' ? f.release_date.slice(0, 4) : undefined),
+    genres: Array.isArray(f.genres) ? f.genres : (f.genres ? [String(f.genres)] : []),
+  } as any
 }
 
 export default function Favorites() {
@@ -25,14 +68,19 @@ export default function Favorites() {
           const arr = Array.isArray(data) ? data : (data as any)?.items ?? []
           const mapped: FavMovie[] = arr.map((r: Favorite | any) => ({
             id: String((r as any).id ?? (r as any).movie_id ?? (r as any).movieId),
-            title: (r as any).title ?? '',
-            posterUrl: (r as any).posterUrl ?? (r as any).poster_url ?? undefined,
-            description: (r as any).description ?? '',
-            avgRating: (r as any).avgRating ?? (r as any).avg_rating ?? undefined,
+            title: (r as any).title ?? (r as any).name ?? '',
+            poster: guessPoster(r),
+            posterUrl: guessPoster(r),
+            rating: (r as any).rating,
+            avgRating: (r as any).avgRating ?? (r as any).avg_rating,
+            vote_average: (r as any).vote_average,
+            year: (r as any).year ?? (r as any).release_year,
+            release_date: (r as any).release_date,
+            genres: (r as any).genres ?? (r as any).genre ?? [],
           }))
           if (alive) setItems(mapped)
         } catch (e: any) {
-          if (alive) setError(e?.message || 'No se pudo cargar tus favoritos')
+          if (alive) setError(e?.message || 'No se pudieron cargar tus favoritos')
         } finally {
           if (alive) setLoading(false)
         }
@@ -52,79 +100,38 @@ export default function Favorites() {
     }
   }
 
-  if (loading) {
-    return (
-      <section className="container favorites-page">
-        <h1>Favoritos</h1>
-        <p aria-busy="true">Cargando…</p>
-      </section>
-    )
-  }
-
-  if (error) {
-    return (
-      <section className="container favorites-page">
-        <h1>Favoritos</h1>
-        <p role="alert" style={{ color: 'salmon' }}>{error}</p>
-      </section>
-    )
-  }
-
   return (
-    <section className="container favorites-page">
-      <h1>Favoritos</h1>
+    <section className="home favorites-page">
+      <h1 className="title" data-skip-target>Favoritos</h1>
 
-      {items.length === 0 ? (
-        <p className="muted">
-          Aún no tienes favoritos. Ve a una película y pulsa <strong>Añadir a favoritos</strong>.
-        </p>
-      ) : (
-        <div className="cards-grid">
-          {items.map(m => (
-            <article key={m.id} className="card card-stack">
-              <Link to={`/movie/${encodeURIComponent(m.id)}`} className="card__media">
-                {m.posterUrl ? (
-                  <img
-                    src={m.posterUrl}
-                    alt={m.title}
-                    loading="lazy"
-                    style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block' }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      aspectRatio: '2 / 3',
-                      background: '#e9eef3',
-                      borderRadius: 8,
-                      display: 'grid',
-                      placeItems: 'center',
-                      color: '#8190a5',
-                      fontSize: 14,
-                    }}
+      {loading && <p style={{ opacity: .8 }}>Cargando…</p>}
+      {error && <p style={{ color: 'salmon' }}>{error}</p>}
+
+      {!loading && !error && (
+        items.length > 0 ? (
+          <div className="grid">
+            {items.map(f => {
+              const movie = favToMovie(f)
+              return (
+                <div className="favorite-item" key={f.id}>
+                  <MovieCard movie={movie as any} />
+                  <button
+                    className="btn danger"
+                    disabled={removing === f.id}
+                    onClick={() => remove(f.id)}
+                    aria-busy={removing === f.id || undefined}
                   >
-                    Sin imagen
-                  </div>
-                )}
-              </Link>
-
-              <div className="card__body">
-                <h3 className="card__title" title={m.title}>{m.title}</h3>
-                {typeof m.avgRating === 'number' && (
-                  <small className="muted">⭐ {m.avgRating.toFixed(1)}</small>
-                )}
-              </div>
-
-              <button
-                className="btn danger card-action"
-                onClick={() => remove(m.id)}
-                disabled={removing === m.id}
-                aria-busy={removing === m.id || undefined}
-              >
-                {removing === m.id ? 'Quitando…' : 'Quitar de favoritos'}
-              </button>
-            </article>
-          ))}
-        </div>
+                    {removing === f.id ? 'Quitando…' : 'Quitar de favoritos'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p style={{ opacity: .8 }}>
+            Aún no tienes favoritos. Ve a una película y pulsa <strong>Añadir a favoritos</strong>.
+          </p>
+        )
       )}
     </section>
   )

@@ -1,41 +1,26 @@
 @use '../../styles/variables' as *;
 
+/* Reutiliza la grilla global .grid como en /Películas */
 .favorites-page {
-    h1 {
+    .title {
         margin: 2rem 0 1rem;
-    }
-
-    /* mismo layout que la grilla de /peliculas */
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 1rem;
-        align-items: start;
-    }
-
-    .card-stack {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .card__body {
-        margin-top: .5rem;
-    }
-
-    .card-action {
-        margin-top: .5rem;
     }
 }
 
-.empty {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: $muted;
-    border: 1px dashed $border;
-    border-radius: $radius;
-    background: rgba(255, 255, 255, .5);
+/* Envolver cada card para alojar el botón debajo sin romper el grid */
+.favorite-item {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
 
-    .btn {
-        margin-top: .75rem;
-    }
+/* Botón a ancho completo, consistente en desktop */
+.favorite-item>.btn {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: .8rem 1rem;
+    border-radius: 0 0 $radius $radius;
+    box-sizing: border-box;
 }
