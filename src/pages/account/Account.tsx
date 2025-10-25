@@ -322,7 +322,7 @@ export default function Account() {
             aria-describedby={errors.age ? 'err_age' : undefined}
           />
           {errors.age && <small id='err_age' className='field__error'>{errors.age}</small>}
-          <small className='field__hint italic'>Debes tener al menos {AGE_MIN} años.</small>
+          <small className='field__hint italic'></small>
         </label>
 
         <label className='field'>

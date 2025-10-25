@@ -65,7 +65,7 @@ export default function Header() {
           <nav id="primary-navigation" className={`nav-links ${menuOpen ? 'open' : ''}`} aria-label='Main'>
             <NavLink to='/' end>Inicio</NavLink>
             <NavLink to='/movies'>Películas</NavLink>
-            <NavLink to='/favorites'>Mi lista</NavLink>
+            <NavLink to='/favorites'>Mis Favoritos</NavLink>
             <NavLink to='/about'>Sobre nosotros</NavLink>
           </nav>
 

@@ -89,7 +89,7 @@ export default function Register() {
     'field__hint ' + (!password ? '' : (pwdValid ? 'field__hint--ok' : 'field__hint--bad'))
 
   const confirmHintText = !password2
-    ? 'Debe coincidir con la contraseña.'
+    ? <em>Debe coincidir con la contraseña.</em>
     : (same ? 'Las contraseñas coinciden.' : 'Las contraseñas no coinciden.')
   const confirmHintClass =
     'field__hint ' + (!password2 ? '' : (same ? 'field__hint--ok' : 'field__hint--bad'))
