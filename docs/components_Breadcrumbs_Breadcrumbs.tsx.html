@@ -1,11 +1,58 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>components/Breadcrumbs/Breadcrumbs.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">components/Breadcrumbs/Breadcrumbs.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Breadcrumbs.tsx
  * @description Componente de migas de pan (breadcrumb) basado en la URL actual.
  * Mapea segmentos de ruta a etiquetas legibles y marca el último ítem con
  * aria-current="page" para lectores de pantalla.
  *
  * A11y (WCAG):
- * - 1.3.1 Info y relaciones: <nav aria-label="Migas de pan"> + <ol>/<li>.
+ * - 1.3.1 Info y relaciones: &lt;nav aria-label="Migas de pan"> + &lt;ol>/&lt;li>.
  * - 2.4.1 Bypass Blocks: ayuda a ubicarse y saltar entre niveles.
  * - 2.4.4/2.4.9 Propósito del enlace: cada enlace tiene texto descriptivo.
  * - 2.4.8 Localización: indica la posición dentro de la jerarquía.
@@ -71,8 +118,8 @@ export default function Breadcrumbs() {
 
     return (
         // aria-label ayuda a los lectores de pantalla a identificar la navegación
-        <nav className="breadcrumbs" aria-label="Migas de pan">
-            <ol>
+        &lt;nav className="breadcrumbs" aria-label="Migas de pan">
+            &lt;ol>
                 {segments.map((fullPath, idx) => {
                     const isLast = idx === segments.length - 1;
 
@@ -80,7 +127,7 @@ export default function Breadcrumbs() {
                     let label = pathToLabel(fullPath);
 
                     // 2) Si es el último y viene etiqueta dinámica, úsala
-                    if (isLast && lastDynamicLabel) label = lastDynamicLabel;
+                    if (isLast &amp;&amp; lastDynamicLabel) label = lastDynamicLabel;
 
                     // 3) Fallback: formatea el último segmento
                     if (!label) {
@@ -98,17 +145,42 @@ export default function Breadcrumbs() {
                     }
 
                     return (
-                        <li key={fullPath}>
+                        &lt;li key={fullPath}>
                             {isLast ? (
                                 // aria-current="page" indica el punto actual en la jerarquía
-                                <span aria-current="page">{label}</span>
+                                &lt;span aria-current="page">{label}&lt;/span>
                             ) : (
-                                <Link to={fullPath}>{label}</Link>
+                                &lt;Link to={fullPath}>{label}&lt;/Link>
                             )}
-                        </li>
+                        &lt;/li>
                     );
                 })}
-            </ol>
-        </nav>
+            &lt;/ol>
+        &lt;/nav>
     );
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

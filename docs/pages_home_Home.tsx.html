@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>pages/home/Home.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">pages/home/Home.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// src/pages/home/Home.tsx
+/**
+ * @file Home.tsx
+ * @description Landing grid that shows a subset of movies.
+ * Accessibility notes:
+ * - The visible heading is an &lt;h2> for styling, but we expose it as a level-1
+ *   heading to assistive tech via role="heading" aria-level={1}.
+ * - The heading is marked with [data-skip-target] so the global skip-link
+ *   can land here immediately (WCAG 2.4.1 Bypass Blocks).
+ * - Clear loading/error/empty states improve UX for everyone.
+ */
+
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'      // reuse your existing API client
+import MovieCard from '../../components/movie/MovieCard'
+import './Home.scss'
+
+/** Minimal shape required by MovieCard */
+type Movie = {
+  _id?: string
+  id?: string | number
+  title: string
+  year?: number | string
+  poster_url?: string
+  genres?: string[]
+}
+
+export default function Home() {
+  // Basic page state
+  const [movies, setMovies] = useState&lt;Movie[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState&lt;string | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        setError(null)
+
+        // Same endpoint used by /movies; if your API returns { data: [...] },
+        // we normalize below to keep a consistent array shape.
+        const res = await api.get&lt;any>('/movies')
+
+        // Normalize possible response shapes (array vs { data: [...] })
+        const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
+
+        // Ensure a stable key for MovieCard
+        const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
+
+        if (alive) setMovies(list)
+      } catch (e: any) {
+        if (alive) setError(e?.message || 'No se pudieron cargar las películas')
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+
+    return () => { alive = false }
+  }, [])
+
+  return (
+    &lt;section className='container home-page'>
+      {/**
+       * Visible heading kept as &lt;h2> (to match current styles), but exposed
+       * as the main page heading to SR using role/aria-level.
+       * Marked as [data-skip-target] so the skip-link focuses here.
+       */}
+      &lt;h2 data-skip-target role="heading" aria-level={1}>Películas&lt;/h2>
+
+      {/* Loading skeletons for perceived performance while fetching */}
+      {loading &amp;&amp; (
+        &lt;div className='grid'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            &lt;div className='movie-card skeleton' key={i} />
+          ))}
+        &lt;/div>
+      )}
+
+      {/* Short error state; message kept in Spanish to match UI language */}
+      {error &amp;&amp; &lt;p style={{ color: 'salmon' }}>{error}&lt;/p>}
+
+      {/* Normal render once loaded and not errored */}
+      {!loading &amp;&amp; !error &amp;&amp; (
+        &lt;div className='grid'>
+          {movies.map(m => (
+            &lt;MovieCard key={m._id ?? String(m.id)} movie={m as any} />
+          ))}
+        &lt;/div>
+      )}
+    &lt;/section>
+  )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

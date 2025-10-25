@@ -1,8 +1,24 @@
+// src/pages/favorites/Favorites.tsx
+
+/**
+ * @file Favorites.tsx
+ * @summary Lists the user's favorite movies with lazy image rendering and remove actions.
+ * @module Pages/Favorites
+ * @description
+ * - Fetches favorites from the Favorites service on mount.
+ * - Normalizes different backend shapes into a compact `FavMovie` model.
+ * - Allows removing a favorite inline with optimistic UI update.
+ * - A11Y: uses `aria-busy` during async ops and `role="alert"` for error state.
+ */
+
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Favorites as FavService, Favorite } from '../../services/favorites'
 import './Favorites.scss'
 
+/**
+ * Minimal movie shape displayed in the Favorites list.
+ */
 type FavMovie = {
   id: string
   title: string
@@ -11,12 +27,20 @@ type FavMovie = {
   avgRating?: number
 }
 
+/**
+ * Favorites page component.
+ * @component
+ * @description
+ * - Loads and renders cards for each favorite item.
+ * - Provides a per-item "remove" control with loading feedback.
+ */
 export default function Favorites() {
   const [items, setItems] = useState<FavMovie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>()
   const [removing, setRemoving] = useState<string | null>(null)
 
+  // Load user's favorites on mount. Tolerates multiple API shapes.
   useEffect(() => {
     let alive = true
       ; (async () => {
@@ -40,6 +64,11 @@ export default function Favorites() {
     return () => { alive = false }
   }, [])
 
+  /**
+   * Removes an item from favorites and updates local state optimistically.
+   * @param {string} id - Movie ID to remove from favorites.
+   * @returns {Promise<void>}
+   */
   async function remove(id: string) {
     try {
       setRemoving(id)
@@ -52,6 +81,7 @@ export default function Favorites() {
     }
   }
 
+  // Loading skeleton state
   if (loading) {
     return (
       <section className="container favorites-page">
@@ -61,6 +91,7 @@ export default function Favorites() {
     )
   }
 
+  // Error state with ARIA alert
   if (error) {
     return (
       <section className="container favorites-page">

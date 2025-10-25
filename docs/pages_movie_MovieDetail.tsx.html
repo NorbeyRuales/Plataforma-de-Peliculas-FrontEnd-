@@ -1,4 +1,51 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>pages/movie/MovieDetail.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">pages/movie/MovieDetail.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file MovieDetail.tsx
  * @description Movie detail screen with HTML5 video player, keyboard-accessible
  * controls, and "favorites" toggle. Includes a fallback trailer from Pexels when
@@ -32,7 +79,7 @@ type Movie = {
 
 /**
  * Movie detail page component.
- * Fetches movie data, wires the <video> element with custom controls,
+ * Fetches movie data, wires the &lt;video> element with custom controls,
  * and allows adding/removing the movie from favorites.
  */
 export default function MovieDetail() {
@@ -40,21 +87,21 @@ export default function MovieDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const playerRef = useRef<HTMLVideoElement>(null)
+  const playerRef = useRef&lt;HTMLVideoElement>(null)
 
   // ------- Data / UI state -------
-  const [movie, setMovie] = useState<Movie | null>(null)
-  const [pexelsVideoUrl, setPexelsVideoUrl] = useState<string | null>(null)
+  const [movie, setMovie] = useState&lt;Movie | null>(null)
+  const [pexelsVideoUrl, setPexelsVideoUrl] = useState&lt;string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>()
+  const [error, setError] = useState&lt;string>()
   const [added, setAdded] = useState(false)
   const [addedMsg, setAddedMsg] = useState('')
 
   // Favorites state (null while loading)
-  const [isFav, setIsFav] = useState<boolean | null>(null)
+  const [isFav, setIsFav] = useState&lt;boolean | null>(null)
   const [favBusy, setFavBusy] = useState(false)
 
-  // Player controls state (mirrors <video> props)
+  // Player controls state (mirrors &lt;video> props)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(1)
@@ -78,7 +125,7 @@ export default function MovieDetail() {
       setLoading(true)
       setError(undefined)
       try {
-        const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
+        const resp = await api.get&lt;Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
         const m = (resp as any)?.movie ?? resp
         setMovie(m as Movie)
       } catch (e: any) {
@@ -105,7 +152,7 @@ export default function MovieDetail() {
   }, [movie?.title, movie?.streamUrl])
 
   /**
-   * Sync local "playing" state by listening to native <video> events.
+   * Sync local "playing" state by listening to native &lt;video> events.
    */
   useEffect(() => {
     const v = playerRef.current
@@ -121,7 +168,7 @@ export default function MovieDetail() {
   }, [])
 
   /**
-   * Apply local controls state to the underlying <video> element.
+   * Apply local controls state to the underlying &lt;video> element.
    */
   useEffect(() => {
     const v = playerRef.current
@@ -163,14 +210,14 @@ export default function MovieDetail() {
    * Volume range input handler (0..1).
    * Also auto-unmutes when user sets volume > 0 while muted.
    */
-  function onVolume(e: React.ChangeEvent<HTMLInputElement>) {
+  function onVolume(e: React.ChangeEvent&lt;HTMLInputElement>) {
     const val = Number(e.target.value)
     setVolume(val)
-    if (val > 0 && muted) setMuted(false)
+    if (val > 0 &amp;&amp; muted) setMuted(false)
   }
 
   /** Playback rate (speed) select handler. */
-  function onRate(e: React.ChangeEvent<HTMLSelectElement>) {
+  function onRate(e: React.ChangeEvent&lt;HTMLSelectElement>) {
     setRate(Number(e.target.value))
   }
 
@@ -184,7 +231,7 @@ export default function MovieDetail() {
   async function togglePiP() {
     const v = playerRef.current as any
     try {
-      if ('pictureInPictureElement' in document && (document as any).pictureInPictureElement) {
+      if ('pictureInPictureElement' in document &amp;&amp; (document as any).pictureInPictureElement) {
         await (document as any).exitPictureInPicture()
       } else if (v?.requestPictureInPicture) {
         await v.requestPictureInPicture()
@@ -195,7 +242,7 @@ export default function MovieDetail() {
   }
 
   /**
-   * Toggle native fullscreen for the <video> element.
+   * Toggle native fullscreen for the &lt;video> element.
    */
   async function toggleFullscreen() {
     const v = playerRef.current;
@@ -277,18 +324,18 @@ export default function MovieDetail() {
 
   if (loading) {
     return (
-      <section className="container">
+      &lt;section className="container">
         {/* aria-busy hints async load to AT users */}
-        <p aria-busy="true">Cargando…</p>
-      </section>
+        &lt;p aria-busy="true">Cargando…&lt;/p>
+      &lt;/section>
     )
   }
   if (error) {
     return (
-      <section className="container">
+      &lt;section className="container">
         {/* role="alert" announces error messages immediately */}
-        <p role="alert" style={{ color: 'salmon' }}>{error}</p>
-      </section>
+        &lt;p role="alert" style={{ color: 'salmon' }}>{error}&lt;/p>
+      &lt;/section>
     )
   }
   if (!movie) return null
@@ -297,11 +344,11 @@ export default function MovieDetail() {
   const videoSrc = movie.streamUrl || pexelsVideoUrl || undefined
 
   return (
-    <section className="container movie-detail movie-detail--single">
-      <h1 className="detail-title">{movie.title}</h1>
+    &lt;section className="container movie-detail movie-detail--single">
+      &lt;h1 className="detail-title">{movie.title}&lt;/h1>
 
-      <div className={`player ${!videoSrc ? 'is-loading' : ''}`}>
-        <video
+      &lt;div className={`player ${!videoSrc ? 'is-loading' : ''}`}>
+        &lt;video
           ref={playerRef}
           id="player"
           controls
@@ -311,9 +358,9 @@ export default function MovieDetail() {
         />
 
         {/* Toolbar: all buttons are keyboard accessible (2.1.1) */}
-        <div className="toolbar" aria-label="Controles de reproducción">
-          <div className="group">
-            <button
+        &lt;div className="toolbar" aria-label="Controles de reproducción">
+          &lt;div className="group">
+            &lt;button
               type="button"
               className="ctrl hit-24"
               onClick={togglePlay}
@@ -321,14 +368,14 @@ export default function MovieDetail() {
               disabled={!videoSrc}
             >
               {playing ? '⏸ Pausa' : '▶ Reproducir'}
-            </button>
+            &lt;/button>
 
-            <button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s</button>
-            <button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭</button>
-          </div>
+            &lt;button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s&lt;/button>
+            &lt;button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭&lt;/button>
+          &lt;/div>
 
-          <div className="group volume">
-            <button
+          &lt;div className="group volume">
+            &lt;button
               type="button"
               className="ctrl hit-24"
               onClick={toggleMute}
@@ -336,8 +383,8 @@ export default function MovieDetail() {
               disabled={!videoSrc}
             >
               {muted || volume === 0 ? '🔇 Mute' : '🔊 Volumen'}
-            </button>
-            <input
+            &lt;/button>
+            &lt;input
               className="range"
               type="range"
               min={0}
@@ -348,24 +395,24 @@ export default function MovieDetail() {
               disabled={!videoSrc}
               aria-label="Ajustar volumen"
             />
-          </div>
+          &lt;/div>
 
-          <div className="spacer" />
+          &lt;div className="spacer" />
 
-          <div className="group rate">
-            <span style={{ opacity: .8 }}>Vel:</span>
-            <select value={rate} onChange={onRate} disabled={!videoSrc} aria-label="Velocidad de reproducción">
-              <option value={0.5}>0.5×</option>
-              <option value={0.75}>0.75×</option>
-              <option value={1}>1×</option>
-              <option value={1.25}>1.25×</option>
-              <option value={1.5}>1.5×</option>
-              <option value={2}>2×</option>
-            </select>
-          </div>
+          &lt;div className="group rate">
+            &lt;span style={{ opacity: .8 }}>Vel:&lt;/span>
+            &lt;select value={rate} onChange={onRate} disabled={!videoSrc} aria-label="Velocidad de reproducción">
+              &lt;option value={0.5}>0.5×&lt;/option>
+              &lt;option value={0.75}>0.75×&lt;/option>
+              &lt;option value={1}>1×&lt;/option>
+              &lt;option value={1.25}>1.25×&lt;/option>
+              &lt;option value={1.5}>1.5×&lt;/option>
+              &lt;option value={2}>2×&lt;/option>
+            &lt;/select>
+          &lt;/div>
 
-          <div className="group">
-            <button
+          &lt;div className="group">
+            &lt;button
               type="button"
               className="ctrl hit-24"
               onClick={toggleLoop}
@@ -373,31 +420,31 @@ export default function MovieDetail() {
               disabled={!videoSrc}
             >
               {loop ? '🔁 Loop ON' : 'Loop OFF'}
-            </button>
-            <button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP</button>
-            <button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full</button>
-          </div>
-        </div>
+            &lt;/button>
+            &lt;button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP&lt;/button>
+            &lt;button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full&lt;/button>
+          &lt;/div>
+        &lt;/div>
 
-        <div className="actions actions--video">
-          <button
+        &lt;div className="actions actions--video">
+          &lt;button
             className="btn primary"
             onClick={toggleFav}
             disabled={favBusy || isFav === null}
             aria-pressed={!!isFav}
           >
             {favBusy ? 'Guardando…' : isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-          </button>
-        </div>
+          &lt;/button>
+        &lt;/div>
         {/* role="status" announces transient confirmation text */}
-        {added && <p role="status" className="muted">{addedMsg}</p>}
-      </div>
+        {added &amp;&amp; &lt;p role="status" className="muted">{addedMsg}&lt;/p>}
+      &lt;/div>
 
-      {movie.description && (
-        <>
+      {movie.description &amp;&amp; (
+        &lt;>
           {/* Hidden label + readOnly textarea to show long text without being editable */}
-          <label className="sr-only" htmlFor="desc">Descripción</label>
-          <textarea
+          &lt;label className="sr-only" htmlFor="desc">Descripción&lt;/label>
+          &lt;textarea
             id="desc"
             className="description description--readonly"
             defaultValue={movie.description}
@@ -406,8 +453,33 @@ export default function MovieDetail() {
             aria-readonly="true"
             tabIndex={-1}
           />
-        </>
+        &lt;/>
       )}
-    </section>
+    &lt;/section>
   )
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

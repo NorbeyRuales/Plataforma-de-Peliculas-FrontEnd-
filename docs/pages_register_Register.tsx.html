@@ -1,4 +1,51 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>pages/register/Register.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">pages/register/Register.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Register.tsx
  * @description Registration screen with accessible form, client-side validation,
  * password strength meter, CapsLock hints and common email domain suggestion.
@@ -33,7 +80,7 @@ export default function Register() {
 
   const [name, setName] = useState('')
   const [apellido, setApellido] = useState('')            // ✅ new field
-  const [age, setAge] = useState<number | ''>('')         // ← replacing DOB with age
+  const [age, setAge] = useState&lt;number | ''>('')         // ← replacing DOB with age
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -44,14 +91,14 @@ export default function Register() {
   const [caps2, setCaps2] = useState(false)
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | undefined>()
-  const errSummaryRef = useRef<HTMLDivElement>(null)
-  const nameRef = useRef<HTMLInputElement>(null)
-  const apellidoRef = useRef<HTMLInputElement>(null)       // ✅ new
-  const ageRef = useRef<HTMLInputElement>(null)            // ← focus target on errors
-  const emailRef = useRef<HTMLInputElement>(null)
-  const pwdRef = useRef<HTMLInputElement>(null)
-  const pwd2Ref = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState&lt;string | undefined>()
+  const errSummaryRef = useRef&lt;HTMLDivElement>(null)
+  const nameRef = useRef&lt;HTMLInputElement>(null)
+  const apellidoRef = useRef&lt;HTMLInputElement>(null)       // ✅ new
+  const ageRef = useRef&lt;HTMLInputElement>(null)            // ← focus target on errors
+  const emailRef = useRef&lt;HTMLInputElement>(null)
+  const pwdRef = useRef&lt;HTMLInputElement>(null)
+  const pwd2Ref = useRef&lt;HTMLInputElement>(null)
 
   // Move focus to error summary when a new error is set
   useEffect(() => { if (error) errSummaryRef.current?.focus() }, [error])
@@ -69,7 +116,7 @@ export default function Register() {
    * @returns {string | null} Error message or null when valid.
    */
   function validatePassword(pwd: string): string | null {
-    if (pwd.length < 8) return 'La contraseña debe tener al menos 8 caracteres.'
+    if (pwd.length &lt; 8) return 'La contraseña debe tener al menos 8 caracteres.'
     if (!/[A-Z]/.test(pwd)) return 'Debe contener al menos una letra mayúscula.'
     if (!/[0-9]/.test(pwd)) return 'Debe contener al menos un número.'
     if (!/[^A-Za-z0-9]/.test(pwd)) return 'Debe contener al menos un carácter especial.'
@@ -100,7 +147,7 @@ export default function Register() {
    * Example: gmal.com -> gmail.com.
    */
   const emailSuggestion = useMemo(() => {
-    const fixes: Record<string, string> = {
+    const fixes: Record&lt;string, string> = {
       'gmal.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gnail.com': 'gmail.com',
       'hotmal.com': 'hotmail.com', 'hotmial.com': 'hotmail.com',
       'outlok.com': 'outlook.com',
@@ -110,14 +157,14 @@ export default function Register() {
     if (parts.length === 2) {
       const dom = parts[1].toLowerCase()
       const fix = fixes[dom]
-      if (fix && fix !== dom) return `${parts[0]}@${fix}`
+      if (fix &amp;&amp; fix !== dom) return `${parts[0]}@${fix}`
     }
     return ''
   }, [email])
   // =======================
 
   const pwdError = validatePassword(password)
-  const pwdValid = !!password && !pwdError
+  const pwdValid = !!password &amp;&amp; !pwdError
   const pwdHintText = !password
     ? 'Mínimo 8 caracteres, mayúscula, número y símbolo.'
     : (pwdValid ? 'La contraseña cumple con los requisitos.' : (pwdError as string))
@@ -125,20 +172,20 @@ export default function Register() {
     'field__hint ' + (!password ? '' : (pwdValid ? 'field__hint--ok' : 'field__hint--bad'))
 
   const confirmHintText = !password2
-    ? <em>Debe coincidir con la contraseña.</em>
+    ? &lt;em>Debe coincidir con la contraseña.&lt;/em>
     : (same ? 'Las contraseñas coinciden.' : 'Las contraseñas no coinciden.')
   const confirmHintClass =
     'field__hint ' + (!password2 ? '' : (same ? 'field__hint--ok' : 'field__hint--bad'))
 
-  const ageOk = age !== '' && Number(age) >= AGE_MIN && Number(age) <= AGE_MAX
+  const ageOk = age !== '' &amp;&amp; Number(age) >= AGE_MIN &amp;&amp; Number(age) &lt;= AGE_MAX
 
   const canSubmit =
-    !!name.trim() &&
-    !!apellido.trim() &&           // ✅ required
-    ageOk &&
-    emailOk &&
-    !validatePassword(password) &&
-    same &&
+    !!name.trim() &amp;&amp;
+    !!apellido.trim() &amp;&amp;           // ✅ required
+    ageOk &amp;&amp;
+    emailOk &amp;&amp;
+    !validatePassword(password) &amp;&amp;
+    same &amp;&amp;
     !loading
 
   /**
@@ -166,8 +213,8 @@ export default function Register() {
    * - calls Auth.signup using the suggestion if present
    * - routes to /login on success
    * - shows backend errors in a summary box and manages loading state
-   * @param {React.FormEvent<HTMLFormElement>} e
-   * @returns {Promise<void>}
+   * @param {React.FormEvent&lt;HTMLFormElement>} e
+   * @returns {Promise&lt;void>}
    */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -197,20 +244,20 @@ export default function Register() {
   }
 
   return (
-    <section className='auth-screen container'>
-      <div className='logo-big' aria-label='PYRA' />
-      <h1 className='sr-only'>Registro</h1>
+    &lt;section className='auth-screen container'>
+      &lt;div className='logo-big' aria-label='PYRA' />
+      &lt;h1 className='sr-only'>Registro&lt;/h1>
 
-      {error && (
-        <div ref={errSummaryRef} tabIndex={-1} role='alert' className='form-summary form-summary--error'>
+      {error &amp;&amp; (
+        &lt;div ref={errSummaryRef} tabIndex={-1} role='alert' className='form-summary form-summary--error'>
           {error}
-        </div>
+        &lt;/div>
       )}
 
-      <form className='auth-form' onSubmit={handleSubmit} noValidate>
-        <label className='field'>
-          <span className='field__label'>Nombre</span>
-          <input
+      &lt;form className='auth-form' onSubmit={handleSubmit} noValidate>
+        &lt;label className='field'>
+          &lt;span className='field__label'>Nombre&lt;/span>
+          &lt;input
             ref={nameRef}
             placeholder='Nombre'
             required
@@ -218,11 +265,11 @@ export default function Register() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-        </label>
+        &lt;/label>
 
-        <label className='field'>
-          <span className='field__label'>Apellido</span>
-          <input
+        &lt;label className='field'>
+          &lt;span className='field__label'>Apellido&lt;/span>
+          &lt;input
             ref={apellidoRef}
             placeholder='Apellido'
             required
@@ -230,12 +277,12 @@ export default function Register() {
             value={apellido}
             onChange={(e) => setApellido(e.target.value)}
           />
-        </label>
+        &lt;/label>
 
         {/* ← Changed: Date of birth → Age */}
-        <label className='field'>
-          <span className='field__label'>Edad</span>
-          <input
+        &lt;label className='field'>
+          &lt;span className='field__label'>Edad&lt;/span>
+          &lt;input
             ref={ageRef}
             placeholder='Edad'
             type='number'
@@ -249,12 +296,12 @@ export default function Register() {
               setAge(v === '' ? '' : Math.max(0, Math.trunc(Number(v))))
             }}
           />
-          <small className='field__hint italic'>Digita tú edad</small>
-        </label>
+          &lt;small className='field__hint italic'>Digita tú edad&lt;/small>
+        &lt;/label>
 
-        <label className='field'>
-          <span className='field__label'>Correo electrónico</span>
-          <input
+        &lt;label className='field'>
+          &lt;span className='field__label'>Correo electrónico&lt;/span>
+          &lt;input
             ref={emailRef}
             placeholder='correo@dominio.com'
             type='email'
@@ -262,12 +309,12 @@ export default function Register() {
             autoComplete='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            aria-invalid={email.length > 0 && !emailOk ? true : undefined}
+            aria-invalid={email.length > 0 &amp;&amp; !emailOk ? true : undefined}
           />
-          {emailSuggestion && emailSuggestion !== email && (
-            <div className="input-hint-inline">
+          {emailSuggestion &amp;&amp; emailSuggestion !== email &amp;&amp; (
+            &lt;div className="input-hint-inline">
               ¿Quisiste decir{' '}
-              <button
+              &lt;button
                 type="button"
                 className="btn ghost hit-24"
                 onClick={() => setEmail(emailSuggestion)}
@@ -275,16 +322,16 @@ export default function Register() {
                 style={{ padding: '.2rem .5rem', borderRadius: 8 }}
               >
                 {emailSuggestion}
-              </button>
+              &lt;/button>
               ?
-            </div>
+            &lt;/div>
           )}
-        </label>
+        &lt;/label>
 
-        <label className='field'>
-          <span className='field__label'>Contraseña</span>
-          <div className='password-field'>
-            <input
+        &lt;label className='field'>
+          &lt;span className='field__label'>Contraseña&lt;/span>
+          &lt;div className='password-field'>
+            &lt;input
               ref={pwdRef}
               placeholder='Contraseña'
               type={showPwd1 ? 'text' : 'password'}
@@ -296,7 +343,7 @@ export default function Register() {
               onKeyUp={(e) => setCaps1(e.getModifierState('CapsLock'))}
               aria-describedby='reg_pwd_hint'
             />
-            <button
+            &lt;button
               type='button'
               className='pwd-toggle hit-24'
               aria-pressed={showPwd1}
@@ -304,32 +351,32 @@ export default function Register() {
               onClick={() => setShowPwd1(!showPwd1)}
             >
               {showPwd1 ? (
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
-                </svg>
+                &lt;svg viewBox="0 0 24 24" width="20" height="20">
+                  &lt;path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
+                &lt;/svg>
               ) : (
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
-                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
-                </svg>
+                &lt;svg viewBox="0 0 24 24" width="20" height="20">
+                  &lt;path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                  &lt;circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                &lt;/svg>
               )}
-              <span className='sr-only'>{showPwd1 ? 'Ocultar' : 'Mostrar'}</span>
-            </button>
-          </div>
+              &lt;span className='sr-only'>{showPwd1 ? 'Ocultar' : 'Mostrar'}&lt;/span>
+            &lt;/button>
+          &lt;/div>
 
-          <div className={pwdMeterClass} aria-hidden="true" style={{ marginTop: '.4rem', marginBottom: '.2rem' }}>
-            <div className="pwd-meter__fill" />
-          </div>
+          &lt;div className={pwdMeterClass} aria-hidden="true" style={{ marginTop: '.4rem', marginBottom: '.2rem' }}>
+            &lt;div className="pwd-meter__fill" />
+          &lt;/div>
 
-          <small id='reg_pwd_hint' className={pwdHintClass} aria-live='polite'>
+          &lt;small id='reg_pwd_hint' className={pwdHintClass} aria-live='polite'>
             {pwdHintText}{caps1 ? ' Bloq Mayús activado.' : ''}
-          </small>
-        </label>
+          &lt;/small>
+        &lt;/label>
 
-        <label className='field'>
-          <span className='field__label'>Confirmar contraseña</span>
-          <div className='password-field'>
-            <input
+        &lt;label className='field'>
+          &lt;span className='field__label'>Confirmar contraseña&lt;/span>
+          &lt;div className='password-field'>
+            &lt;input
               ref={pwd2Ref}
               placeholder='Confirmar contraseña'
               type={showPwd2 ? 'text' : 'password'}
@@ -340,7 +387,7 @@ export default function Register() {
               onKeyUp={(e) => setCaps2(e.getModifierState('CapsLock'))}
               aria-describedby='reg_pwd2_hint'
             />
-            <button
+            &lt;button
               type='button'
               className='pwd-toggle hit-24'
               aria-pressed={showPwd2}
@@ -348,27 +395,52 @@ export default function Register() {
               onClick={() => setShowPwd2(!showPwd2)}
             >
               {showPwd2 ? (
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
-                </svg>
+                &lt;svg viewBox="0 0 24 24" width="20" height="20">
+                  &lt;path fill="none" stroke="currentColor" strokeWidth="2" d="M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36" />
+                &lt;/svg>
               ) : (
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
-                  <circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
-                </svg>
+                &lt;svg viewBox="0 0 24 24" width="20" height="20">
+                  &lt;path fill="none" stroke="currentColor" strokeWidth="2" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+                  &lt;circle fill="none" stroke="currentColor" strokeWidth="2" cx="12" cy="12" r="3.5" />
+                &lt;/svg>
               )}
-              <span className='sr-only'>{showPwd2 ? 'Ocultar' : 'Mostrar'}</span>
-            </button>
-          </div>
-          <small id='reg_pwd2_hint' className={confirmHintClass} aria-live='polite'>
+              &lt;span className='sr-only'>{showPwd2 ? 'Ocultar' : 'Mostrar'}&lt;/span>
+            &lt;/button>
+          &lt;/div>
+          &lt;small id='reg_pwd2_hint' className={confirmHintClass} aria-live='polite'>
             {confirmHintText}{caps2 ? ' Bloq Mayús activado.' : ''}
-          </small>
-        </label>
+          &lt;/small>
+        &lt;/label>
 
-        <button className='btn primary' type='submit' disabled={!canSubmit}>
+        &lt;button className='btn primary' type='submit' disabled={!canSubmit}>
           {loading ? 'Creando...' : 'Crear cuenta'}
-        </button>
-      </form>
-    </section>
+        &lt;/button>
+      &lt;/form>
+    &lt;/section>
   )
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

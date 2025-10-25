@@ -1,16 +1,45 @@
 // src/pages/forgot-password/ForgotPassword.tsx
+
+/**
+ * @file ForgotPassword.tsx
+ * @summary Password recovery page (request + reset) using Supabase Auth.
+ * @module Pages/ForgotPassword
+ * @description
+ * This page covers two modes:
+ *  - "request": user submits their email to receive a recovery link.
+ *  - "reset": after Supabase validates the token, user sets a new password.
+ *
+ * A11Y:
+ *  - Uses clear headings and live regions (`role="alert"`/`role="status"`) for feedback.
+ *  - Focus is moved to the error message paragraph when an error appears.
+ *  - Buttons include disabled state during async operations to avoid double submits.
+ */
+
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import './ForgotPassword.scss';
 import { supa } from '../../services/supa';
 
+/**
+ * Base site URL used for Supabase redirect during the recovery flow.
+ * Falls back to window.origin in the browser.
+ * @constant
+ */
 const SITE_URL =
   (import.meta as any).env?.VITE_SITE_URL ||
   (typeof window !== 'undefined' ? window.location.origin : '');
 
+/**
+ * Forgot password & reset password view.
+ * Handles both requesting the recovery email and setting a new password
+ * once Supabase has validated the token.
+ * @component
+ * @returns {JSX.Element}
+ */
 export default function ForgotPassword() {
   const navigate = useNavigate();
 
+  // --- Local state for both modes ---
   const [email, setEmail] = useState('');
   const [pass1, setPass1] = useState('');
   const [pass2, setPass2] = useState('');
@@ -19,19 +48,25 @@ export default function ForgotPassword() {
   const [caps1, setCaps1] = useState(false);
   const [caps2, setCaps2] = useState(false);
 
-  // Mantenemos el modo 'reset' como respaldo (por si alguien llega con un enlace viejo).
+  // Keep a fallback "reset" mode in case a legacy link lands here.
   const [mode, setMode] = useState<'request' | 'reset'>('request');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
+  // Basic client-side checks
   const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
   const canSend = emailOk && !loading;
   const passOk = pass1.length >= 6;
   const same = pass1 === pass2;
   const canSave = passOk && same && !loading;
 
+  /**
+   * Replaces the URL (history) to a clean path without Supabase params.
+   * Helps avoid re-processing the token if the user refreshes.
+   * @function
+   */
   const cleanUrl = () => {
     try {
       const clean = `${SITE_URL}/forgot-password`;
@@ -39,7 +74,7 @@ export default function ForgotPassword() {
     } catch {}
   };
 
-  // Escucha eventos de Supabase (por si crea sesión con el token antes de este efecto).
+  // Subscribe to Supabase auth state changes (in case session is created before this effect).
   useEffect(() => {
     const { data: sub } = supa.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
@@ -52,9 +87,9 @@ export default function ForgotPassword() {
     };
   }, []);
 
-  // Detecta tokens en query/hash y hace exchange (si corresponde).
+  // Detect tokens in query/hash and perform exchange if needed.
   useEffect(() => {
-    // Si ya no hay hash ni code (porque venimos de /reset-password), no intentes intercambiar de nuevo.
+    // If there is no hash nor code (e.g., coming from /reset-password), skip exchange.
     const noHash = !window.location.hash;
     const noCode = !new URLSearchParams(window.location.search).get('code');
     if (noHash && noCode) return;
@@ -64,6 +99,7 @@ export default function ForgotPassword() {
     const q = url.searchParams;
     const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
 
+    // Supabase might hand back an error via params.
     const supaErr = q.get('error_description') || hashParams.get('error_description');
     if (supaErr) {
       setErr(decodeURIComponent(supaErr));
@@ -91,18 +127,23 @@ export default function ForgotPassword() {
     }
   }, []);
 
-  // Enfoca el resumen de error accesible.
+  // Move focus to the error summary for screen readers.
   useEffect(() => {
     if (err) errRef.current?.focus();
   }, [err]);
 
+  /**
+   * Sends a recovery email via Supabase.
+   * @param {React.FormEvent} e - Form submit event.
+   * @returns {Promise<void>}
+   */
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setErr(null);
     setMsg(null);
     try {
-      // 👇 NUEVO: enviamos al flujo dedicado de restablecimiento
+      // Use a dedicated reset route for a cleaner UX.
       const redirectTo = `${SITE_URL}/reset-password`;
       const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) throw error;
@@ -114,6 +155,11 @@ export default function ForgotPassword() {
     }
   }
 
+  /**
+   * Confirms the new password with Supabase once the session/token is valid.
+   * @param {React.FormEvent} e - Form submit event.
+   * @returns {Promise<void>}
+   */
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -142,11 +188,13 @@ export default function ForgotPassword() {
       {mode === 'request' ? (
         <>
           <h1 className='sr-only'>Recuperar contraseña</h1>
+          {/* Short instructions to set user expectations */}
           <p className='muted center'>
             ¿Olvidaste la contraseña? Te enviaremos un enlace de recuperación a tu correo.
           </p>
 
           {err && (
+            // Error message is focusable and labeled as an alert for SRs
             <p ref={errRef} role='alert' className='field__error center'>
               {err}
             </p>

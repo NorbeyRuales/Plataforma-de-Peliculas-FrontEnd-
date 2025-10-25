@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>pages/movies/Movies.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">pages/movies/Movies.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// src/pages/movies/Movies.tsx
+/**
+ * @file Movies.tsx
+ * @description Movies listing with optional search via ?q=.
+ * Accessibility notes:
+ * - Keeps a single &lt;h1> per page (WCAG 1.3.1 Info &amp; Relationships).
+ * - &lt;h1> is marked with [data-skip-target] so the global skip-link lands here (WCAG 2.4.1 Bypass Blocks).
+ * - Clear loading / error / empty states for all users.
+ */
+
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+import { useSearchParams } from 'react-router-dom'
+import MovieCard from '../../components/movie/MovieCard'
+import '../home/Home.scss'
+
+/** Shape returned by the API; MovieCard uses a subset of these fields */
+type RawMovie = {
+    _id?: string
+    id?: string | number
+    title: string
+    year?: number | string
+    poster_url?: string
+    posterUrl?: string
+    genres?: string[]
+    description?: string
+    streamUrl?: string
+}
+
+/**
+ * Small type guard:
+ * Accepts an empty array or an array whose first element has a string `title`.
+ * This avoids crashing if the backend shape varies.
+ */
+function isMovieArray(x: any): x is RawMovie[] {
+    return Array.isArray(x) &amp;&amp; (x.length === 0 || typeof x[0]?.title === 'string')
+}
+
+export default function MoviesPage() {
+    // Page state for list, loading and error
+    const [movies, setMovies] = useState&lt;RawMovie[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState&lt;string | null>(null)
+
+    // Read "?q=" from URL so navigation controls the query
+    const [searchParams] = useSearchParams()
+    const q = (searchParams.get('q') || '').trim()
+
+    // Fetch on mount and whenever `q` changes
+    useEffect(() => {
+        let alive = true
+            ; (async () => {
+                try {
+                    setLoading(true)
+                    setError(null)
+
+                    const path = q ? `/movies?q=${encodeURIComponent(q)}` : '/movies'
+                    const resp = (await api.get(path)) as any
+
+                    // Backend may return: array, { data }, or { movies }
+                    const data = resp?.movies ?? resp?.data ?? resp
+
+                    if (!alive) return
+                    setMovies(isMovieArray(data) ? data : [])
+                } catch (err: any) {
+                    if (!alive) return
+                    // Copy kept in Spanish to match current UI language
+                    setError(err?.message || 'No se pudieron cargar las películas')
+                } finally {
+                    if (alive) setLoading(false)
+                }
+            })()
+
+        return () => { alive = false }
+    }, [q])
+
+    const hasQuery = q.length > 0
+
+    return (
+        /**
+         * Main content region for this view.
+         * Pairs with the global skip-link so keyboard users can jump here quickly.
+         */
+        &lt;section className="home">
+            {/**
+       * Single page heading (h1). Marked as the preferred skip target so
+       * Enter on the skip-link focuses this element first (WCAG 2.4.1).
+       */}
+            &lt;h1 className="title" data-skip-target>
+                {hasQuery ? `Resultados para “${q}”` : 'Películas'}
+            &lt;/h1>
+
+            {/* Lightweight loading indicator (could add aria-busy on a wrapper if desired) */}
+            {loading &amp;&amp; &lt;p style={{ opacity: .8 }}>Cargando…&lt;/p>}
+
+            {/* Error message in a distinct color for quick visual scanning */}
+            {error &amp;&amp; &lt;p style={{ color: 'salmon' }}>{error}&lt;/p>}
+
+            {/* Normal / empty rendering once not loading and no error */}
+            {!loading &amp;&amp; !error &amp;&amp; (
+                movies.length > 0 ? (
+                    /**
+                     * Responsive grid of MovieCard articles.
+                     * &lt;ul>/&lt;li> would also be valid; cards use &lt;article> semantics internally.
+                     */
+                    &lt;div className='grid'>
+                        {movies.map(m => (
+                            &lt;MovieCard key={m._id ?? String(m.id)} movie={m as any} />
+                        ))}
+                    &lt;/div>
+                ) : (
+                    // Clear empty state, adapted depending on whether a query is active
+                    &lt;p style={{ opacity: .8 }}>
+                        {hasQuery ? 'No hay coincidencias.' : 'No hay películas para mostrar.'}
+                    &lt;/p>
+                )
+            )}
+        &lt;/section>
+    )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

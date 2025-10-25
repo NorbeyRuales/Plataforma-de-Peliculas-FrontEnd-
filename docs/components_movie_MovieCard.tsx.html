@@ -1,4 +1,51 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>components/movie/MovieCard.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">components/movie/MovieCard.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file MovieCard.tsx
  * @description Reusable movie card with lazy-loaded poster, accessible title and rating.
  * The link's accessible name is the visible title; decorative star glyphs are hidden
@@ -74,7 +121,7 @@ export default function MovieCard({ movie }: { movie: Movie }) {
   const [shouldLoad, setShouldLoad] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [imgError, setImgError] = useState(false)
-  const posterRef = useRef<HTMLDivElement | null>(null)
+  const posterRef = useRef&lt;HTMLDivElement | null>(null)
 
   /**
    * Lazy-load poster using IntersectionObserver:
@@ -96,15 +143,15 @@ export default function MovieCard({ movie }: { movie: Movie }) {
     return () => io.disconnect()
   }, [])
 
-  const showImage = posterUrl && !imgError && shouldLoad
+  const showImage = posterUrl &amp;&amp; !imgError &amp;&amp; shouldLoad
 
   return (
-    <article className='movie-card'>
+    &lt;article className='movie-card'>
       {/* No aria-label on the link: the accessible name is the visible title inside */}
-      <Link to={to} state={{ breadcrumb: titleText }}>
-        <div className='poster' ref={posterRef}>
-          {showImage && (
-            <img
+      &lt;Link to={to} state={{ breadcrumb: titleText }}>
+        &lt;div className='poster' ref={posterRef}>
+          {showImage &amp;&amp; (
+            &lt;img
               src={posterUrl!}
               alt={`Póster de ${titleText}`}
               loading='lazy'
@@ -124,28 +171,53 @@ export default function MovieCard({ movie }: { movie: Movie }) {
           )}
 
           {/* Placeholder only "speaks" when there is truly no image */}
-          {(!showImage || !loaded) && (
-            <div
+          {(!showImage || !loaded) &amp;&amp; (
+            &lt;div
               className='poster-placeholder'
               role='img'
               aria-label='Sin póster disponible'
-              aria-hidden={Boolean(posterUrl) && !imgError} // hidden while only loading
+              aria-hidden={Boolean(posterUrl) &amp;&amp; !imgError} // hidden while only loading
             />
           )}
-        </div>
+        &lt;/div>
 
-        <div className='info'>
-          <h3>{titleText}</h3>
-          <p className='meta'>
+        &lt;div className='info'>
+          &lt;h3>{titleText}&lt;/h3>
+          &lt;p className='meta'>
             {(movie as any).year} • {((movie as any).genres || []).slice(0, 2).join(' / ')}
-          </p>
+          &lt;/p>
 
           {/* Decorative stars; numeric value is announced via aria-label */}
-          <p className='stars' aria-label={`Calificación: ${aria}`}>
-            <span aria-hidden='true'>{stars}</span>
-          </p>
-        </div>
-      </Link>
-    </article>
+          &lt;p className='stars' aria-label={`Calificación: ${aria}`}>
+            &lt;span aria-hidden='true'>{stars}&lt;/span>
+          &lt;/p>
+        &lt;/div>
+      &lt;/Link>
+    &lt;/article>
   )
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
