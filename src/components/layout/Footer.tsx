@@ -4,7 +4,7 @@ import './Footer.scss'
 export default function Footer() {
   const year = new Date().getFullYear()
 
-  // Enlaces existentes/útiles de tu app (ajusta si te falta alguno)
+  // Existing/useful links from your app (adjust if you're missing any)
   const explorar = [
     { to: '/', label: 'Inicio' },
     { to: '/movies', label: 'Películas' },
@@ -19,7 +19,7 @@ export default function Footer() {
   ]
 
   const recursos = [
-    { to: '/site-map', label: 'Mapa del sitio' }, // mantengo tu ruta existente
+    { to: '/site-map', label: 'Mapa del sitio' }, // keep your existing route
   ]
 
   return (
@@ -47,7 +47,7 @@ export default function Footer() {
           </div>
         </section>
 
-        {/* Columnas de enlaces */}
+        {/* Link columns */}
         <section>
           <h4 className="footer-title">Explorar</h4>
           <ul className="footer-list">

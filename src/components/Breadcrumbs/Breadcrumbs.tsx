@@ -1,32 +1,31 @@
 /**
  * @file Breadcrumbs.tsx
- * @description Componente de migas de pan (breadcrumb) basado en la URL actual.
- * Mapea segmentos de ruta a etiquetas legibles y marca el último ítem con
- * aria-current="page" para lectores de pantalla.
- *
- * A11y (WCAG):
- * - 1.3.1 Info y relaciones: <nav aria-label="Migas de pan"> + <ol>/<li>.
- * - 2.4.1 Bypass Blocks: ayuda a ubicarse y saltar entre niveles.
- * - 2.4.4/2.4.9 Propósito del enlace: cada enlace tiene texto descriptivo.
- * - 2.4.8 Localización: indica la posición dentro de la jerarquía.
- */
-
+ * @description Breadcrumb component based on the current URL.
+* Maps path segments to human-readable labels and marks the last item with
+* aria-current="page" for screen readers.
+*
+* A11y (WCAG):
+* - 1.3.1 Info and Relationships: <nav aria-label="Breadcrumb"> + <ol>/<li>.
+* - 2.4.1 Bypass Blocks: Helps navigate and jump between levels.
+* - 2.4.4/2.4.9 Link Purpose: Each link has descriptive text.
+* - 2.4.8 Location: Indicates the position within the hierarchy.
+*/
 import { Link, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import "./Breadcrumbs.scss";
 
 /**
- * Reglas para convertir rutas conocidas en etiquetas de navegación.
- * El orden importa: se evalúan en secuencia y se devuelve la primera coincidencia.
- */
+* Rules for converting known routes into navigation labels.
+* Order matters: they are evaluated in sequence, and the first match is returned.
+*/
 const LABELS: { pattern: RegExp; label: string }[] = [
     { pattern: /^\/$/, label: "Inicio" },
 
-    // Rutas reales de tu app
+    // Actual routes of your app
     { pattern: /^\/movies(\/|$)/, label: "Películas" },
     { pattern: /^\/movie\/[^/]+$/, label: "Detalle" },
 
-    // (Opcionales en caso de cambiar slugs a español en el futuro)
+    // (Optional in case slugs are changed to Spanish in the future)
     { pattern: /^\/peliculas(\/|$)/, label: "Películas" },
     { pattern: /^\/series(\/|$)/, label: "Series" },
     { pattern: /^\/favoritos(\/|$)/, label: "Favoritos" },
@@ -36,8 +35,8 @@ const LABELS: { pattern: RegExp; label: string }[] = [
 ];
 
 /**
- * Devuelve la etiqueta asociada a un path según LABELS, o null si no hay coincidencia.
- */
+* Returns the label associated with a path based on LABELS, or null if there is no match.
+*/
 function pathToLabel(path: string): string | null {
     for (const rule of LABELS) {
         if (rule.pattern.test(path)) return rule.label;
@@ -46,13 +45,13 @@ function pathToLabel(path: string): string | null {
 }
 
 /**
- * Migas de pan construidas a partir de location.pathname.
- * Ejemplo: "/movie/123" -> ["/", "/movie", "/movie/123"]
- */
+* Breadcrumbs built from location.pathname.
+* Example: "/movie/123" -> ["/", "/movie", "/movie/123"]
+*/
 export default function Breadcrumbs() {
     const location = useLocation();
 
-    // Construye cada acumulado de ruta para enlazar los niveles previos.
+    // Build each path stack to link the previous levels.
     const segments = useMemo(() => {
         const parts = location.pathname.split("/").filter(Boolean);
         const acc: string[] = [];
@@ -60,37 +59,37 @@ export default function Breadcrumbs() {
             const prev = acc[i - 1] ?? "";
             acc.push(`${prev}/${p}`);
         });
-        // Siempre incluye la raíz al inicio
+        // Always include the root at the beginning
         return ["/", ...acc];
     }, [location.pathname]);
 
-    // Permite sobreescribir la etiqueta final con un nombre “humano”
-    // pasado por state (p.ej. el título de la película).
+    // Allows you to override the end tag with a “human” name
+// passed by state (e.g., the movie title).
     const lastDynamicLabel =
         (location.state as undefined | { breadcrumb?: string })?.breadcrumb ?? null;
 
     return (
-        // aria-label ayuda a los lectores de pantalla a identificar la navegación
+        // aria-label helps screen readers identify navigation
         <nav className="breadcrumbs" aria-label="Migas de pan">
             <ol>
                 {segments.map((fullPath, idx) => {
                     const isLast = idx === segments.length - 1;
 
-                    // 1) Intenta con reglas conocidas
+                    // 1) Try with known rules
                     let label = pathToLabel(fullPath);
 
-                    // 2) Si es el último y viene etiqueta dinámica, úsala
+                    // 2) If it is the last one and comes with a dynamic label, use it
                     if (isLast && lastDynamicLabel) label = lastDynamicLabel;
 
-                    // 3) Fallback: formatea el último segmento
+                    // 3) Fallback: Format the last segment
                     if (!label) {
                         const raw = fullPath.split("/").filter(Boolean).pop() ?? "";
                         const rawLc = raw.toLowerCase();
-                        // Etiqueta neutra si el segmento no es significativo
+                        // Neutral label if the segment is not significant
                         if (rawLc === "undefined" || rawLc === "null" || rawLc === "") {
                             label = "Detalle";
                         } else {
-                            // Decodifica y capitaliza palabras
+                            // Decode and capitalize words
                             label = decodeURIComponent(raw)
                                 .replace(/[-_]/g, " ")
                                 .replace(/\b\w/g, (c) => c.toUpperCase());
@@ -100,7 +99,7 @@ export default function Breadcrumbs() {
                     return (
                         <li key={fullPath}>
                             {isLast ? (
-                                // aria-current="page" indica el punto actual en la jerarquía
+                               // aria-current="page" indicates the current point in the hierarchy
                                 <span aria-current="page">{label}</span>
                             ) : (
                                 <Link to={fullPath}>{label}</Link>

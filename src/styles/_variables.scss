@@ -1,6 +1,6 @@
 /* src/styles/_variables.scss */
 
-/* === Puente SCSS -> CSS custom props del tema === */
+/* === SCSS bridge -> CSS custom props of the theme === */
 $bg: var(--bg, #f8f9fb);
 $surface: var(--surface, #ffffff);
 $text: var(--text, #1a1a1a);
@@ -10,22 +10,22 @@ $accent: var(--accent, #0044cc);
 $border: var(--border, rgba(0, 0, 0, 0.08));
 $shadow: var(--shadow, 0 3px 6px rgba(0, 0, 0, 0.15));
 
-/* Alias usados en componentes */
+/* Aliases used in components */
 $brand: $primary;
 $secondary: var(--accent, #4f9dff);
 
-/* Extras que piden tus estilos */
+/* Extras that your styles ask for */
 $card: var(--card, #ffffff);
 $success: var(--success, #4cc38a);
 $warning: var(--warning, #e6b800);
 $danger: var(--danger, #ff5c5c);
 $info: var(--info, #3399ff);
 
-/* Gris base para efectos (constante Sass, NO var()) */
+/* Base gray for effects (Sass constant, NOT var()) */
 $slate: #6b7280;
 /* tailwind-slate-500 aprox. */
 
-/* Dimensiones y helpers */
+/* Dimensions and helpers */
 $radius: 12px;
 $radius-sm: 6px;
 $radius-lg: 20px;
@@ -40,13 +40,13 @@ $shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
 $shadow-md: 0 3px 6px rgba(0, 0, 0, 0.15);
 $shadow-lg: 0 6px 12px rgba(0, 0, 0, 0.25);
 
-/* Mixins usados en varios lugares */
+/* Mixins used in various places */
 @mixin focus-ring($color) {
     outline: 2px solid $color;
     outline-offset: 2px;
 }
 
-/* Mixin de botón genérico para About.scss */
+/* Generic button mixin for About.scss */
 @mixin btn($bg, $color) {
     background: $bg;
     color: $color;

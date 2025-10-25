@@ -2,7 +2,7 @@
 
 :root {
     color-scheme: light;
-    /* Aro de foco global (apoya visibilidad de focus) */
+    /* Global focus ring (supports focus visibility) */
     --focus: #116cfe;
 }
 
@@ -60,19 +60,19 @@ a:hover {
 
     --primary: #2266ff;
     --accent: #0044cc;
-    /* más contraste para usos de acento */
+    /*more contrast for accent uses */
 
-    /* 🔧 Ajustes de contraste AA para texto blanco (1.4.3) */
+    /* 🔧 AA Contrast Settings for White Text (1.4.3) */
     --success: #00884e;
-    /* antes #4cc38a */
+    /* before #4cc38a */
     --warning: #8f7200;
-    /* antes #e6b800 */
+    /* before #e6b800 */
     --danger: #ea0000;
-    /* antes #ff5c5c */
+    /* before #ff5c5c */
     --info: #0072e5;
-    /* antes #3399ff */
+    /* before #3399ff */
 
-    /* 🔧 Contornos algo más visibles (1.4.11) */
+    /* 🔧 Somewhat more visible contours (1.4.11) */
     --border: rgba(0, 0, 0, .16);
     --shadow: 0 3px 6px rgba(0, 0, 0, .08);
 }
@@ -85,9 +85,9 @@ a:hover {
     --text: #e5e7eb;
     --mutedText: #9ca3af;
 
-    /* 🔧 Primario más intenso para texto blanco (1.4.3) */
+    /* 🔧 Intense primary for white text (1.4.3) */
     --primary: #116cfe;
-    /* antes #6ea8ff */
+    /* before #6ea8ff */
     --accent: #4f9dff;
 
     --success: #00884e;
@@ -95,24 +95,24 @@ a:hover {
     --danger: #ea0000;
     --info: #0072e5;
 
-    /* 🔧 Contornos algo más visibles (1.4.11) */
+    /* 🔧 Somewhat more visible contours (1.4.11) */
     --border: rgba(255, 255, 255, .18);
     --shadow: 0 6px 18px rgba(0, 0, 0, .45);
 }
 
-/* Aplicación global de fondo y color de texto */
+/* Global application of background and text color */
 html,
 body {
     background: var(--bg);
     color: var(--text);
 }
 
-/* Por si algún reset te estaba imponiendo blanco */
+/* In case any reset was imposing white on you */
 body {
     background-color: var(--bg) !important;
 }
 
-/* Grids de tarjetas */
+/* Card grids */
 .grid {
     display: grid;
     gap: 1rem;
@@ -127,7 +127,7 @@ body {
     padding: 0;
 }
 
-/* Accesibilidad */
+/* Accessibility */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -139,15 +139,15 @@ body {
     border: 0;
 }
 
-/* ===== Skip link (WCAG 2.4.1) — versión robusta =====
-   Fijo en la esquina; oculto con transform hasta que tenga foco.
-   Z-altísimo para quedar sobre el header sticky. */
+/* ===== Skip link (WCAG 2.4.1) — robust version =====
+Stick to the corner; hide with transform until focused.
+Z-high to stay above the sticky header. */
 .skip-link {
     position: fixed;
     left: 8px;
     top: 8px;
     transform: translateY(-200%);
-    /* oculto */
+    /* hidden */
     z-index: 9999;
     padding: .5rem .75rem;
     background: var(--surface, #fff);
@@ -166,22 +166,22 @@ body {
     outline: none;
 }
 
-/* ===== Indicador de foco global (WCAG 2.4.7) ===== */
+/* ===== Global Focus Indicator (WCAG 2.4.7) ===== */
 :where(a, button, input, select, textarea,
     [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: 3px;
-    /* halo extra para fondos claros/osc */
+    /* extra halo for light/dark backgrounds */
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent);
 }
 
-/* Evita duplicar outline si algún componente usa :focus */
+/* Avoid duplicating outline if any component uses :focus */
 :where(a, button, input, select, textarea,
     [role="button"], [tabindex]:not([tabindex="-1"])):focus {
     outline: none;
 }
 
-/* Botones globales (centrados) */
+/* Global buttons (centered) */
 .btn {
     border: 0;
     border-radius: 6px;
@@ -199,7 +199,7 @@ body {
 }
 
 .btn.success {
-    /* 🔧 Texto blanco para cumplir 1.4.3 con el nuevo success */
+    /* 🔧 White text to comply with 1.4.3 with the new success */
     background: $success;
     color: #fff;
 }
@@ -239,12 +239,12 @@ body {
 }
 
 /* =========================
-   Overrides DARK en runtime
+   Overrides DARK in runtime
    ========================= */
 html[data-theme='dark'] {
     color-scheme: dark;
 
-    /* Fondo y texto global */
+   /* Global background and text */
     body,
     #root {
         background: var(--bg);
@@ -260,7 +260,7 @@ html[data-theme='dark'] {
         text-decoration: underline;
     }
 
-    /* Header / navbar genérico */
+    /* Header / navbar genéric */
     .site-header {
         background: var(--bg);
         border-bottom: 1px solid var(--border);
@@ -295,7 +295,7 @@ html[data-theme='dark'] {
         color: var(--mutedText);
     }
 
-    /* Tarjetas / paneles */
+    /* Cards / panels */
     .card,
     .panel,
     .box,
@@ -306,7 +306,7 @@ html[data-theme='dark'] {
         box-shadow: 0 10px 24px var(--shadow);
     }
 
-    /* Botones globales */
+    /* Global buttons */
     .btn {
         color: var(--text);
         border: 1px solid var(--border);
@@ -321,7 +321,7 @@ html[data-theme='dark'] {
     .btn.success {
         background: var(--success, #22C55E);
         color: #fff;
-        /* 🔧 antes negro */
+        /* 🔧 before black */
     }
 
     .btn.danger {
@@ -349,11 +349,11 @@ html[data-theme='dark'] {
 }
 
 [data-skip-target] {
-    /* asegura que el título no quede oculto bajo el header */
+    /* ensures that the title is not hidden under the header */
     scroll-margin-top: calc(var(--header-h) + 8px);
 }
 
-/* Anillo de foco claro en el destino al usar skip-link */
+/* Clear focus ring on target when using skip-link */
 [data-skip-target]:focus,
 [data-skip-target]:focus-visible {
     outline: 3px solid var(--focus, #116cfe);
@@ -361,23 +361,23 @@ html[data-theme='dark'] {
     box-shadow: 0 0 0 6px color-mix(in srgb, var(--focus) 18%, transparent);
 }
 
-/* Opcional: si el foco cayera en <main>, que también se note */
+/* Optional: if focus falls on <main>, let that be noted as well */
 #main:focus {
     outline: 2px dashed var(--focus, #116cfe);
     outline-offset: 6px;
 }
 
-/* ===== WCAG 2.5.8 Target Size (Minimum) – utilidades ===== */
+/* ===== WCAG 2.5.8 Target Size (Minimum) – utilities ===== */
 .hit-24 {
     --hit: 24px;
-    /* puedes subirla a 28 o 32 si quieres */
+    /* you can raise it to 28 or 32 if you want */
     min-width: var(--hit);
     min-height: var(--hit);
     display: inline-flex;
-    /* no altera flujos de texto */
+    /* does not alter text streams */
     align-items: center;
     justify-content: center;
-    /* que no “crezca” visualmente más de la caja real si el icono ya es grande */
+    /* that it doesn't visually "grow" more than the actual box if the icon is already large */
     line-height: 1;
 }
 

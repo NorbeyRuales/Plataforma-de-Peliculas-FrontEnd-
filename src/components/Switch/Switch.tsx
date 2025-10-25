@@ -8,7 +8,7 @@ const Switch: React.FC<Props> = ({ size = 22, className }) => {
   const { themeName, toggle } = useAppTheme();
   const checked = themeName === 'dark';
 
-  // Controla el tamaño completo del toggle con la var CSS
+  // Control the full size of the toggle with the CSS var
   const style = { ['--toggle-size' as any]: `${size}px` };
 
   return (

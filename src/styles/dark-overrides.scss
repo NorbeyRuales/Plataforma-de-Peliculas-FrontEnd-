@@ -1,8 +1,8 @@
 /* src/styles/dark-overrides.scss */
-/* Se aplica SOLO en dark gracias al atributo del <html> */
+/* It is applied ONLY in dark thanks to the <html> attribute */
 html[data-theme='dark'] {
 
-    /* Fondo y texto global */
+    /* Global background and text */
     body,
     #root {
         background: var(--bg);
@@ -26,12 +26,12 @@ html[data-theme='dark'] {
 
     .nav-links a.active {
         color: #fff;
-        /* usa accent como “pill” activa */
+        /*use accent as “pill” active */
         background: color-mix(in srgb, var(--accent) 22%, transparent);
-        /* si tu build no soporta color-mix, usa background: var(--accent); */
+        /* if your build does not support color-mix, use background: var(--accent); */
     }
 
-    /* Buscador / inputs */
+    /* Search engine / inputs */
     .search__input,
     input,
     select,
@@ -45,7 +45,7 @@ html[data-theme='dark'] {
         color: var(--mutedText);
     }
 
-    /* Tarjetas, paneles, cajas (ajusta a tus clases reales) */
+    /* Cards, panels, boxes (adjust to your actual classes) */
     .card,
     .panel,
     .box,
@@ -56,7 +56,7 @@ html[data-theme='dark'] {
         box-shadow: 0 10px 24px var(--shadow);
     }
 
-    /* Breadcrumb / chips suaves */
+    /* Breadcrumbs / soft chips */
     .breadcrumb,
     .chip,
     .tag {
@@ -65,7 +65,7 @@ html[data-theme='dark'] {
         color: var(--mutedText);
     }
 
-    /* Botones genéricos */
+    /* Generic buttons */
     .btn {
         border: 1px solid var(--border);
         color: var(--text);
@@ -75,7 +75,7 @@ html[data-theme='dark'] {
         background: rgba(255, 255, 255, .04);
     }
 
-    /* Primario (marca) */
+    /* Primary (brand) */
     .btn-primary {
         background: var(--primary);
         color: #fff;
@@ -103,7 +103,7 @@ html[data-theme='dark'] {
         color: var(--accent);
     }
 
-    /* Formularios de cuenta y modales (si usas estas clases) */
+    /* Account forms and modals (if you use these classes) */
     .form,
     .modal,
     .dialog {
@@ -112,5 +112,5 @@ html[data-theme='dark'] {
         color: var(--text);
     }
 
-    /* Estrellitas/ratings: deja el color del icono tal como lo tengas */
+    /* Stars/ratings: leave the icon color as it is */
 }

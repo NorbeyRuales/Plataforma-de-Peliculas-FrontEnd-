@@ -5,7 +5,7 @@
         margin: 2rem 0 1rem;
     }
 
-    /* mismo layout que la grilla de /peliculas */
+    /* same layout as the /movies grid */
     .cards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

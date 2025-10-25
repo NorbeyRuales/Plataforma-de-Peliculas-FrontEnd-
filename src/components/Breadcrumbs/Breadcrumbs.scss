@@ -2,19 +2,19 @@
 @use '../../styles/variables' as *;
 
 .breadcrumbs {
-  /* === Paleta LIGHT por defecto (igual a la tuya) === */
-  --bc-bg: #f4ecda;            /* fondo claro cremita */
-  --bc-fg: #3b2e23;            /* marrón oscuro texto */
-  --bc-fg-active: #2a2a2a;     /* miga actual */
-  --bc-sep: #9b948a;           /* separador gris cálido */
-  --bc-link-hover: #6ea4ff;    /* azul pastel hover */
-  --bc-link-active: #89b4fa;   /* azul activo */
+ /* === Default LIGHT palette (same as yours) === */
+  --bc-bg: #f4ecda;            /* light cream background */
+  --bc-fg: #3b2e23;            /* dark brown text */
+  --bc-fg-active: #2a2a2a;     /* current crumb */
+  --bc-sep: #9b948a;           /* warm gray separator */
+  --bc-link-hover: #6ea4ff;    /* pastel blue hover */
+  --bc-link-active: #89b4fa;   /* active blue */
   --bc-radius: 10px;
   --bc-pad-y: .5rem;
   --bc-pad-x: 1rem;
   --bc-gap: .35rem;
 
-  /* === Overrides DARK (solo cambia vars; el resto del layout se conserva) === */
+  /* === Overrides DARK (only changes vars; the rest of the layout is preserved) === */
   :root[data-theme='dark'] & {
     --bc-bg: color-mix(in srgb, var(--text) 6%, transparent);
     --bc-fg: var(--text);
@@ -24,7 +24,7 @@
     --bc-link-active: var(--primary);
   }
 
-  /* Alineado a la izquierda */
+  /* Left aligned */
   width: 100%;
   margin: 0;
   padding: var(--bc-pad-y) var(--bc-pad-x);
@@ -73,7 +73,7 @@
 
     &:hover {
       color: var(--bc-link-hover);
-      /* funciona igual en light/dark gracias a primary */
+      /* works the same in light/dark thanks to primary */
       background: color-mix(in srgb, var(--primary) 12%, transparent);
     }
 
@@ -88,7 +88,7 @@
     color: var(--bc-link-active);
     padding: .2rem .6rem;
     border-radius: 999px;
-    /* elimina rgba fija; usa primary + transparencia (tema-aware) */
+    /* remove fixed rgba; use primary + transparency (theme-aware) */
     background: color-mix(in srgb, var(--primary) 15%, transparent);
   }
 

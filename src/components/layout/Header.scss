@@ -1,7 +1,7 @@
 @use '../../styles/variables' as *; // mixins: btn, focus-ring, etc.
 @use 'sass:color';
 
-/* ====== Navbar (contenedor) ====== */
+/* ====== Navbar (container) ====== */
 .site-header {
     position: sticky;
     top: 0;
@@ -10,17 +10,17 @@
     border-bottom: 1px solid color.change(#000, $alpha: .10);
     backdrop-filter: blur(8px);
 
-    /* Tokens de tamaño para toda la barra */
+    /* Tokens sized for the entire bar */
     --header-h: 52px;
     --control: 36px;
-    /* alto de controles (input, avatar, botones) */
+    /* height of controls (input, avatar, buttons) */
     --logo-scale: 1.25;
-    /* escala visual del logo (no cambia el layout) */
+    /* visual scale of the logo (does not change the layout) */
     --logo-shift: -6%;
-    /* ajuste vertical fino del logo al escalar */
+    /* fine vertical adjustment of the logo when scaling */
 }
 
-/* ====== Layout principal ====== */
+/* ====== Main layout ====== */
 .nav {
     display: flex;
     align-items: center;
@@ -30,7 +30,7 @@
     overflow: visible;
 }
 
-/* ====== Brand / Logo ====== */
+/* ====== Brand/Logo ====== */
 .brand {
     display: inline-flex;
     align-items: center;
@@ -45,7 +45,7 @@
     transform: translateY(var(--logo-shift)) scale(var(--logo-scale));
 }
 
-/* ====== Menú hamburguesa (solo móvil) ====== */
+/* ====== Hamburger menu (mobile only) ====== */
 .menu-btn {
     display: none;
     align-items: center;
@@ -73,7 +73,7 @@
     @include focus-ring($brand);
 }
 
-/* ====== Enlaces del centro ====== */
+/* ====== Center links ====== */
 .nav-links {
     display: flex;
     align-items: center;
@@ -102,22 +102,22 @@
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent) inset;
 }
 
-/* ====== Lado derecho (buscador, avatar, salir) ====== */
+/* ====== Right side (search, avatar, exit) ====== */
 .right {
     display: flex;
     align-items: center;
     gap: .6rem;
 }
 
-/* pequeñito contenedor para el switch */
+/* tiny container for the switch */
 .theme-toggle {
     display: flex;
     align-items: center;
     margin-left: .25rem;
-    /* separadito del botón Salir */
+    /* separate from the Exit button */
 }
 
-/* Input de búsqueda con altura fija */
+/* Search input with fixed height */
 .search {
     min-width: 180px;
     position: relative;
@@ -141,7 +141,7 @@
 
 .search__input:focus-visible {
     @include focus-ring($brand);
-    /* ⬇️ antes: color.change($brand, .55) —> rompe con var() */
+    /* ⬇️ before: color.change($brand, .55) —> breaks with var() */
     border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
@@ -172,7 +172,7 @@
     @include focus-ring($brand);
 }
 
-/* Botón Salir compacto */
+/* Compact Exit button */
 .logout-btn {
     @include btn(color.change(#fff, $alpha: .10), #fff);
     border-radius: 10px;
@@ -244,7 +244,7 @@
     }
 }
 
-/* Backdrop del menú móvil */
+/* Mobile Menu Backdrop */
 .menu-backdrop {
     position: fixed;
     inset: 0;

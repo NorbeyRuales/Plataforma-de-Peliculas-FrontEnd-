@@ -1,6 +1,6 @@
 @use '../../styles/variables' as *;
 
-/* Página */
+/* Páge */
 .about-page {
   --maxw: min(1120px, 94vw);
   width: var(--maxw);
@@ -117,7 +117,7 @@
     }
   }
 
-  /* =============== MÉTRICAS =============== */
+  /* =============== METRICS =============== */
   .metrics {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -145,7 +145,7 @@
     }
   }
 
-  /* =============== SECCIONES =============== */
+  /* =============== SECTIONS =============== */
   .about-section {
     margin-top: 1.25rem;
     scroll-margin-top: 90px;
@@ -175,7 +175,7 @@
     }
   }
 
-  /* =============== PRINCIPIOS =============== */
+  /* =============== BEGINNING =============== */
   .principles {
     display: grid;
     gap: .8rem;
@@ -250,7 +250,7 @@
     }
   }
 
-  /* =============== CITA / MISIÓN =============== */
+  /* =============== APPOINTMENT / MISSION =============== */
   .about-quote {
     margin-top: 1.25rem;
     text-align: center;
@@ -274,7 +274,7 @@
     }
   }
 
-  /* =============== EQUIPO (FlipCards intactas) =============== */
+  /* =============== TEAM (FlipCards intact) =============== */
   .team-grid {
     display: grid;
     gap: 1rem;

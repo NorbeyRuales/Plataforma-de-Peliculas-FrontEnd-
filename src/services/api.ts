@@ -17,7 +17,7 @@ function urlJoin(base: string | undefined, path: string) {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const method = (init?.method || 'GET').toUpperCase()
 
-  // Sólo ponemos Content-Type cuando hay body (POST/PUT/PATCH)
+  // We only set Content-Type when there is a body (POST/PUT/PATCH)
   const needsJson =
     method === 'POST' || method === 'PUT' || method === 'PATCH' || !!init?.body
 
@@ -39,7 +39,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       const text = await res.text().catch(() => '')
       if (text) msg = text
     }
-    // ❌ ya NO limpiamos el token aquí
+    // ❌ We NO longer clean the token here
     throw new Error(msg)
   }
 

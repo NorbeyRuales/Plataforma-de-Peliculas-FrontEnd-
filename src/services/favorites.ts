@@ -6,7 +6,7 @@ export type Favorite = {
   user_id?: string
   movie_id?: string
   created_at?: string
-  // campos de movies si los usas en el listado
+  //movie fields if you use them in the listing
   title?: string
   year?: number
   genres?: unknown
@@ -15,7 +15,7 @@ export type Favorite = {
   avg_rating?: number
 }
 
-const MOVIE_KEY = 'movieId' // backend espera movieId en el body
+const MOVIE_KEY = 'movieId' // backend expects movieId in the body
 
 export const Favorites = {
   async add(movieId: string) {

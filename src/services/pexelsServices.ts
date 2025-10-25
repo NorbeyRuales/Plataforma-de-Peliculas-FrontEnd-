@@ -3,11 +3,11 @@ import axios from "axios";
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
 
 /**
- * Intenta ambas variantes del endpoint del backend:
- *  - /pexels/:query
- *  - /pexels?query=
- * Devuelve la URL de video o null sin romper el flujo.
- */
+* Try both variants of the backend endpoint:
+* - /pexels/:query
+* - /pexels?query=
+* Returns the video URL or null without breaking the stream.
+*/
 export const getRandomPexelsVideo = async (query: string = "cinema"): Promise<string | null> => {
     const candidates = [
         `${API_BASE_URL}/pexels/${encodeURIComponent(query)}`,
@@ -20,7 +20,7 @@ export const getRandomPexelsVideo = async (query: string = "cinema"): Promise<st
             const urlOut: string | null = res?.data?.videoUrl ?? res?.data?.url ?? null;
             if (urlOut) return urlOut;
         } catch {
-            // probar el siguiente candidato
+            // try the next candidate
         }
     }
     return null;

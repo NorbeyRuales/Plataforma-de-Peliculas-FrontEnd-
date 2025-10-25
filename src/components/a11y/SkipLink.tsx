@@ -1,37 +1,35 @@
 /**
  * @file SkipLink.tsx
- * @description Enlace "Saltar al contenido" (Skip Link) para cumplir con
- * WCAG 2.4.1 (Bypass Blocks). Permite a los usuarios que navegan con teclado
- * o lector de pantalla saltar la navegación repetitiva y mover el foco
- * directamente al contenido principal (#main) o a un objetivo más útil dentro
- * de <main> si existe (p.ej., un <h1> con [data-skip-target]).
- *
- * Detalles A11y:
- * - 2.4.1 Bypass Blocks: primer Tab enfoca el skip-link y Enter lo activa.
- * - 2.1.1 Teclado: accesible 100% con teclado.
- * - 2.4.3 Orden del foco: al activar, el foco se traslada al contenido real.
- *
- * Notas de integración:
- * - Debe existir <main id="main"> en el layout (ya presente en AppRouter).
- * - Opcional: marca el título de cada vista con [data-skip-target] para que el
- *   foco aterrice en ese elemento en lugar de en <main>.
- */
-
+ * @description Skip to Content link to comply with
+* WCAG 2.4.1 (Bypass Blocks). Allows users navigating with a keyboard
+* or screen reader to skip repetitive navigation and move focus
+* directly to the main content (#main) or to a more useful target within
+* <main> if it exists (e.g., an <h1> with [data-skip-target]).
+*
+* A11y Details:
+* - 2.4.1 Bypass Blocks: The first Tab focuses the skip link, and Enter activates it.
+* - 2.1.1 Keyboard: 100% keyboard accessible.
+* - 2.4.3 Focus Order: When activated, focus moves to the actual content.
+*
+* Integration Notes:
+* - <main id="main"> must exist in the layout (already present in AppRouter).
+* - Optional: Mark each view's title with [data-skip-target] so that the
+* focus lands on that element instead of <main>.
+*/
 import { useEffect, useRef } from 'react';
 
 export default function SkipLink() {
-    // Referencia al <a> para poder enfocarlo programáticamente.
+    // Reference to the <a> so that it can be targeted programmatically.
     const ref = useRef<HTMLAnchorElement>(null);
 
     /**
-     * Fuerza que el PRIMER Tab de la página enfoque la píldora.
-     * Esto evita que el foco "empiece" en la barra del navegador o en elementos
-     * no visibles/útiles. Solo se ejecuta si no había ningún elemento enfocado
-     * (inicio real de la navegación por teclado).
-     */
+* Forces the FIRST Tab on the page to focus the pill.
+* This prevents focus from "starting" on the browser bar or on non-visible/useful elements.
+* Only executed if no element was focused (actual start of keyboard navigation).
+*/
     useEffect(() => {
         const handleFirstTab = (e: KeyboardEvent) => {
-            // Solo reacciona al primer Tab (no Shift+Tab).
+            // Only reacts to the first Tab (not Shift+Tab).
             if (e.key !== 'Tab' || e.shiftKey) return;
 
             const active = document.activeElement as HTMLElement | null;
@@ -42,40 +40,40 @@ export default function SkipLink() {
 
             if (isStarting) {
                 e.preventDefault();
-                ref.current?.focus(); // Enfoca la píldora de "Saltar al contenido"
+                ref.current?.focus(); // Focus on the "Skip to content" pill
             }
         };
 
-        // Captura en fase de captura para que ocurra antes de otra lógica global
+        // Capture in capture phase to occur before other global logic
         document.addEventListener('keydown', handleFirstTab, true);
         return () => document.removeEventListener('keydown', handleFirstTab, true);
     }, []);
 
     /**
-     * Al ACTIVAR el skip link:
-     * - Busca primero un objetivo marcado con [data-skip-target] dentro de <main>
-     * - Si no existe, intenta un heading (h1/h2) o el primer control navegable
-     * - Como último recurso, pone foco en <main> (añadiendo tabindex=-1 si hace falta)
-     *   y hace scroll al inicio para dar feedback visual del salto.
-     */
+* When the skip link is ACTIVATED:
+* - First looks for a target marked with [data-skip-target] within <main>
+* - If it doesn't exist, tries a heading (h1/h2) or the first navigable control
+* - As a last resort, sets focus on <main> (adding tabindex=-1 if necessary)
+* and scrolls to the beginning to provide visual feedback on the jump.
+*/
     function handleActivate(e: React.MouseEvent<HTMLAnchorElement>) {
         const main = document.getElementById('main');
         if (!main) return;
 
         e.preventDefault();
 
-        // Preferencia: un objetivo explícito marcado por nosotros
+       // Preference: an explicit goal marked by us
         let target =
             main.querySelector<HTMLElement>('[data-skip-target]') ||
-            // Fallback: primer título o control interactivo lógico
+            // Fallback: first title or logical interactive control
             main.querySelector<HTMLElement>(
                 'h1, [role="heading"][aria-level="1"], h2, [role="heading"], a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
             );
 
         const el = target || main;
-        if (el === main) main.setAttribute('tabindex', '-1'); // asegura que <main> sea enfocables
+        if (el === main) main.setAttribute('tabindex', '-1'); // ensures that <main> is focusable
 
-        // Mueve foco y desplaza a la parte superior del contenido
+        // Move focus and scroll to the top of the content
         el.focus({ preventScroll: false });
         el.scrollIntoView({ block: 'start' });
     }
@@ -87,8 +85,8 @@ export default function SkipLink() {
             className="skip-link"
             onClick={handleActivate}
             aria-label="Saltar al contenido principal"
-            accessKey="s"                // atajo del navegador (puede variar según SO)
-            aria-keyshortcuts="Alt+Shift+S" // documentación del atajo sugerido
+            accessKey="s"                // browser shortcut (may vary depending on OS)
+            aria-keyshortcuts="Alt+Shift+S" // documentation of the suggested shortcut
         >
             Saltar al contenido
         </a>

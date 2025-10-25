@@ -25,7 +25,7 @@ export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-theme", themeName);
-    // Ayuda a inputs/selects nativos a usar el esquema correcto
+    // Help native inputs/selects use the correct schema
     (root.style as any).colorScheme = themeName === "dark" ? "dark" : "light";
     try { localStorage.setItem(THEME_LS_KEY, themeName); } catch (_) { }
   }, [themeName]);

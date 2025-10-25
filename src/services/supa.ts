@@ -8,7 +8,7 @@ export const supa = createClient(url, anon, {
     auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true, // <- importante para procesar #access_token / ?code
-        // flowType: 'pkce', // opcional
+        detectSessionInUrl: true, // <- important to process #access_token/?code
+// flowType: 'pkce', // optional
     },
 });

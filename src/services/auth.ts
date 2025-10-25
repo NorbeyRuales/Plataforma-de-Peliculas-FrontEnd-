@@ -20,7 +20,7 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY)
 export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
 
-/** Utilidad: si recibimos DOB, lo convertimos a edad. */
+/** Utility: If we receive DOB, we convert it to age. */
 function ageFromDob(dob: string): number {
     const d = new Date(dob)
     if (isNaN(d.getTime())) return 0
@@ -33,8 +33,8 @@ function ageFromDob(dob: string): number {
 
 export const Auth = {
     /**
-     * Registro.
-     * Acepta edad (number) o fecha (string). Siempre envía `age` al backend.
+     * Record.
+     * Accepts age (number) or date (string). Always sends `age` to the backend.
      */
     async signup(
         name: string,
@@ -49,7 +49,7 @@ export const Auth = {
         if (typeof ageOrDob === 'number' && Number.isFinite(ageOrDob)) {
             body.age = ageOrDob
         } else if (typeof ageOrDob === 'string' && ageOrDob.trim()) {
-            // si llega un string, probamos número y luego fecha
+            // If a string arrives, we test number and then date
             const maybeNum = Number(ageOrDob)
             if (Number.isFinite(maybeNum)) {
                 body.age = maybeNum

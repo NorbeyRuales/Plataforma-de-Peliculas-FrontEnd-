@@ -1,11 +1,11 @@
 @use '../common/_auth' as *;
 
-/* ——— Más aire para que no se vea el footer pegado ——— */
+/* ——— More air so the footer isn't visible ——— */
 .account-page {
   padding-bottom: clamp(80px, 12vh, 160px);
 }
 
-/* ——— Botonera (Editar / Cambiar contraseña) ——— */
+/* ——— Button panel (Edit / Change password) ——— */
 .actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -18,10 +18,10 @@
   .actions { grid-template-columns: 1fr; }
 }
 
-/* Asegura misma altura en los botones de Guardar/Cancelar también */
+/* Ensures same height on Save/Cancel buttons too */
 .auth-form .row .btn { min-height: 42px; }
 
-/* ——— Estado de sólo lectura: texto más opaco ——— */
+/* ——— Read-only state: more opaque text ——— */
 .auth-form.is-readonly input[disabled] {
   color: #6f6f77;
   background: #e3e3e8;
@@ -31,7 +31,7 @@
 /* Errores bajo los campos */
 .field__error { color: salmon; font-size: .85rem; }
 
-/* Botones más compactos en la pantalla de Cuenta */
+/* More compact buttons on the Account screen */
 .actions .btn,
 .auth-form .row .btn,
 .auth-form > .btn.danger {
@@ -41,8 +41,8 @@
   line-height: 1;
 }
 
-/* ——— Panel de cambio de contraseña (vía enlace) ——— */
-/* Ahora usa colores del tema para verse bien en DARK */
+/* ——— Password change panel (via link) ——— */
+/* Now uses theme colors to look good in DARK */
 .pwd-panel {
   margin: .25rem 0 1rem;
   padding: .9rem .9rem 1rem;
@@ -54,11 +54,11 @@
   legend {
     font-weight: 700;
     padding: 0 .25rem;
-    color: $text;     /* antes #111 */
+    color: $text;     /* before #111 */
   }
 }
 
-/* ——— Estilos del modal (Confirmar eliminación) ——— */
+/* ——— Modal Styles (Confirm Delete) ——— */
 .modal .row {
   display: flex;
   gap: .5rem;

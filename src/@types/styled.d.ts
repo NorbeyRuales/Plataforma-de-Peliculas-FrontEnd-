@@ -5,7 +5,7 @@ declare module 'styled-components' {
   export interface DefaultTheme {
     name: 'light' | 'dark';
     colors: {
-      // tokens base (presentes en light y dark)
+      // base tokens (present in light and dark)
       bg: string;
       surface: string;
       text: string;
@@ -15,7 +15,7 @@ declare module 'styled-components' {
       border: string;
       shadow: string;
 
-      // tokens extra (opcionales)
+      // extra tokens (optional)
       primaryHover?: string;
       primaryActive?: string;
 

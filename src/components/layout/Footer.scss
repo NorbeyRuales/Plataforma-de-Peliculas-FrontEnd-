@@ -41,7 +41,7 @@ main>section:not(.full-bleed) {
     padding-right: 1.25rem;
 }
 
-/* ====== Estilos existentes del footer ====== */
+/* ====== Existing footer styles ====== */
 .site-footer {
     margin-top: 3rem;
     border-top: 1px solid $border;
@@ -50,7 +50,7 @@ main>section:not(.full-bleed) {
     font-size: .95rem;
 }
 
-/* Grid principal */
+/* Main grid */
 .footer-grid {
     display: grid;
     gap: 1.25rem 2rem;
@@ -58,7 +58,7 @@ main>section:not(.full-bleed) {
     padding: 1.25rem 0 0;
 }
 
-/* Bloque de marca */
+/* brand block */
 .brand-block {
     display: grid;
     gap: .5rem;
@@ -110,7 +110,7 @@ main>section:not(.full-bleed) {
 .social a:hover {
     background: color-mix(in srgb, var(--primary) 10%, transparent);
     color: $brand;
-    /* ⬇️ antes: color.change($brand, .35) —> rompe con var() */
+    /* ⬇️ before: color.change($brand, .35) —> breaks with var() */
     border-color: color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
@@ -118,7 +118,7 @@ main>section:not(.full-bleed) {
     transform: translateY(1px);
 }
 
-/* Listas */
+/* Lists */
 .footer-title {
     margin: 0 0 .5rem;
     font-size: 1rem;
@@ -160,9 +160,9 @@ main>section:not(.full-bleed) {
 }
 
 .to-top {
-    /* ⬇️ antes: @include btn(color.change($brand,.12), $text) */
+    /* ⬇️ before: @include btn(color.change($brand,.12), $text) */
     @include btn(color-mix(in srgb, var(--primary) 12%, transparent), $text);
-    /* ⬇️ antes: color.change($brand,.35) */
+    /* ⬇️ before: color.change($brand,.35) */
     border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
     width: 36px;
     height: 36px;

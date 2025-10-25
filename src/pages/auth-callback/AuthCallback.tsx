@@ -13,7 +13,7 @@ export default function AuthCallback() {
             } catch {
                 // no-op
             } finally {
-                // después de procesar el token, ve al formulario de nueva contraseña
+                // After processing the token, go to the new password form
                 navigate('/forgot-password', { replace: true })
             }
         })()
