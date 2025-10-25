@@ -4,6 +4,27 @@
     h1 {
         margin: 2rem 0 1rem;
     }
+
+    /* mismo layout que la grilla de /peliculas */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        align-items: start;
+    }
+
+    .card-stack {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card__body {
+        margin-top: .5rem;
+    }
+
+    .card-action {
+        margin-top: .5rem;
+    }
 }
 
 .empty {

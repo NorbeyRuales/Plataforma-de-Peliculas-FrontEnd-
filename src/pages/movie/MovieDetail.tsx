@@ -1,8 +1,10 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './MovieDetail.scss'
 import { api } from '../../services/api'
 import { getRandomPexelsVideo } from '../../services/pexelsServices'
+import { Favorites } from '../../services/favorites'
+import { getToken } from '../../services/auth'
 
 type Movie = {
   id: string | number
@@ -14,6 +16,8 @@ type Movie = {
 
 export default function MovieDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
   const playerRef = useRef<HTMLVideoElement>(null)
 
   const [movie, setMovie] = useState<Movie | null>(null)
@@ -21,6 +25,11 @@ export default function MovieDetail() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [added, setAdded] = useState(false)
+  const [addedMsg, setAddedMsg] = useState('')
+
+  // Estado de favoritos (toggle)
+  const [isFav, setIsFav] = useState<boolean | null>(null) // null = cargando
+  const [favBusy, setFavBusy] = useState(false)
 
   // Controles del reproductor
   const [playing, setPlaying] = useState(false)
@@ -132,7 +141,6 @@ export default function MovieDetail() {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       } else {
-        // 👉 pedimos fullscreen sobre el <video>
         await v.requestFullscreen?.();
       }
     } catch (e) {
@@ -140,18 +148,59 @@ export default function MovieDetail() {
     }
   }
 
-  // Añadir a favoritos
-  async function addToList() {
+  // ---------- Favoritos: estado inicial ----------
+  useEffect(() => {
+    const movieId = String((movie?.id ?? (movie as any)?._id ?? (movie as any)?.uuid ?? id) ?? '')
+    if (!movieId) { setIsFav(false); return }
+    if (!getToken()) { setIsFav(false); return }
+
+    let alive = true
+      ; (async () => {
+        try {
+          const exists = await Favorites.has(movieId)
+          if (alive) setIsFav(!!exists)
+        } catch {
+          if (alive) setIsFav(false)
+        }
+      })()
+    return () => { alive = false }
+  }, [movie, id])
+
+  // ---------- Favoritos: toggle ----------
+  async function toggleFav() {
+    const movieId = String((movie?.id ?? (movie as any)?._id ?? (movie as any)?.uuid ?? id) ?? '')
+    if (!movieId || favBusy || isFav === null) return
+
+    if (!getToken()) {
+      navigate(`/login?next=${encodeURIComponent(location.pathname + location.search)}`)
+      return
+    }
+
+    setFavBusy(true)
     try {
-      await api.post('/favorites', { movieId: id })
+      if (isFav) {
+        await Favorites.remove(movieId)
+        setIsFav(false)
+        setAddedMsg('Quitada de favoritos')
+      } else {
+        await Favorites.add(movieId)
+        setIsFav(true)
+        setAddedMsg('Añadida a favoritos')
+      }
       setAdded(true)
-      setTimeout(() => setAdded(false), 2500)
+      setTimeout(() => setAdded(false), 2200)
     } catch (e: any) {
-      alert(e?.message || 'No se pudo añadir a la lista')
+      const msg =
+        e?.response?.data?.error?.message ||
+        e?.response?.data?.message ||
+        e?.message ||
+        'No se pudo actualizar tus favoritos'
+      alert(msg)
+    } finally {
+      setFavBusy(false)
     }
   }
 
-  // Estados de carga / error
   if (loading) {
     return (
       <section className="container">
@@ -168,15 +217,12 @@ export default function MovieDetail() {
   }
   if (!movie) return null
 
-  // Fuente de video (preferir la del backend, luego Pexels)
   const videoSrc = movie.streamUrl || pexelsVideoUrl || undefined
 
   return (
     <section className="container movie-detail movie-detail--single">
-      {/* Título centrado */}
       <h1 className="detail-title">{movie.title}</h1>
 
-      {/* Panel de video */}
       <div className={`player ${!videoSrc ? 'is-loading' : ''}`}>
         <video
           ref={playerRef}
@@ -187,7 +233,6 @@ export default function MovieDetail() {
           style={{ width: '100%', maxWidth: 980, borderRadius: 8 }}
         />
 
-        {/* Barra de controles personalizada */}
         <div className="toolbar" aria-label="Controles de reproducción">
           <div className="group">
             <button
@@ -257,9 +302,16 @@ export default function MovieDetail() {
         </div>
 
         <div className="actions actions--video">
-          <button className="btn primary" onClick={addToList}>Añadir a lista</button>
+          <button
+            className="btn primary"
+            onClick={toggleFav}
+            disabled={favBusy || isFav === null}
+            aria-pressed={!!isFav}
+          >
+            {favBusy ? 'Guardando…' : isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+          </button>
         </div>
-        {added && <p role="status" className="muted">Añadida a tu lista</p>}
+        {added && <p role="status" className="muted">{addedMsg}</p>}
       </div>
 
       {movie.description && (
@@ -270,11 +322,10 @@ export default function MovieDetail() {
             className="description description--readonly"
             defaultValue={movie.description}
             rows={4}
-            readOnly               // ⬅️ evita escribir
-            aria-readonly="true"   // ⬅️ accesibilidad
-            tabIndex={-1}          // ⬅️ (opcional) evita enfocarlo con Tab
+            readOnly
+            aria-readonly="true"
+            tabIndex={-1}
           />
-
         </>
       )}
     </section>
