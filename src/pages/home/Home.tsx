@@ -20,34 +20,36 @@ export default function Home() {
 
   useEffect(() => {
     let alive = true
-    ;(async () => {
-      try {
-        setError(null)
+      ; (async () => {
+        try {
+          setError(null)
 
-        // 👇 mismo endpoint que usas en /movies
-        // si tu API devuelve { data: [...] } ajusto abajo
-        const res = await api.get<any>('/movies')
+          // 👇 mismo endpoint que usas en /movies
+          // si tu API devuelve { data: [...] } ajusto abajo
+          const res = await api.get<any>('/movies')
 
-        // Normaliza posibles formas de respuesta (array directo o {data: [...]})
-        const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
+          // Normaliza posibles formas de respuesta (array directo o {data: [...]})
+          const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
 
-        // Asegura que tengamos una key estable para MovieCard
-        const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
+          // Asegura que tengamos una key estable para MovieCard
+          const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
 
-        if (alive) setMovies(list)
-      } catch (e: any) {
-        if (alive) setError(e?.message || 'No se pudieron cargar las películas')
-      } finally {
-        if (alive) setLoading(false)
-      }
-    })()
+          if (alive) setMovies(list)
+        } catch (e: any) {
+          if (alive) setError(e?.message || 'No se pudieron cargar las películas')
+        } finally {
+          if (alive) setLoading(false)
+        }
+      })()
 
     return () => { alive = false }
   }, [])
 
   return (
     <section className='container home-page'>
-      <h2>Películas</h2>
+      {/* Mantengo tu H2 (por estilos), pero lo declaro como heading nivel 1 para SR
+         y lo uso como destino del skip-link */}
+      <h2 data-skip-target role="heading" aria-level={1}>Películas</h2>
 
       {loading && (
         <div className='grid'>

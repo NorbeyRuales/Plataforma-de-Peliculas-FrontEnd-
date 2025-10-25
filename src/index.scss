@@ -1,8 +1,9 @@
 @use './styles/_variables.scss' as *;
 
-
 :root {
     color-scheme: light;
+    /* Aro de foco global (apoya visibilidad de focus) */
+    --focus: #116cfe;
 }
 
 * {
@@ -19,9 +20,7 @@ body {
     margin: 0;
     font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     background: $bg;
-    /* #F9F2E2 */
     color: $text;
-    /* #1D2129 */
 }
 
 a {
@@ -41,68 +40,77 @@ a:hover {
 
 /* === Breadcrumb theming === */
 :root[data-theme='light'] {
-  --crumb-bg: #F2E9D9;                 /* cremita como tu login */
-  --crumb-border: rgba(0,0,0,.10);
+    --crumb-bg: #F2E9D9;
+    --crumb-border: rgba(0, 0, 0, .10);
 }
 
 :root[data-theme='dark'] {
-  --crumb-bg: color-mix(in srgb, var(--text) 6%, transparent);   /* banda oscura sutil */
-  --crumb-border: color-mix(in srgb, var(--text) 18%, transparent);
+    --crumb-bg: color-mix(in srgb, var(--text) 6%, transparent);
+    --crumb-border: color-mix(in srgb, var(--text) 18%, transparent);
 }
-
 
 /* === THEMING (light / dark) ============================================= */
-
 :root[data-theme='light'] {
-  /* Paleta cremita como en tu captura */
-  --bg: #F6EDD9;              /* fondo de la página */
-  --surface: #ffffff;         /* tarjetas/superficies */
-  --card: #ffffff;
+    --bg: #F6EDD9;
+    --surface: #ffffff;
+    --card: #ffffff;
 
-  --text: #1f2937;            /* gris 800 */
-  --mutedText: #6b7280;       /* gris 500-600 */
+    --text: #1f2937;
+    --mutedText: #6b7280;
 
-  --primary: #2266ff;         /* marca (botones azules) */
-  --accent: #4f9dff;
+    --primary: #2266ff;
+    --accent: #0044cc;
+    /* más contraste para usos de acento */
 
-  --success: #4cc38a;
-  --warning: #e6b800;
-  --danger:  #ff5c5c;
-  --info:    #3399ff;
+    /* 🔧 Ajustes de contraste AA para texto blanco (1.4.3) */
+    --success: #00884e;
+    /* antes #4cc38a */
+    --warning: #8f7200;
+    /* antes #e6b800 */
+    --danger: #ea0000;
+    /* antes #ff5c5c */
+    --info: #0072e5;
+    /* antes #3399ff */
 
-  --border: rgba(0,0,0,.12);
-  --shadow: 0 3px 6px rgba(0,0,0,.08);
+    /* 🔧 Contornos algo más visibles (1.4.11) */
+    --border: rgba(0, 0, 0, .16);
+    --shadow: 0 3px 6px rgba(0, 0, 0, .08);
 }
 
 :root[data-theme='dark'] {
-  --bg: #0b0b0f;
-  --surface: #15151b;
-  --card: #15151b;
+    --bg: #0b0b0f;
+    --surface: #15151b;
+    --card: #15151b;
 
-  --text: #e5e7eb;
-  --mutedText: #9ca3af;
+    --text: #e5e7eb;
+    --mutedText: #9ca3af;
 
-  --primary: #6ea8ff;
-  --accent:  #4f9dff;
+    /* 🔧 Primario más intenso para texto blanco (1.4.3) */
+    --primary: #116cfe;
+    /* antes #6ea8ff */
+    --accent: #4f9dff;
 
-  --success: #4cc38a;
-  --warning: #e6b800;
-  --danger:  #ff5c5c;
-  --info:    #3399ff;
+    --success: #00884e;
+    --warning: #8f7200;
+    --danger: #ea0000;
+    --info: #0072e5;
 
-  --border: rgba(255,255,255,.12);
-  --shadow: 0 6px 18px rgba(0,0,0,.45);
+    /* 🔧 Contornos algo más visibles (1.4.11) */
+    --border: rgba(255, 255, 255, .18);
+    --shadow: 0 6px 18px rgba(0, 0, 0, .45);
 }
 
 /* Aplicación global de fondo y color de texto */
-html, body {
-  background: var(--bg);
-  color: var(--text);
+html,
+body {
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* Por si algún reset te estaba imponiendo blanco */
-body { background-color: var(--bg) !important; }
-
+body {
+    background-color: var(--bg) !important;
+}
 
 /* Grids de tarjetas */
 .grid {
@@ -131,17 +139,46 @@ body { background-color: var(--bg) !important; }
     border: 0;
 }
 
+/* ===== Skip link (WCAG 2.4.1) — versión robusta =====
+   Fijo en la esquina; oculto con transform hasta que tenga foco.
+   Z-altísimo para quedar sobre el header sticky. */
 .skip-link {
-    position: absolute;
-    left: -9999px;
+    position: fixed;
+    left: 8px;
+    top: 8px;
+    transform: translateY(-200%);
+    /* oculto */
+    z-index: 9999;
+    padding: .5rem .75rem;
+    background: var(--surface, #fff);
+    color: var(--text, #111);
+    border: 2px solid var(--primary, #2266ff);
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+    transition: transform .15s ease;
 }
 
-.skip-link:focus {
-    position: static;
-    background: $primary;
-    color: #fff;
-    padding: .25rem .5rem;
-    border-radius: 6px;
+.skip-link:focus,
+.skip-link:focus-visible {
+    transform: translateY(0);
+    /* aparece al Tab */
+    outline: none;
+}
+
+/* ===== Indicador de foco global (WCAG 2.4.7) ===== */
+:where(a, button, input, select, textarea,
+    [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    /* halo extra para fondos claros/osc */
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent);
+}
+
+/* Evita duplicar outline si algún componente usa :focus */
+:where(a, button, input, select, textarea,
+    [role="button"], [tabindex]:not([tabindex="-1"])):focus {
+    outline: none;
 }
 
 /* Botones globales (centrados) */
@@ -162,8 +199,9 @@ body { background-color: var(--bg) !important; }
 }
 
 .btn.success {
+    /* 🔧 Texto blanco para cumplir 1.4.3 con el nuevo success */
     background: $success;
-    color: #0b0b0f;
+    color: #fff;
 }
 
 .btn.danger {
@@ -200,61 +238,146 @@ body { background-color: var(--bg) !important; }
     background: transparent;
 }
 
-
 /* =========================
    Overrides DARK en runtime
    ========================= */
 html[data-theme='dark'] {
-  color-scheme: dark;
+    color-scheme: dark;
 
-  /* Fondo y texto global */
-  body, #root { background: var(--bg); color: var(--text); }
+    /* Fondo y texto global */
+    body,
+    #root {
+        background: var(--bg);
+        color: var(--text);
+    }
 
-  /* Links */
-  a { color: var(--accent); }
-  a:hover { text-decoration: underline; }
+    /* Links */
+    a {
+        color: var(--accent);
+    }
 
-  /* Header / navbar genérico (si tienes esas clases en SCSS de header, esto las gana) */
-  .site-header { background: var(--bg); border-bottom: 1px solid var(--border); }
-  .nav-links a { color: var(--text); }
-  .nav-links a:hover { background: rgba(255,255,255,.06); color: #fff; }
-  .nav-links a.active {
-    color: #fff;
-    /* si tu build no soporta color-mix, descomenta la línea de fallback */
-    /* background: var(--accent); */
-    background: color-mix(in srgb, var(--accent) 22%, transparent);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent) inset;
-  }
+    a:hover {
+        text-decoration: underline;
+    }
 
-  /* Inputs */
-  .search__input,
-  input, select, textarea {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  ::placeholder { color: var(--mutedText); }
+    /* Header / navbar genérico */
+    .site-header {
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
 
-  /* Tarjetas / paneles (ajusta a tus clases reales) */
-  .card, .panel, .box, .movie-card {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 24px var(--shadow);
-  }
+    .nav-links a {
+        color: var(--text);
+    }
 
-  /* Botones globales */
-  .btn { color: var(--text); border: 1px solid var(--border); }
-  .btn.primary { background: var(--primary); color: #fff; border-color: color-mix(in srgb, var(--primary) 40%, transparent); }
-  .btn.success { background: var(--success, #22C55E); color: #0b0b0f; }
-  .btn.danger  { background: var(--danger,  #F87171); color: #fff; }
-  .btn.ghost   { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .nav-links a:hover {
+        background: rgba(255, 255, 255, .06);
+        color: #fff;
+    }
 
-  /* Footer */
-  .site-footer {
-    background: var(--bg);
-    color: var(--mutedText);
-    border-top: 1px solid var(--border);
-  }
+    .nav-links a.active {
+        color: #fff;
+        background: color-mix(in srgb, var(--accent) 22%, transparent);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent) inset;
+    }
+
+    /* Inputs */
+    .search__input,
+    input,
+    select,
+    textarea {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    ::placeholder {
+        color: var(--mutedText);
+    }
+
+    /* Tarjetas / paneles */
+    .card,
+    .panel,
+    .box,
+    .movie-card {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 24px var(--shadow);
+    }
+
+    /* Botones globales */
+    .btn {
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn.primary {
+        background: var(--primary);
+        color: #fff;
+        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+
+    .btn.success {
+        background: var(--success, #22C55E);
+        color: #fff;
+        /* 🔧 antes negro */
+    }
+
+    .btn.danger {
+        background: var(--danger, #F87171);
+        color: #fff;
+    }
+
+    .btn.ghost {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    /* Footer */
+    .site-footer {
+        background: var(--bg);
+        color: var(--mutedText);
+        border-top: 1px solid var(--border);
+    }
+}
+
+:root {
+    --header-h: 64px;
+    /* alto apróx. de tu header sticky */
+}
+
+[data-skip-target] {
+    /* asegura que el título no quede oculto bajo el header */
+    scroll-margin-top: calc(var(--header-h) + 8px);
+}
+
+/* Anillo de foco claro en el destino al usar skip-link */
+[data-skip-target]:focus,
+[data-skip-target]:focus-visible {
+    outline: 3px solid var(--focus, #116cfe);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--focus) 18%, transparent);
+}
+
+/* Opcional: si el foco cayera en <main>, que también se note */
+#main:focus {
+    outline: 2px dashed var(--focus, #116cfe);
+    outline-offset: 6px;
+}
+
+/* ===== WCAG 2.5.8 Target Size (Minimum) – utilidades ===== */
+.hit-24 {
+    --hit: 24px;
+    /* puedes subirla a 28 o 32 si quieres */
+    min-width: var(--hit);
+    min-height: var(--hit);
+    display: inline-flex;
+    /* no altera flujos de texto */
+    align-items: center;
+    justify-content: center;
+    /* que no “crezca” visualmente más de la caja real si el icono ya es grande */
+    line-height: 1;
 }
 
