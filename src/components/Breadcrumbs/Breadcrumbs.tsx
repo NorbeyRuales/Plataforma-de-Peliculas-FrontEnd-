@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Breadcrumbs.tsx
  * @summary Renders navigation breadcrumbs based on the current URL.
  * @remarks
@@ -21,7 +21,11 @@ const LABELS: { pattern: RegExp; label: string }[] = [
 
     // Real application routes
     { pattern: /^\/movies(\/|$)/, label: "Películas" },
+    { pattern: /^\/movie(\/|$)/, label: "Película" },
     { pattern: /^\/movie\/[^/]+$/, label: "Detalle" },
+    { pattern: /^\/favorites(\/|$)/, label: "Favoritos" },
+    { pattern: /^\/account(\/|$)/, label: "Cuenta" },
+    { pattern: /^\/about(\/|$)/, label: "Sobre nosotros" },
 
     // Optional routes in case slugs change to Spanish later
     { pattern: /^\/peliculas(\/|$)/, label: "Películas" },
@@ -31,6 +35,7 @@ const LABELS: { pattern: RegExp; label: string }[] = [
     { pattern: /^\/peliculas\/[^/]+$/, label: "Detalle" },
     { pattern: /^\/series\/[^/]+$/, label: "Detalle" },
 ];
+
 
 /**
  * Returns the label associated with a path based on LABELS, or null if unmatched.
@@ -109,7 +114,3 @@ export default function Breadcrumbs() {
         </nav>
     );
 }
-
-
-
-

@@ -78,19 +78,19 @@ export default function MovieDetail() {
    */
   useEffect(() => {
     if (!id || id === 'undefined') return
-    ;(async () => {
-      setLoading(true)
-      setError(undefined)
-      try {
-        const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
-        const m = (resp as any)?.movie ?? resp
-        setMovie(m as Movie)
-      } catch (e: any) {
-        setError(e?.message || 'No se pudo cargar la película')
-      } finally {
-        setLoading(false)
-      }
-    })()
+      ; (async () => {
+        setLoading(true)
+        setError(undefined)
+        try {
+          const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
+          const m = (resp as any)?.movie ?? resp
+          setMovie(m as Movie)
+        } catch (e: any) {
+          setError(e?.message || 'No se pudo cargar la película')
+        } finally {
+          setLoading(false)
+        }
+      })()
   }, [id])
 
   /**
@@ -100,11 +100,11 @@ export default function MovieDetail() {
   useEffect(() => {
     if (!movie?.title || movie.streamUrl) return
     let canceled = false
-    ;(async () => {
-      let url = await getRandomPexelsVideo(movie.title)
-      if (!url) url = await getRandomPexelsVideo('cinema')
-      if (!canceled) setPexelsVideoUrl(url)
-    })()
+      ; (async () => {
+        let url = await getRandomPexelsVideo(movie.title)
+        if (!url) url = await getRandomPexelsVideo('cinema')
+        if (!canceled) setPexelsVideoUrl(url)
+      })()
     return () => { canceled = true }
   }, [movie?.title, movie?.streamUrl])
 
@@ -135,6 +135,39 @@ export default function MovieDetail() {
     v.playbackRate = rate
     v.loop = loop
   }, [muted, volume, rate, loop])
+
+  // ------- Hotkeys (no intrusivo) -------
+  // Espacio/K (play/pausa), J/L (−/+10s), M (mute), F (fullscreen), P (PiP)
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      const n = el as HTMLElement | null
+      if (!n) return false
+      const tag = (n.tagName || '').toLowerCase()
+      const editable = (n.getAttribute?.('contenteditable') || '').toLowerCase()
+      return tag === 'input' || tag === 'textarea' || editable === 'true'
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.altKey || e.ctrlKey || e.metaKey || isEditable(e.target)) return
+      const key = e.key.toLowerCase()
+      if (e.key === ' ' || key === 'k') {
+        e.preventDefault()
+        togglePlay()
+      } else if (key === 'j') {
+        seek(-10)
+      } else if (key === 'l') {
+        seek(10)
+      } else if (key === 'm') {
+        toggleMute()
+      } else if (key === 'f') {
+        toggleFullscreen()
+      } else if (key === 'p') {
+        togglePiP()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // ------- Player helpers -------
 
@@ -227,14 +260,14 @@ export default function MovieDetail() {
     if (!getToken()) { setIsFav(false); return }
 
     let alive = true
-    ;(async () => {
-      try {
-        const exists = await Favorites.has(movieId)
-        if (alive) setIsFav(!!exists)
-      } catch {
-        if (alive) setIsFav(false)
-      }
-    })()
+      ; (async () => {
+        try {
+          const exists = await Favorites.has(movieId)
+          if (alive) setIsFav(!!exists)
+        } catch {
+          if (alive) setIsFav(false)
+        }
+      })()
     return () => { alive = false }
   }, [movie, id])
 

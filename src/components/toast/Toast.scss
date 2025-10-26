@@ -15,7 +15,7 @@
 }
 
 /* Botón a ancho completo, consistente en desktop */
-.favorite-item>.btn {
+.favorite-item > .btn {
     width: 100%;
     display: inline-flex;
     justify-content: center;
@@ -36,8 +36,7 @@
     bottom: 24px;
     transform: translateX(-50%);
     z-index: 1000;
-    pointer-events: none;
-    /* fuera del toast no bloquea */
+    pointer-events: none; /* fuera del toast no bloquea */
 }
 
 /* Tarjeta con proporciones y look de la referencia */
@@ -46,15 +45,12 @@
     width: 330px;
     max-width: min(92vw, 330px);
     height: 80px;
-    border-radius: 12px;
-    /* un poco más redondeada */
+    border-radius: 12px; /* un poco más redondeada */
     box-sizing: border-box;
     padding: 10px 15px;
     background-color: #fff;
-    border: 1px solid #e5e7eb;
-    /* gris claro (no azul) */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
-    /* sombra suave */
+    border: 1px solid #e5e7eb; /* gris claro (no azul) */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .08); /* sombra suave */
     position: relative;
     overflow: hidden;
     display: flex;
@@ -68,21 +64,17 @@
 .fav-toast-card::before {
     content: "";
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    left: 0; top: 0; bottom: 0;
     width: 12px;
     background:
-        radial-gradient(circle at 0 6px, transparent 6px, #dbeafe 6.2px) left top / 12px 12px repeat-y,
-        linear-gradient(#dbeafe, #dbeafe);
+        radial-gradient(circle at 0 6px, transparent 6px, #dbeafe 6.2px) left top / 12px 12px repeat-y, /* “perforado” */
+        linear-gradient(#dbeafe, #dbeafe); /* relleno azul muy claro */
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
 }
 
 /* La referencia no muestra ola SVG */
-.fav-toast-wave {
-    display: none;
-}
+.fav-toast-wave { display: none; }
 
 /* Bloque de textos */
 .fav-toast-message {
@@ -91,27 +83,21 @@
     justify-content: center;
     align-items: flex-start;
     flex-grow: 1;
-    min-width: 0;
-    /* evita desbordes */
+    min-width: 0; /* evita desbordes */
 }
 
 .fav-toast-title,
-.fav-toast-subtext {
-    margin: 0;
-}
+.fav-toast-subtext { margin: 0; }
 
 .fav-toast-title {
-    color: #2563eb;
-    /* azul de la referencia */
+    color: #2563eb;   /* azul de la referencia */
     font-size: 16px;
     font-weight: 700;
     line-height: 1.1;
 }
-
 .fav-toast-subtext {
     font-size: 14px;
-    color: #4b5563;
-    /* gris-700 */
+    color: #4b5563;   /* gris-700 */
     line-height: 1.25;
     white-space: normal;
 }
@@ -128,10 +114,7 @@
     cursor: pointer;
     font-weight: 600;
 }
-
-.fav-toast-action:hover {
-    background: #eff6ff;
-}
+.fav-toast-action:hover { background: #eff6ff; }
 
 /* Cerrar “X” minimal */
 .fav-toast-close {
@@ -143,58 +126,53 @@
     height: 28px;
     display: grid;
     place-items: center;
-    color: #6b7280;
-    /* gris-500 */
+    color: #6b7280; /* gris-500 */
 }
-
-.fav-toast-cross {
-    width: 16px;
-    height: 16px;
-}
+.fav-toast-cross { width: 16px; height: 16px; }
 
 /* Accesibilidad: realce al foco dentro del toast */
 .fav-toast-card:focus,
 .fav-toast-card:focus-within {
     box-shadow:
         0 8px 24px rgba(0, 0, 0, .08),
-        0 0 0 3px rgba(199, 210, 254, .9);
-    /* anillo azul suave */
+        0 0 0 3px rgba(199, 210, 254, .9); /* anillo azul suave */
 }
 
-/* === Icono “info” (círculo perfecto y color correcto) === */
+/* === Ajuste del icono “info” para que sea un círculo perfecto === */
 .fav-toast-icon-container {
+    /* tamaño exacto */
     width: 28px;
     height: 28px;
-    min-width: 28px;
+    min-width: 28px;     /* evita encogimiento por flex */
     min-height: 28px;
-    flex: 0 0 28px;
+    flex: 0 0 28px;      /* NO shrink, NO grow */
+    /* layout */
     display: grid;
     place-items: center;
     position: relative;
     border-radius: 999px;
-    line-height: 0;
-    background: #dbeafe;
-    /* azul claro */
+    line-height: 0;      /* evita deformaciones por line-height */
+    background: #dbeafe; /* relleno azul claro */
 }
 
+/* Aro azul interior */
 .fav-toast-icon-container::after {
     content: "";
     position: absolute;
-    inset: 3px;
-    border: 2px solid #2563eb;
+    inset: 3px;                 /* diámetro del aro */
+    border: 2px solid #2563eb;  /* grosor y color del aro */
     border-radius: 999px;
 }
 
-/* SVG de la “i” */
+/* “i” centrada y encima del aro */
 .fav-toast-icon {
     position: relative;
     z-index: 1;
-    display: block;
-    width: 14px;
-    height: 14px;
+    display: block;  /* elimina espacios inline que alteran el box-model */
+    width: 12px;
+    height: 12px;
     color: #2563eb;
 }
 
-.fav-toast-icon * {
-    fill: currentColor;
-}
+/* El SVG trae un círculo propio; lo ocultamos para no duplicar el aro */
+.fav-toast-icon path:nth-child(2) { display: none; }
