@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>services/auth.ts - Documentation</title>
+    <title>pages/about/About - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,106 +35,328 @@
 
 <div id="main">
     
-    <h1 class="page-title">services/auth.ts</h1>
+    <h1 class="page-title">pages/about/About</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>// src/services/auth.ts
-import { api } from './api'
+        
+            
+        
+    
+</header>
 
-export interface User {
-    id: string
-    name: string
-    apellido?: string | null
-    email: string
-    age?: number | null
-    birthdate?: string | null
-    created_at?: string
-    updated_at?: string
-}
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>React page component. Adds smooth-scrolling for in-page anchors and cooperates
+with the global SkipLink (<code>data-skip-target</code> on the H1). No business logic changed.</p></div>
+            
 
-export interface AuthResponse { token: string; user: User }
-export interface MeResponse { user: User }
+            
+                
 
-const TOKEN_KEY = 'token'
-export const getToken = () => localStorage.getItem(TOKEN_KEY)
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
 
-/** Utilidad: si recibimos DOB, lo convertimos a edad. */
-function ageFromDob(dob: string): number {
-    const d = new Date(dob)
-    if (isNaN(d.getTime())) return 0
-    const today = new Date()
-    let age = today.getFullYear() - d.getFullYear()
-    const m = today.getMonth() - d.getMonth()
-    if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; d.getDate())) age--
-    return age
-}
 
-export const Auth = {
-    /**
-     * Registro.
-     * Acepta edad (number) o fecha (string). Siempre envía `age` al backend.
-     */
-    async signup(
-        name: string,
-        apellido: string,
-        email: string,
-        password: string,
-        confirmPassword: string,
-        ageOrDob?: number | string
-    ) {
-        const body: any = { name, apellido, email, password, confirmPassword } // ← añadimos apellido ✅
 
-        if (typeof ageOrDob === 'number' &amp;&amp; Number.isFinite(ageOrDob)) {
-            body.age = ageOrDob
-        } else if (typeof ageOrDob === 'string' &amp;&amp; ageOrDob.trim()) {
-            // si llega un string, probamos número y luego fecha
-            const maybeNum = Number(ageOrDob)
-            if (Number.isFinite(maybeNum)) {
-                body.age = maybeNum
-            } else {
-                const a = ageFromDob(ageOrDob)
-                if (a > 0) body.age = a
-            }
-        }
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>React page component. Adds smooth-scrolling for in-page anchors and cooperates
+with the global SkipLink (<code>data-skip-target</code> on the H1). No business logic changed.</p></li></ul></dd>
+    
 
-        const r = await api.post&lt;AuthResponse>('/auth/signup', body)
-        setToken(r.token)
-        return r
-    },
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_about_About.tsx.html">pages/about/About.tsx</a>, <a href="pages_about_About.tsx.html#line1">line 1</a>
+    </li></ul></dd>
+    
 
-    async login(email: string, password: string) {
-        const r = await api.post&lt;AuthResponse>('/auth/login', { email, password })
-        setToken(r.token)
-        return r
-    },
+    
 
-    me() {
-        return api.get&lt;MeResponse>('/auth/me')
-    },
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>1.0.0</li></ul></dd>
+    
 
-    logout() {
-        clearToken()
-    },
+    
 
-    async changePassword(currentPassword: string, newPassword: string) {
-        return api.post&lt;{ ok: boolean }>('/auth/change-password', {
-            currentPassword,
-            newPassword,
-        })
-    },
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>../../components/a11y/SkipLink.tsx</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="~TEAM"><span class="type-signature type-signature-inner, constant">(inner, constant) </span>TEAM<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Static roster rendered in the &quot;Team&quot; section.
+Kept local on purpose; replace with API data when available.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_about_About.tsx.html">pages/about/About.tsx</a>, <a href="pages_about_About.tsx.html#line38">line 38</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Static roster rendered in the &quot;Team&quot; section.
+Kept local on purpose; replace with API data when available.</p>
+</div>
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="~About"><span class="type-signature type-signature-inner">(inner) </span>About<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>About page: highlights brand, principles and the team.
+A11y notes:</p>
+<ul>
+<li>Uses <code>data-skip-target</code> on the H1 to cooperate with the global SkipLink.</li>
+<li>Provides smooth scrolling for in-page anchors (#intro, #team, ...).</li>
+<li>Uses <code>.hit-24</code> on the back link to meet WCAG 2.5.8 target size (24×24px).</li>
+</ul></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="pages_about_About.tsx.html">pages/about/About.tsx</a>, <a href="pages_about_About.tsx.html#line49">line 49</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>JSX.Element</p>
+</div>
+
+
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -146,7 +368,7 @@ export const Auth = {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:20 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

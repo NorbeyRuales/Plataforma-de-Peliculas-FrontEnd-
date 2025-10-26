@@ -1,12 +1,12 @@
-// src/pages/movies/Movies.tsx
 /**
  * @file Movies.tsx
- * @description Movies listing with optional search via ?q=.
- * Accessibility notes:
+ * @summary Movies listing view with optional search driven by the `?q=` query string.
+ * @remarks Accessibility notes:
  * - Keeps a single <h1> per page (WCAG 1.3.1 Info & Relationships).
  * - <h1> is marked with [data-skip-target] so the global skip-link lands here (WCAG 2.4.1 Bypass Blocks).
- * - Clear loading / error / empty states for all users.
+ * - Provides explicit loading, error, and empty states for all users.
  */
+// src/pages/movies/Movies.tsx
 
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
@@ -36,6 +36,10 @@ function isMovieArray(x: any): x is RawMovie[] {
     return Array.isArray(x) && (x.length === 0 || typeof x[0]?.title === 'string')
 }
 
+/**
+ * @component
+ * @returns Movies grid fed by the `/movies` endpoint and filtered via the `?q=` parameter.
+ */
 export default function MoviesPage() {
     // Page state for list, loading and error
     const [movies, setMovies] = useState<RawMovie[]>([])

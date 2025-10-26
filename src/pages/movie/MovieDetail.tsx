@@ -35,6 +35,10 @@ type Movie = {
  * Fetches movie data, wires the <video> element with custom controls,
  * and allows adding/removing the movie from favorites.
  */
+/**
+ * @component
+ * @returns Detailed movie view with trailer playback and favorite toggle.
+ */
 export default function MovieDetail() {
   // ------- Routing / refs -------
   const { id } = useParams()

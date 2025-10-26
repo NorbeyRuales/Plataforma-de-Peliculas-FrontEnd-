@@ -26,9 +26,8 @@ import './ResetPassword.scss';
 import { supa } from '../../services/supa';
 
 /**
- * ResetPassword page component.
- * Handles token exchange, password validation and password update.
- * @returns {JSX.Element}
+ * @component
+ * @returns Password reset form that exchanges Supabase tokens and updates the user password.
  */
 export default function ResetPassword() {
     const navigate = useNavigate();

@@ -1,14 +1,24 @@
+/**
+ * @file Switch.tsx
+ * @summary Animated theme toggle that integrates with `useAppTheme`.
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 import { useAppTheme } from '../../theme/AppThemeProvider';
 
 type Props = { size?: number; className?: string };
 
+/**
+ * @component
+ * @param props.size Optional pixel size controlling the overall toggle dimensions.
+ * @returns Toggle control bound to the current theme.
+ */
 const Switch: React.FC<Props> = ({ size = 22, className }) => {
   const { themeName, toggle } = useAppTheme();
   const checked = themeName === 'dark';
 
-  // Controla el tamaño completo del toggle con la var CSS
+  // Controls the overall toggle size through the CSS variable
   const style = { ['--toggle-size' as any]: `${size}px` };
 
   return (
@@ -48,7 +58,7 @@ const StyledWrapper = styled.div`
   .theme-switch {
     display: inline-block;
     position: relative;
-    /* --toggle-size viene de la prop "size" */
+    /* --toggle-size comes from the "size" prop */
     --container-width: 5.625em;
     --container-height: 2.5em;
     --container-radius: 6.25em;
@@ -187,7 +197,7 @@ const StyledWrapper = styled.div`
     transition: var(--transition);
   }
 
-  /* Estados */
+  /* States */
   .theme-switch__checkbox:checked + .theme-switch__container { background-color: var(--container-night-bg); }
   .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
     left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter));

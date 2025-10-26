@@ -1,8 +1,16 @@
-// src/pages/auth-callback/AuthCallback.tsx
+/**
+ * @file src/pages/auth-callback/AuthCallback.tsx
+ * @summary Handles Supabase auth redirects by exchanging URL codes for sessions.
+ */
+
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supa } from '../../services/supa'
 
+/**
+ * @component
+ * @returns Null component that processes the Supabase callback and redirects.
+ */
 export default function AuthCallback() {
     const navigate = useNavigate()
 
@@ -13,7 +21,7 @@ export default function AuthCallback() {
             } catch {
                 // no-op
             } finally {
-                // después de procesar el token, ve al formulario de nueva contraseña
+                // After processing the token, redirect to the password reset form
                 navigate('/forgot-password', { replace: true })
             }
         })()

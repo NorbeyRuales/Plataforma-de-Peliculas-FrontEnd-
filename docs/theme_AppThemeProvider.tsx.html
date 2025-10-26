@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>services/auth.ts - Documentation</title>
+    <title>theme/AppThemeProvider.tsx - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,7 +35,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">services/auth.ts</h1>
+    <h1 class="page-title">theme/AppThemeProvider.tsx</h1>
     
 
     
@@ -45,93 +45,69 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// src/services/auth.ts
-import { api } from './api'
+            <pre class="prettyprint source linenums"><code>/**
+ * @file AppThemeProvider.tsx
+ * @summary Theme context provider that toggles between light and dark modes and syncs with `document.documentElement`.
+ */
 
-export interface User {
-    id: string
-    name: string
-    apellido?: string | null
-    email: string
-    age?: number | null
-    birthdate?: string | null
-    created_at?: string
-    updated_at?: string
-}
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export interface AuthResponse { token: string; user: User }
-export interface MeResponse { user: User }
+export type ThemeName = "light" | "dark";
 
-const TOKEN_KEY = 'token'
-export const getToken = () => localStorage.getItem(TOKEN_KEY)
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
+type ThemeCtx = {
+  themeName: ThemeName;
+  setTheme: React.Dispatch&lt;React.SetStateAction&lt;ThemeName>>;
+  toggle: () => void;
+};
 
-/** Utilidad: si recibimos DOB, lo convertimos a edad. */
-function ageFromDob(dob: string): number {
-    const d = new Date(dob)
-    if (isNaN(d.getTime())) return 0
-    const today = new Date()
-    let age = today.getFullYear() - d.getFullYear()
-    const m = today.getMonth() - d.getMonth()
-    if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; d.getDate())) age--
-    return age
-}
+const ThemeContext = createContext&lt;ThemeCtx | null>(null);
+const THEME_LS_KEY = "app-theme";
 
-export const Auth = {
-    /**
-     * Registro.
-     * Acepta edad (number) o fecha (string). Siempre envía `age` al backend.
-     */
-    async signup(
-        name: string,
-        apellido: string,
-        email: string,
-        password: string,
-        confirmPassword: string,
-        ageOrDob?: number | string
-    ) {
-        const body: any = { name, apellido, email, password, confirmPassword } // ← añadimos apellido ✅
+/**
+ * Theme provider component that persists the preference and updates the DOM root.
+ * @component
+ */
+export const AppThemeProvider: React.FC&lt;{ children: React.ReactNode }> = ({ children }) => {
+  // Default to light; respect localStorage if the user already selected a theme.
+  const getInitial = (): ThemeName => {
+    const stored = (typeof localStorage !== "undefined"
+      ? (localStorage.getItem(THEME_LS_KEY) as ThemeName | null)
+      : null);
+    return stored ?? "light";
+  };
 
-        if (typeof ageOrDob === 'number' &amp;&amp; Number.isFinite(ageOrDob)) {
-            body.age = ageOrDob
-        } else if (typeof ageOrDob === 'string' &amp;&amp; ageOrDob.trim()) {
-            // si llega un string, probamos número y luego fecha
-            const maybeNum = Number(ageOrDob)
-            if (Number.isFinite(maybeNum)) {
-                body.age = maybeNum
-            } else {
-                const a = ageFromDob(ageOrDob)
-                if (a > 0) body.age = a
-            }
-        }
+  const [themeName, setTheme] = useState&lt;ThemeName>(getInitial);
 
-        const r = await api.post&lt;AuthResponse>('/auth/signup', body)
-        setToken(r.token)
-        return r
-    },
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute("data-theme", themeName);
+    // Ensure native inputs/selects honor the chosen color scheme
+    (root.style as any).colorScheme = themeName === "dark" ? "dark" : "light";
+    try { localStorage.setItem(THEME_LS_KEY, themeName); } catch (_) { }
+  }, [themeName]);
 
-    async login(email: string, password: string) {
-        const r = await api.post&lt;AuthResponse>('/auth/login', { email, password })
-        setToken(r.token)
-        return r
-    },
+  const value = useMemo(
+    () => ({
+      themeName,
+      setTheme,
+      toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+    }),
+    [themeName]
+  );
 
-    me() {
-        return api.get&lt;MeResponse>('/auth/me')
-    },
+  return &lt;ThemeContext.Provider value={value}>{children}&lt;/ThemeContext.Provider>;
+};
 
-    logout() {
-        clearToken()
-    },
+/**
+ * Provides access to the theme context value.
+ * @throws If used outside of `AppThemeProvider`.
+ */
+export const useAppTheme = () => {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useAppTheme must be used inside &lt;AppThemeProvider>");
+  return ctx;
+};
 
-    async changePassword(currentPassword: string, newPassword: string) {
-        return api.post&lt;{ ok: boolean }>('/auth/change-password', {
-            currentPassword,
-            newPassword,
-        })
-    },
-}
 </code></pre>
         </article>
     </section>

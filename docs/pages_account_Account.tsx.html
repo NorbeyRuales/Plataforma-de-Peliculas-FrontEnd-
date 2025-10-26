@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>pages/account/Account.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">pages/account/Account.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// src/pages/account/Account.tsx
+
+/**
+ * @file Account.tsx
+ * @summary User account page to view/edit profile data and change password.
+ * @module Pages/Account
+ * @description
+ * - Loads the authenticated user's profile, lets them edit name/last name/age/email,
+ *   and update their password in the same screen.
+ * - Adds guardrails (min/max age, email format) and basic A11Y patterns:
+ *   focus management, `aria-*` error wiring, and `role="dialog"` for the delete modal.
+ * - WCAG notes:
+ *   - 3.3.1/3.3.3: Error identification &amp; hints (inline errors + hints).
+ *   - 2.4.3: Focus sent to first field when entering edit mode.
+ *   - 3.2.2: No unexpected context changes on input; actions require explicit user intent.
+ */
+
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import './Account.scss'
+import { api } from '../../services/api'
+import { Auth } from '../../services/auth'
+
+/**
+ * Shape of a user profile persisted by the backend.
+ */
+type Profile = {
+  id: string
+  name: string
+  apellido: string        // ✅ new field on your model
+  age: number | undefined
+  email: string
+}
+
+/**
+ * Simple per-field error bag keyed by Profile properties.
+ */
+type Errors = Partial&lt;Record&lt;keyof Profile, string>>
+
+/**
+ * Returns the first non-empty string from a list of candidates.
+ * @param {...(string|undefined|null)} vals - Candidate values ordered by priority.
+ * @returns {string} First non-empty string or empty string if none.
+ */
+function pickStr(...vals: Array&lt;string | undefined | null>) {
+  for (const v of vals) if (typeof v === 'string' &amp;&amp; v.trim() !== '') return v
+  return ''
+}
+
+/**
+ * Parses a value to finite number or returns `undefined`.
+ * @param {unknown} v - Input value that might represent a number.
+ * @returns {number|undefined} Finite number or `undefined` if invalid.
+ */
+function toNum(v: unknown): number | undefined {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : undefined
+}
+
+/**
+ * Calculates age (in years) from an ISO date (YYYY-MM-DD or ISO full).
+ * Gracefully returns `undefined` on invalid input.
+ * @param {string|null|undefined} dateISO - ISO date or full ISO datetime.
+ * @returns {number|undefined} Age in years, or `undefined` if invalid.
+ */
+function calcAgeFromBirthdate(dateISO?: string | null): number | undefined {
+  if (!dateISO) return undefined
+  const s = String(dateISO)
+  const ymd = /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : s.split('T')[0]
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return undefined
+  const [y, m, d] = ymd.split('-').map(Number)
+  const birth = new Date(y, m - 1, d)
+  if (Number.isNaN(birth.getTime())) return undefined
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const mDiff = today.getMonth() - birth.getMonth()
+  if (mDiff &lt; 0 || (mDiff === 0 &amp;&amp; today.getDate() &lt; birth.getDate())) age--
+  return age
+}
+
+/** Minimum and maximum allowed age boundaries (server-side should mirror). */
+const AGE_MIN = 13
+const AGE_MAX = 120
+
+/**
+ * Account page component.
+ * @component
+ * @description
+ * - Loads current user (`/auth/me`) and augments it with DB profile (`/users/:id`).
+ * - Two main flows: profile edit/save and password change.
+ * - Prevents accidental navigation with the beforeunload prompt if there are unsaved changes.
+ */
+export default function Account() {
+  const [params] = useSearchParams()
+  const navigate = useNavigate()
+
+  const [profile, setProfile] = useState&lt;Profile | null>(null)
+  const [form, setForm] = useState&lt;Profile | null>(null)
+  const [errors, setErrors] = useState&lt;Errors>({})
+  const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const nameRef = useRef&lt;HTMLInputElement>(null)
+
+  // ---- Change password (inline panel) ----
+  const [pwdOpen, setPwdOpen] = useState(false)
+  const [currPwd, setCurrPwd] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [newPwd2, setNewPwd2] = useState('')
+  const [show1, setShow1] = useState(false)
+  const [show2, setShow2] = useState(false)
+  const [show3, setShow3] = useState(false)
+  const [caps1, setCaps1] = useState(false)
+  const [caps2, setCaps2] = useState(false)
+  const [caps3, setCaps3] = useState(false)
+  const [pwdSaving, setPwdSaving] = useState(false)
+  const [pwdSaved, setPwdSaved] = useState(false)
+  const [pwdErrorMsg, setPwdErrorMsg] = useState&lt;string | undefined>()
+
+  /**
+   * Validates password against basic complexity rules.
+   * @param {string} pwd - Password to validate.
+   * @returns {string|null} Error message or `null` if valid.
+   */
+  function validatePassword(pwd: string): string | null {
+    if (pwd.length &lt; 8) return 'La contraseña debe tener al menos 8 caracteres.'
+    if (!/[A-Z]/.test(pwd)) return 'Debe contener al menos una letra mayúscula.'
+    if (!/[0-9]/.test(pwd)) return 'Debe contener al menos un número.'
+    if (!/[^A-Za-z0-9]/.test(pwd)) return 'Debe contener al menos un carácter especial.'
+    return null
+  }
+  const newPwdErr = validatePassword(newPwd)
+  const newPwdOk = !!newPwd &amp;&amp; !newPwdErr
+  const samePwd = newPwd === newPwd2
+  const canChangePwd = !!currPwd &amp;&amp; newPwdOk &amp;&amp; samePwd &amp;&amp; !pwdSaving
+
+  // Load profile (auth + DB profile). Tolerant to different shapes.
+  useEffect(() => {
+    (async () => {
+      try {
+        const me: any = await api.get('/auth/me')
+        const id = me?.user?.id ?? me?.id
+        const email = me?.user?.email ?? me?.email ?? ''
+
+        let fromDb: any = {}
+        try { fromDb = await api.get(`/users/${id}`) } catch { /* ignore if not found */ }
+
+        const pObj: any = (fromDb &amp;&amp; 'profile' in fromDb) ? fromDb.profile : fromDb
+
+        // Age: DB first; else try to derive from birthdate if present.
+        const ageFromDb = toNum(pObj?.age ?? pObj?.edad)
+        const ageFromMeta = calcAgeFromBirthdate(
+          pObj?.birthdate ?? pObj?.birth_date ?? pObj?.dob ?? me?.user?.user_metadata?.birthdate
+        )
+
+        const p: Profile = {
+          id,
+          email: pickStr(pObj?.email, email),
+          name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
+          apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅ last name
+          age: ageFromDb ?? ageFromMeta,
+        }
+
+        setProfile(p)
+        setForm(p)
+      } catch (err) {
+        console.error(err)
+      }
+    })()
+  }, [])
+
+  // Handle deep-link actions (?mode=edit|delete)
+  useEffect(() => {
+    const mode = params.get('mode')
+    if (mode === 'edit') setEditing(true)
+    if (mode === 'delete') setConfirmDelete(true)
+  }, [params])
+
+  // Focus first field when entering edit mode (A11Y).
+  useEffect(() => {
+    if (editing) setTimeout(() => nameRef.current?.focus(), 60)
+  }, [editing])
+
+  /**
+   * Whether the current form differs from the last saved profile.
+   * Used to enable Save button and the beforeunload guard.
+   */
+  const hasChanges = useMemo(() => {
+    if (!profile || !form) return false
+    return (
+      profile.name !== form.name ||
+      profile.apellido !== form.apellido ||
+      profile.age !== form.age ||
+      profile.email !== form.email
+    )
+  }, [form, profile])
+
+  // Warn on tab close/reload if there are unsaved changes.
+  useEffect(() => {
+    function onUnload(e: BeforeUnloadEvent) {
+      if (hasChanges &amp;&amp; editing) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', onUnload)
+    return () => window.removeEventListener('beforeunload', onUnload)
+  }, [editing, hasChanges])
+
+  /**
+   * Synchronous profile validation.
+   * @param {Profile} f - Current form state.
+   * @returns {Errors} Per-field errors (empty object if valid).
+   */
+  function validate(f: Profile): Errors {
+    const e: Errors = {}
+    if (!f.name || f.name.trim().length &lt; 2) e.name = 'Escribe tu nombre (min. 2 caracteres).'
+    if (!f.apellido || f.apellido.trim().length &lt; 2) e.apellido = 'Escribe tu apellido (min. 2 caracteres).'
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Correo inválido.'
+    if (f.age === undefined || f.age === null || Number.isNaN(f.age)) {
+      e.age = 'Escribe tu edad.'
+    } else if (f.age &lt; AGE_MIN || f.age > AGE_MAX) {
+      e.age = `La edad debe estar entre ${AGE_MIN} y ${AGE_MAX}.`
+    }
+    return e
+  }
+
+  /** Overall form validity derived from current state. */
+  const isValid = useMemo(() => {
+    if (!form) return false
+    return Object.keys(validate(form)).length === 0
+  }, [form])
+
+  /** Enables save button if editing + dirty + valid + not already saving. */
+  const canSave = editing &amp;&amp; hasChanges &amp;&amp; isValid &amp;&amp; !saving
+
+  /**
+   * Generic change handler for text/number inputs.
+   * - Special handling for `age`: strip non-digits and clamp digits length.
+   */
+  function onChange(e: React.ChangeEvent&lt;HTMLInputElement>) {
+    const { name, value } = e.target
+
+    // Special treatment for `age`
+    const v =
+      name === 'age'
+        ? (() => {
+          if (value === '') return undefined
+          // Sanitize: keep only digits and limit to 3 chars (max 120).
+          const digits = value.replace(/[^\d]/g, '').slice(0, 3)
+          if (digits === '') return undefined
+          const n = Math.trunc(Number(digits))
+          return Number.isFinite(n) ? n : undefined
+        })()
+        : value
+
+    setForm(f => f ? { ...f, [name]: v } as Profile : f)
+    if (form) setErrors(validate({ ...(form as Profile), [name]: v } as Profile))
+  }
+
+  /** Clamp age after blur to keep it in the allowed range. */
+  function onAgeBlur() {
+    setForm(f => {
+      if (!f) return f
+      if (f.age === undefined || f.age === null || Number.isNaN(f.age)) return f
+      const clamped = Math.max(AGE_MIN, Math.min(AGE_MAX, Math.trunc(f.age)))
+      if (clamped === f.age) return f
+      const next = { ...f, age: clamped }
+      setErrors(validate(next))
+      return next
+    })
+  }
+
+  /**
+   * Persist profile changes to the backend.
+   * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   */
+  async function onSave(e?: React.FormEvent) {
+    e?.preventDefault()
+    if (!profile || !form) return
+
+    const vErr = validate(form)
+    setErrors(vErr)
+    if (Object.keys(vErr).length > 0) return
+
+    setSaving(true)
+    try {
+      await api.put(`/users/${profile.id}`, {
+        name: form.name,
+        apellido: form.apellido,       // send last name
+        age: form.age ?? null,
+        email: form.email,
+      })
+      setProfile(form)
+      setEditing(false)
+      setSaved(true)
+      window.setTimeout(() => setSaved(false), 2500)
+    } catch (err: any) {
+      alert(err.message || 'Error al guardar')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  /**
+   * Change password flow. Uses Auth.changePassword and local inline panel feedback.
+   * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   */
+  async function onChangePassword(e?: React.FormEvent) {
+    e?.preventDefault()
+    setPwdErrorMsg(undefined)
+    if (!canChangePwd) return
+
+    setPwdSaving(true)
+    try {
+      await Auth.changePassword(currPwd, newPwd)
+      setCurrPwd(''); setNewPwd(''); setNewPwd2('')
+      setPwdOpen(false)
+      setPwdSaved(true)
+      setTimeout(() => setPwdSaved(false), 2500)
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'No se pudo cambiar la contraseña'
+      setPwdErrorMsg(msg)
+    } finally {
+      setPwdSaving(false)
+    }
+  }
+
+  /** Permanently deletes the account and clears local auth token. */
+  async function handleDelete() {
+    if (!profile) return
+    try {
+      await api.del(`/users/${profile.id}`)
+    } catch (err: any) {
+      alert(err.message || 'No se pudo eliminar')
+      return
+    }
+    localStorage.removeItem('token')
+    navigate('/login', { replace: true })
+  }
+
+  // Skeleton state while fetching the initial profile.
+  if (!form) {
+    return &lt;section className='auth-screen container'>&lt;p aria-busy='true'>Cargando…&lt;/p>&lt;/section>
+  }
+
+  return (
+    &lt;section className='auth-screen container account-page'>
+      &lt;div className='logo-big' aria-label='PYRA' />
+      &lt;h1 className='sr-only'>Perfil&lt;/h1>
+
+      &lt;form className={`auth-form ${!editing ? 'is-readonly' : ''}`} onSubmit={onSave} noValidate>
+        &lt;label className='field'>
+          &lt;span className='field__label'>Tú nombre&lt;/span>
+          &lt;input
+            ref={nameRef}
+            name='name'
+            placeholder='Nombre usuario'
+            value={form.name}
+            onChange={onChange}
+            disabled={!editing}
+            aria-invalid={!!errors.name || undefined}
+            aria-describedby={errors.name ? 'err_name' : undefined}
+          />
+          {errors.name &amp;&amp; &lt;small id='err_name' className='field__error'>{errors.name}&lt;/small>}
+        &lt;/label>
+
+        &lt;label className='field'>
+          &lt;span className='field__label'>Apellido&lt;/span>
+          &lt;input
+            name='apellido'
+            placeholder='Apellido'
+            value={form.apellido}
+            onChange={onChange}
+            disabled={!editing}
+            aria-invalid={!!errors.apellido || undefined}
+            aria-describedby={errors.apellido ? 'err_apellido' : undefined}
+          />
+          {errors.apellido &amp;&amp; &lt;small id='err_apellido' className='field__error'>{errors.apellido}&lt;/small>}
+        &lt;/label>
+
+        &lt;label className='field'>
+          &lt;span className='field__label'>Edad&lt;/span>
+          &lt;input
+            name='age'
+            placeholder='Edad'
+            type='number'
+            inputMode='numeric'
+            step={1}
+            min={AGE_MIN}
+            max={AGE_MAX}
+            value={form.age ?? ''}
+            onChange={onChange}
+            onBlur={onAgeBlur}
+            disabled={!editing}
+            aria-invalid={!!errors.age || undefined}
+            aria-describedby={errors.age ? 'err_age' : undefined}
+          />
+          {errors.age &amp;&amp; &lt;small id='err_age' className='field__error'>{errors.age}&lt;/small>}
+          &lt;small className='field__hint italic'>&lt;/small>
+        &lt;/label>
+
+        &lt;label className='field'>
+          &lt;span className='field__label'>Correo&lt;/span>
+          &lt;input
+            name='email'
+            placeholder='Correo electrónico'
+            type='email'
+            value={form.email}
+            onChange={onChange}
+            disabled={!editing}
+            aria-invalid={!!errors.email || undefined}
+            aria-describedby={errors.email ? 'err_email' : undefined}
+          />
+          {errors.email &amp;&amp; &lt;small id='err_email' className='field__error'>{errors.email}&lt;/small>}
+        &lt;/label>
+
+        {!editing ? (
+          &lt;div className='actions'>
+            &lt;button className='btn success' type='button' onClick={() => setEditing(true)}>Editar&lt;/button>
+            &lt;button
+              type='button'
+              className='btn ghost'
+              aria-expanded={pwdOpen}
+              onClick={() => setPwdOpen(v => !v)}
+            >
+              {pwdOpen ? 'Cancelar cambio de contraseña' : 'Cambiar contraseña'}
+            &lt;/button>
+          &lt;/div>
+        ) : (
+          &lt;div className='row'>
+            &lt;button className='btn success' type='submit' disabled={!canSave} aria-busy={saving || undefined}>Guardar&lt;/button>
+            &lt;button className='btn danger' type='button' onClick={() => {
+              setForm(profile); setErrors({}); setEditing(false)
+            }}>Cancelar&lt;/button>
+          &lt;/div>
+        )}
+
+        {pwdOpen &amp;&amp; (
+          &lt;fieldset className='pwd-panel'>
+            &lt;legend>Cambiar contraseña&lt;/legend>
+
+            &lt;label className='field'>
+              &lt;span className='field__label'>Contraseña actual&lt;/span>
+              &lt;div className='password-field'>
+                &lt;input
+                  placeholder='Contraseña actual'
+                  type={show1 ? 'text' : 'password'}
+                  autoComplete='current-password'
+                  value={currPwd}
+                  onChange={(e) => setCurrPwd(e.target.value)}
+                  onKeyUp={(e) => setCaps1(e.getModifierState('CapsLock'))}
+                />
+                &lt;button
+                  type='button'
+                  className='pwd-toggle'
+                  aria-pressed={show1}
+                  aria-label={show1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShow1(s => !s)}
+                >
+                  {show1 ? (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36' />
+                    &lt;/svg>
+                  ) : (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z' />
+                      &lt;circle fill='none' stroke='currentColor' strokeWidth='2' cx='12' cy='12' r='3.5' />
+                    &lt;/svg>
+                  )}
+                  &lt;span className='sr-only'>{show1 ? 'Ocultar' : 'Mostrar'}&lt;/span>
+                &lt;/button>
+              &lt;/div>
+              &lt;small className='field__hint'>{caps1 ? 'Bloq Mayús activado.' : ''}&lt;/small>
+            &lt;/label>
+
+            &lt;label className='field'>
+              &lt;span className='field__label'>Nueva contraseña&lt;/span>
+              &lt;div className='password-field'>
+                &lt;input
+                  placeholder='Nueva contraseña'
+                  type={show2 ? 'text' : 'password'}
+                  autoComplete='new-password'
+                  value={newPwd}
+                  onChange={(e) => setNewPwd(e.target.value)}
+                  onKeyUp={(e) => setCaps2(e.getModifierState('CapsLock'))}
+                  aria-invalid={!!newPwdErr || undefined}
+                  aria-describedby='pwd_new_hint'
+                />
+                &lt;button
+                  type='button'
+                  className='pwd-toggle'
+                  aria-pressed={show2}
+                  aria-label={show2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShow2(s => !s)}
+                >
+                  {show2 ? (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36' />
+                    &lt;/svg>
+                  ) : (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z' />
+                      &lt;circle fill='none' stroke='currentColor' strokeWidth='2' cx='12' cy='12' r='3.5' />
+                    &lt;/svg>
+                  )}
+                  &lt;span className='sr-only'>{show2 ? 'Ocultar' : 'Mostrar'}&lt;/span>
+                &lt;/button>
+              &lt;/div>
+              &lt;small id='pwd_new_hint' className={`field__hint ${!newPwd ? '' : (newPwdOk ? 'field__hint--ok' : 'field__hint--bad')}`}>
+                {!newPwd ? 'Mínimo 8 caracteres, mayúscula, número y símbolo.' : (newPwdOk ? 'La contraseña cumple con los requisitos.' : (newPwdErr as string))}
+                {caps2 ? ' Bloq Mayús activado.' : ''}
+              &lt;/small>
+            &lt;/label>
+
+            &lt;label className='field'>
+              &lt;span className='field__label'>Confirmar nueva contraseña&lt;/span>
+              &lt;div className='password-field'>
+                &lt;input
+                  placeholder='Confirmar nueva contraseña'
+                  type={show3 ? 'text' : 'password'}
+                  autoComplete='new-password'
+                  value={newPwd2}
+                  onChange={(e) => setNewPwd2(e.target.value)}
+                  onKeyUp={(e) => setCaps3(e.getModifierState('CapsLock'))}
+                  aria-invalid={!!newPwd2 &amp;&amp; !samePwd || undefined}
+                  aria-describedby='pwd_new2_hint'
+                />
+                &lt;button
+                  type='button'
+                  className='pwd-toggle'
+                  aria-pressed={show3}
+                  aria-label={show3 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShow3(s => !s)}
+                >
+                  {show3 ? (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M3 3l18 18M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.09A9.66 9.66 0 0112 5c5.52 0 9.5 4.5 9.5 7-.34.83-1.08 1.99-2.25 3.08M5.06 7.06C3.9 8.15 3.16 9.31 2.82 10.14c0 2.5 3.98 7 9.5 7 .9 0 1.77-.12 2.6-.36' />
+                    &lt;/svg>
+                  ) : (
+                    &lt;svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'>
+                      &lt;path fill='none' stroke='currentColor' strokeWidth='2' d='M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z' />
+                      &lt;circle fill='none' stroke='currentColor' strokeWidth='2' cx='12' cy='12' r='3.5' />
+                    &lt;/svg>
+                  )}
+                  &lt;span className='sr-only'>{show3 ? 'Ocultar' : 'Mostrar'}&lt;/span>
+                &lt;/button>
+              &lt;/div>
+              &lt;small id='pwd_new2_hint' className={`field__hint ${!newPwd2 ? '' : (samePwd ? 'field__hint--ok' : 'field__hint--bad')}`}>
+                {!newPwd2 ? 'Debe coincidir con la contraseña.' : (samePwd ? 'Las contraseñas coinciden.' : 'Las contraseñas no coinciden.')}
+                {caps3 ? ' Bloq Mayús activado.' : ''}
+              &lt;/small>
+            &lt;/label>
+
+            {pwdErrorMsg &amp;&amp; (
+              &lt;div role='alert' className='form-summary form-summary--error'>{pwdErrorMsg}&lt;/div>
+            )}
+
+            &lt;div className='row'>
+              &lt;button
+                className='btn success'
+                type='button'
+                onClick={onChangePassword}
+                disabled={!canChangePwd}
+                aria-busy={pwdSaving || undefined}
+              >
+                Guardar nueva contraseña
+              &lt;/button>
+              &lt;button
+                className='btn ghost'
+                type='button'
+                onClick={() => {
+                  setCurrPwd(''); setNewPwd(''); setNewPwd2(''); setPwdErrorMsg(undefined); setPwdOpen(false)
+                }}
+              >
+                Cancelar
+              &lt;/button>
+            &lt;/div>
+          &lt;/fieldset>
+        )}
+
+        {saved &amp;&amp; &lt;p role="status" className="muted" style={{ marginTop: '.5rem' }}>Datos guardados&lt;/p>}
+        {pwdSaved &amp;&amp; &lt;p role="status" className="muted" style={{ marginTop: '.25rem' }}>Contraseña actualizada&lt;/p>}
+
+        &lt;button type='button' className='btn danger' onClick={() => setConfirmDelete(true)}>
+          Eliminar cuenta
+        &lt;/button>
+      &lt;/form>
+
+      {confirmDelete &amp;&amp; (
+        &lt;div className='modal' role='dialog' aria-modal='true' aria-labelledby='delTitle'>
+          &lt;div className='modal-card'>
+            &lt;h3 id='delTitle'>¿Eliminar tu cuenta?&lt;/h3>
+            &lt;p>Esta acción no se puede deshacer.&lt;/p>
+            &lt;div className='row'>
+              &lt;button type='button' className='btn danger' onClick={handleDelete}>Confirmar eliminación&lt;/button>
+              &lt;button type='button' className='btn ghost' onClick={() => setConfirmDelete(false)}>Cancelar&lt;/button>
+            &lt;/div>
+          &lt;/div>
+        &lt;/div>
+      )}
+    &lt;/section>
+  )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
