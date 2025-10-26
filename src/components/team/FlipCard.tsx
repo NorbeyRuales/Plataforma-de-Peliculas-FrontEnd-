@@ -1,4 +1,8 @@
-// src/components/team/FlipCard.tsx
+﻿/**
+ * @file src/components/team/FlipCard.tsx
+ * @summary Team member flip card with animated gradients and front/back faces.
+ */
+
 import React from 'react'
 import styled from 'styled-components'
 
@@ -10,9 +14,14 @@ type Props = {
     accentB?: string
     accentC?: string
     iconUrl?: string
-    backText?: string   // texto en la cara trasera (default: role)
+    backText?: string   // Text shown on the back face (defaults to role)
 }
 
+/**
+ * @component
+ * @param props Card labels, optional imagery, and accent colors.
+ * @returns Interactive flip-card element describing a teammate.
+ */
 const FlipCard: React.FC<Props> = ({
     name,
     role,
@@ -27,7 +36,7 @@ const FlipCard: React.FC<Props> = ({
         <StyledWrapper $accentA={accentA} $accentB={accentB} $accentC={accentC}>
             <div className="card" role="button" aria-label={`${name}, ${role}`}>
                 <div className="content">
-                    {/* ---------- FRONT (ahora: ÍCONO) ---------- */}
+                    {/* ---------- FRONT (icon) ---------- */}
                     <div className="front">
                         <div className="img" aria-hidden="true">
                             {avatarUrl ? (
@@ -45,7 +54,7 @@ const FlipCard: React.FC<Props> = ({
                             {iconUrl ? (
                                 <img src={iconUrl} alt="" />
                             ) : (
-                                // Fallback muy simple (líneas); NO es la pizza
+                                // Simple fallback icon (lines); not the pizza
                                 <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
                                     <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
                                 </svg>
@@ -53,11 +62,11 @@ const FlipCard: React.FC<Props> = ({
                         </div>
                     </div>
 
-                    {/* ---------- BACK (ahora: TEXTO) ---------- */}
+                    {/* ---------- BACK (text) ---------- */}
                     <div className="back" aria-hidden="true">
-                        {/* halo/borde animado */}
+                        {/* Animated halo/border */}
                         <div className="back-content">
-                            {/* quitado: icono de pizza/fallback */}
+                            {/* Simplified text-only back face */}
                             <strong>{backText ?? role}</strong>
                         </div>
                     </div>
@@ -90,14 +99,14 @@ const StyledWrapper = styled.div<{
     border-radius: 10px; overflow: hidden;
   }
 
-  /* Al hacer hover gira 180° para mostrar la cara trasera (texto) */
+  /* Hover rotates 180deg to reveal the text side */
   .card:hover .content { transform: rotateY(180deg); }
 
-  /* ---------- ORIENTACIÓN (frente visible por defecto) ---------- */
-  .front { /* frente sin rotación: se ve por defecto */ }
-  .back  { transform: rotateY(180deg); } /* dorso */
+  /* ---------- ORIENTATION (front visible by default) ---------- */
+  .front { /* front without rotation: visible by default */ }
+  .back  { transform: rotateY(180deg); } /* back */
 
-  /* ---------- FRONT (icono + fondo) ---------- */
+  /* ---------- FRONT (icon + background) ---------- */
   .img { position: absolute; inset: 0; }
   .avatar { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(.95); }
 
@@ -124,10 +133,10 @@ const StyledWrapper = styled.div<{
     filter: drop-shadow(0 4px 10px rgba(0,0,0,.45));
   }
 
-    /* ---------- BACK (texto) ---------- */
+    /* ---------- BACK (text) ---------- */
   .back {
     transform: rotateY(180deg);
-    position: relative;            /* para que z-index funcione */
+    position: relative;            /* so z-index works properly */
   }
 
   .back::before {
@@ -164,12 +173,12 @@ const StyledWrapper = styled.div<{
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* centrado óptico real */
+    transform: translate(-50%, -50%); /* true optical centering */
     width: calc(100% - 2rem);
     max-width: 100%;
     line-height: 1.25;
     display: block;
-    /* microajuste opcional:
+    /* optional micro-adjustment:
        transform: translate(-50%, -52%);
     */
   }

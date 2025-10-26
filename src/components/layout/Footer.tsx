@@ -1,10 +1,19 @@
+/**
+ * @file Footer.tsx
+ * @summary Site-wide footer with brand, grouped navigation links, and a scroll-to-top button.
+ */
+
 import { Link } from 'react-router-dom'
 import './Footer.scss'
 
+/**
+ * @component
+ * @returns Footer section containing navigation clusters and social links.
+ */
 export default function Footer() {
   const year = new Date().getFullYear()
 
-  // Enlaces existentes/útiles de tu app (ajusta si te falta alguno)
+  // Existing/handy navigation links (adjust if new routes are added)
   const explorar = [
     { to: '/', label: 'Inicio' },
     { to: '/movies', label: 'Películas' },
@@ -19,13 +28,13 @@ export default function Footer() {
   ]
 
   const recursos = [
-    { to: '/site-map', label: 'Mapa del sitio' }, // mantengo tu ruta existente
+    { to: '/site-map', label: 'Mapa del sitio' }, // Keeps the existing site-map route entry
   ]
 
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
-        {/* Marca */}
+        {/* Brand */}
         <section className="brand-block">
           <Link to="/" aria-label="PYRA home" className="brand-mini">
             <img src="/brand/pyra.svg" alt="PYRA" />
@@ -47,7 +56,7 @@ export default function Footer() {
           </div>
         </section>
 
-        {/* Columnas de enlaces */}
+        {/* Link columns */}
         <section>
           <h4 className="footer-title">Explorar</h4>
           <ul className="footer-list">

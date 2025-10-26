@@ -1,7 +1,7 @@
 /**
  * @file Login.tsx
- * @description Login screen with accessible form, client-side validation and CapsLock hint.
- * Persists the last used email in localStorage to speed up subsequent logins.
+ * @summary Login screen with accessible form, client-side validation and CapsLock hint.
+ * @description Persists the last used email in localStorage to speed up subsequent logins.
  */
 
 import { Link, useNavigate } from 'react-router-dom'
@@ -21,7 +21,7 @@ const EMAIL_KEY = 'last_email'
  * Renders an accessible login form, validates on submit,
  * and redirects to the home page on success.
  * @component
- * @returns {JSX.Element}
+ * @returns Login screen markup with validation and status messaging.
  */
 export default function Login() {
   const navigate = useNavigate()

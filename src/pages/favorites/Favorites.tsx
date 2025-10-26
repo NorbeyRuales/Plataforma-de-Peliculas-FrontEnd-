@@ -1,3 +1,8 @@
+/**
+ * @file Favorites.tsx
+ * @summary Lists the user's favorite movies and allows removing entries.
+ * @remarks Normalizes heterogeneous favorite payloads so MovieCard receives a consistent shape.
+ */
 // src/pages/favorites/Favorites.tsx
 import { useEffect, useState } from 'react'
 import MovieCard from '../../components/movie/MovieCard'
@@ -54,6 +59,10 @@ function favToMovie(f: FavMovie) {
   } as any
 }
 
+/**
+ * @component
+ * @returns Favorites grid with inline actions to remove items from the saved list.
+ */
 export default function Favorites() {
   const [items, setItems] = useState<FavMovie[]>([])
   const [loading, setLoading] = useState(true)

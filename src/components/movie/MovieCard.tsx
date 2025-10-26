@@ -1,8 +1,7 @@
 /**
  * @file MovieCard.tsx
- * @description Reusable movie card with lazy-loaded poster, accessible title and rating.
- * The link's accessible name is the visible title; decorative star glyphs are hidden
- * from AT while the numeric value is exposed via `aria-label`.
+ * @summary Reusable movie card with lazy-loaded posters and accessible rating output.
+ * @remarks The link uses the visible title for its accessible name while the numeric rating is surfaced via `aria-label`.
  */
 
 import { Link } from 'react-router-dom'
@@ -12,8 +11,8 @@ import './MovieCard.scss'
 
 /**
  * Tries to infer a poster URL from heterogeneous movie objects coming from different APIs.
- * @param {any} m - Raw movie object with possible poster fields.
- * @returns {string | undefined} A usable poster URL if found.
+ * @param m Raw movie object that may include several poster-related keys.
+ * @returns Poster URL if one of the known fields is present; otherwise undefined.
  */
 function guessPoster(m: any): string | undefined {
   return (
@@ -28,10 +27,10 @@ function guessPoster(m: any): string | undefined {
 }
 
 /**
- * Calculates decorative star glyphs (★/☆) and an accessible label based on rating.
- * Normalizes scales >5 (e.g., TMDB 0–10) down to 0–5.
- * @param {any} m - Raw movie object with possible rating fields.
- * @returns {{ stars: string; aria: string }} The star string and an ARIA label like "4.0 de 5".
+ * Calculates decorative star glyphs and an accessible label based on rating metadata.
+ * Normalizes scales above five (for example, TMDB 0-10) down to the 0-5 range.
+ * @param m Raw movie object with optional rating, score, or vote_average fields.
+ * @returns Object with the star string and an ARIA label such as "4.0 de 5".
  */
 function calcStars(m: any) {
   let r = Number(m?.rating ?? m?.score ?? m?.vote_average ?? 0)
@@ -48,14 +47,13 @@ function calcStars(m: any) {
 const PRELOAD_MARGIN = '200px'
 
 /**
- * Movie card component used inside grids/lists.
+ * Movie card component used inside grids and lists with lazy-loaded imagery and accessible metadata.
  * - Lazy-loads the poster once the card approaches the viewport.
- * - Exposes a robust link to the movie detail using the best available ID.
- * - Keeps placeholders silent for AT while an actual image is loading.
+ * - Exposes a robust link to the movie detail using the best available identifier.
+ * - Keeps placeholders silent for assistive tech while the actual image is loading.
  * @component
- * @param props
- * @param props.movie Movie entity to render.
- * @returns {JSX.Element}
+ * @param props.movie Movie entity to render, including title, genres, and potential poster URLs.
+ * @returns Rendered article element representing the movie card.
  */
 export default function MovieCard({ movie }: { movie: Movie }) {
   const titleText = (movie?.title ?? '').toString().trim() || 'Película sin título'

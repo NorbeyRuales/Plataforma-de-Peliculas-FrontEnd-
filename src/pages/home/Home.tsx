@@ -25,6 +25,10 @@ type Movie = {
   genres?: string[]
 }
 
+/**
+ * @component
+ * @returns Landing grid showing a sample of movies plus loading/error states.
+ */
 export default function Home() {
   // Basic page state
   const [movies, setMovies] = useState<Movie[]>([])

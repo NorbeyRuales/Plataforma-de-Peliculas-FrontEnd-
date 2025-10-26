@@ -1,3 +1,8 @@
+/**
+ * @file AppThemeProvider.tsx
+ * @summary Theme context provider that toggles between light and dark modes and syncs with `document.documentElement`.
+ */
+
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type ThemeName = "light" | "dark";
@@ -11,8 +16,12 @@ type ThemeCtx = {
 const ThemeContext = createContext<ThemeCtx | null>(null);
 const THEME_LS_KEY = "app-theme";
 
+/**
+ * Theme provider component that persists the preference and updates the DOM root.
+ * @component
+ */
 export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Por defecto: LIGHT. Si el usuario ya eligió, respetar localStorage.
+  // Default to light; respect localStorage if the user already selected a theme.
   const getInitial = (): ThemeName => {
     const stored = (typeof localStorage !== "undefined"
       ? (localStorage.getItem(THEME_LS_KEY) as ThemeName | null)
@@ -25,7 +34,7 @@ export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-theme", themeName);
-    // Ayuda a inputs/selects nativos a usar el esquema correcto
+    // Ensure native inputs/selects honor the chosen color scheme
     (root.style as any).colorScheme = themeName === "dark" ? "dark" : "light";
     try { localStorage.setItem(THEME_LS_KEY, themeName); } catch (_) { }
   }, [themeName]);
@@ -42,8 +51,13 @@ export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
+/**
+ * Provides access to the theme context value.
+ * @throws If used outside of `AppThemeProvider`.
+ */
 export const useAppTheme = () => {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error("useAppTheme must be used inside <AppThemeProvider>");
   return ctx;
 };
+

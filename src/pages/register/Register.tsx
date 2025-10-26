@@ -32,8 +32,8 @@ export default function Register() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
-  const [apellido, setApellido] = useState('')            // ✅ new field
-  const [age, setAge] = useState<number | ''>('')         // ← replacing DOB with age
+  const [apellido, setApellido] = useState('')            
+  const [age, setAge] = useState<number | ''>('')         
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -47,8 +47,8 @@ export default function Register() {
   const [error, setError] = useState<string | undefined>()
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
-  const apellidoRef = useRef<HTMLInputElement>(null)       // ✅ new
-  const ageRef = useRef<HTMLInputElement>(null)            // ← focus target on errors
+  const apellidoRef = useRef<HTMLInputElement>(null)       
+  const ageRef = useRef<HTMLInputElement>(null)            
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
@@ -134,7 +134,7 @@ export default function Register() {
 
   const canSubmit =
     !!name.trim() &&
-    !!apellido.trim() &&           // ✅ required
+    !!apellido.trim() &&          
     ageOk &&
     emailOk &&
     !validatePassword(password) &&
@@ -178,7 +178,7 @@ export default function Register() {
       // use suggestion when the user still has a mistyped domain
       await Auth.signup(
         name,
-        apellido,                                   // ✅ new argument
+        apellido,                                   
         emailSuggestion || email,
         password,
         password2,
