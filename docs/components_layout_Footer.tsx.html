@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>components/Breadcrumbs/Breadcrumbs.tsx - Documentation</title>
+    <title>components/layout/Footer.tsx - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,7 +35,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">components/Breadcrumbs/Breadcrumbs.tsx</h1>
+    <h1 class="page-title">components/layout/Footer.tsx</h1>
     
 
     
@@ -46,120 +46,108 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * @file Breadcrumbs.tsx
- * @summary Renders navigation breadcrumbs based on the current URL.
- * @remarks
- * - WCAG 1.3.1 Info &amp; Relationships: &lt;nav aria-label="Migas de pan"> + &lt;ol>/&lt;li>.
- * - WCAG 2.4.1 Bypass Blocks: orientation aid to move between levels quickly.
- * - WCAG 2.4.4/2.4.9 Link Purpose: every link exposes descriptive text.
- * - WCAG 2.4.8 Location: shows the user's position within the hierarchy.
+ * @file Footer.tsx
+ * @summary Site-wide footer with brand, grouped navigation links, and a scroll-to-top button.
  */
 
-import { Link, useLocation } from "react-router-dom";
-import { useMemo } from "react";
-import "./Breadcrumbs.scss";
-
-/**
- * Rules that map known routes to human-friendly labels.
- * Order matters: rules run sequentially and return the first match.
- */
-const LABELS: { pattern: RegExp; label: string }[] = [
-    { pattern: /^\/$/, label: "Inicio" },
-
-    // Real application routes
-    { pattern: /^\/movies(\/|$)/, label: "Películas" },
-    { pattern: /^\/movie\/[^/]+$/, label: "Detalle" },
-
-    // Optional routes in case slugs change to Spanish later
-    { pattern: /^\/peliculas(\/|$)/, label: "Películas" },
-    { pattern: /^\/series(\/|$)/, label: "Series" },
-    { pattern: /^\/favoritos(\/|$)/, label: "Favoritos" },
-    { pattern: /^\/perfil(\/|$)/, label: "Mi perfil" },
-    { pattern: /^\/peliculas\/[^/]+$/, label: "Detalle" },
-    { pattern: /^\/series\/[^/]+$/, label: "Detalle" },
-];
-
-/**
- * Returns the label associated with a path based on LABELS, or null if unmatched.
- */
-function pathToLabel(path: string): string | null {
-    for (const rule of LABELS) {
-        if (rule.pattern.test(path)) return rule.label;
-    }
-    return null;
-}
+import { Link } from 'react-router-dom'
+import './Footer.scss'
 
 /**
  * @component
- * @summary Builds breadcrumbs from location.pathname (e.g., /movie/123 -> ["/", "/movie", "/movie/123"]).
+ * @returns Footer section containing navigation clusters and social links.
  */
-export default function Breadcrumbs() {
-    const location = useLocation();
+export default function Footer() {
+  const year = new Date().getFullYear()
 
-    // Build each cumulative path segment so previous levels remain linked.
-    const segments = useMemo(() => {
-        const parts = location.pathname.split("/").filter(Boolean);
-        const acc: string[] = [];
-        parts.forEach((p, i) => {
-            const prev = acc[i - 1] ?? "";
-            acc.push(`${prev}/${p}`);
-        });
-        // Always prepend the root segment
-        return ["/", ...acc];
-    }, [location.pathname]);
+  // Existing/handy navigation links (adjust if new routes are added)
+  const explorar = [
+    { to: '/', label: 'Inicio' },
+    { to: '/movies', label: 'Películas' },
+    { to: '/favorites', label: 'Mi lista' },
+    { to: '/about', label: 'Sobre nosotros' },
+  ]
 
-    // Allow overriding the final breadcrumb with a human-friendly label
-    // passed via navigation state (e.g., the movie title).
-    const lastDynamicLabel =
-        (location.state as undefined | { breadcrumb?: string })?.breadcrumb ?? null;
+  const cuenta = [
+    { to: '/account', label: 'Cuenta' },
+    { to: '/login', label: 'Iniciar sesión' },
+    { to: '/register', label: 'Registrarse' },
+  ]
 
-    return (
-        // aria-label helps screen readers recognize the navigation
-        &lt;nav className="breadcrumbs" aria-label="Migas de pan">
-            &lt;ol>
-                {segments.map((fullPath, idx) => {
-                    const isLast = idx === segments.length - 1;
+  const recursos = [
+    { to: '/site-map', label: 'Mapa del sitio' }, // Keeps the existing site-map route entry
+  ]
 
-                    // 1) Try known label rules first
-                    let label = pathToLabel(fullPath);
+  return (
+    &lt;footer className="site-footer">
+      &lt;div className="container footer-grid">
+        {/* Brand */}
+        &lt;section className="brand-block">
+          &lt;Link to="/" aria-label="PYRA home" className="brand-mini">
+            &lt;img src="/brand/pyra.svg" alt="PYRA" />
+            &lt;span className="brand-name">PYRA&lt;/span>
+          &lt;/Link>
+          &lt;p className="tagline">Explora, guarda y disfruta tus películas favoritas.&lt;/p>
 
-                    // 2) If this is the last crumb and a dynamic label exists, use it
-                    if (isLast &amp;&amp; lastDynamicLabel) label = lastDynamicLabel;
+          &lt;div className="social">
+            &lt;a href="#" aria-label="Twitter" title="Twitter">
+              &lt;svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                &lt;path fill="currentColor" d="M22 5.8c-.7.3-1.5.6-2.3.7.8-.5 1.4-1.2 1.7-2.1-.7.5-1.6.9-2.5 1.1A3.9 3.9 0 0 0 12 8.6c0 .3 0 .6.1.9A11 11 0 0 1 3 5.2a3.9 3.9 0 0 0 1.2 5.2c-.6 0-1.2-.2-1.7-.5v.1a3.9 3.9 0 0 0 3.1 3.8c-.5.1-1 .2-1.6.1.5 1.5 2 2.6 3.7 2.6A7.9 7.9 0 0 1 2 18.6a11 11 0 0 0 6 1.7c7.2 0 11.1-6 11.1-11.1v-.5c.7-.5 1.3-1.1 1.8-1.8z" />
+              &lt;/svg>
+            &lt;/a>
+            &lt;a href="#" aria-label="Instagram" title="Instagram">
+              &lt;svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                &lt;path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.9.3 2.4.6.6.3 1 .7 1.5 1.3.4.5.7 1.2.8 2.4.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.9-.6 2.4-.3.6-.7 1-1.3 1.5-.5.4-1.2.7-2.4.8-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.9-.3-2.4-.6a4 4 0 0 1-1.5-1.3c-.4-.5-.7-1.2-.8-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.9.6-2.4.3-.6.7-1 1.3-1.5.5-.4 1.2-.7 2.4-.8C8.4 2.2 8.8 2.2 12 2.2m0 1.8c-3.1 0-3.5 0-4.7.1-1 0-1.6.2-2 .4-.5.3-.9.6-1.1 1-.2.4-.4 1-.4 2 0 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c0 1 .2 1.6.4 2 .3.5.6.9 1.1 1.1.4.2 1 .4 2 .4 1.2 0 1.6.1 4.7.1s3.5 0 4.7-.1c1 0 1.6-.2 2-.4.5-.3.9-.6 1.1-1.1.2-.4.4-1 .4-2 0-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c0-1-.2-1.6-.4-2-.3-.5-.6-.9-1.1-1.1-.4-.2-1-.4-2-.4-1.2 0-1.6-.1-4.7-.1m0 3.2a5.8 5.8 0 1 1 0 11.6 5.8 5.8 0 0 1 0-11.6m0 1.8a4 4 0 1 0 0 7.9 4 4 0 0 0 0-7.9m5-2a1.4 1.4 0 1 1 0 2.9 1.4 1.4 0 0 1 0-2.9z" />
+              &lt;/svg>
+            &lt;/a>
+          &lt;/div>
+        &lt;/section>
 
-                    // 3) Fallback: format the trailing segment
-                    if (!label) {
-                        const raw = fullPath.split("/").filter(Boolean).pop() ?? "";
-                        const rawLc = raw.toLowerCase();
-                        // Neutral label when the segment is meaningless
-                        if (rawLc === "undefined" || rawLc === "null" || rawLc === "") {
-                            label = "Detalle";
-                        } else {
-                            // Decode and capitalize words
-                            label = decodeURIComponent(raw)
-                                .replace(/[-_]/g, " ")
-                                .replace(/\b\w/g, (c) => c.toUpperCase());
-                        }
-                    }
+        {/* Link columns */}
+        &lt;section>
+          &lt;h4 className="footer-title">Explorar&lt;/h4>
+          &lt;ul className="footer-list">
+            {explorar.map(l => (
+              &lt;li key={l.to}>&lt;Link to={l.to}>{l.label}&lt;/Link>&lt;/li>
+            ))}
+          &lt;/ul>
+        &lt;/section>
 
-                    return (
-                        &lt;li key={fullPath}>
-                            {isLast ? (
-                                // aria-current="page" indicates the current point in the hierarchy
-                                &lt;span aria-current="page">{label}&lt;/span>
-                            ) : (
-                                &lt;Link to={fullPath}>{label}&lt;/Link>
-                            )}
-                        &lt;/li>
-                    );
-                })}
-            &lt;/ol>
-        &lt;/nav>
-    );
+        &lt;section>
+          &lt;h4 className="footer-title">Cuenta&lt;/h4>
+          &lt;ul className="footer-list">
+            {cuenta.map(l => (
+              &lt;li key={l.to}>&lt;Link to={l.to}>{l.label}&lt;/Link>&lt;/li>
+            ))}
+          &lt;/ul>
+        &lt;/section>
+
+        &lt;section>
+          &lt;h4 className="footer-title">Recursos&lt;/h4>
+          &lt;ul className="footer-list">
+            {recursos.map(l => (
+              &lt;li key={l.to}>&lt;Link to={l.to}>{l.label}&lt;/Link>&lt;/li>
+            ))}
+          &lt;/ul>
+        &lt;/section>
+      &lt;/div>
+
+      &lt;div className="container footer-bottom">
+        &lt;small>© {year} PYRA. Todos los derechos reservados.&lt;/small>
+        &lt;button
+          type="button"
+          className="to-top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Volver arriba"
+          title="Volver arriba"
+        >
+          ↑
+          &lt;span className="sr-only">Volver arriba&lt;/span>
+        &lt;/button>
+      &lt;/div>
+    &lt;/footer>
+  )
 }
-
-
-
-
 </code></pre>
         </article>
     </section>

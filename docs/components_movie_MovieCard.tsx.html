@@ -29,7 +29,7 @@
 <nav >
     
     
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
     
 </nav>
 
@@ -47,9 +47,8 @@
         <article>
             <pre class="prettyprint source linenums"><code>/**
  * @file MovieCard.tsx
- * @description Reusable movie card with lazy-loaded poster, accessible title and rating.
- * The link's accessible name is the visible title; decorative star glyphs are hidden
- * from AT while the numeric value is exposed via `aria-label`.
+ * @summary Reusable movie card with lazy-loaded posters and accessible rating output.
+ * @remarks The link uses the visible title for its accessible name while the numeric rating is surfaced via `aria-label`.
  */
 
 import { Link } from 'react-router-dom'
@@ -59,8 +58,8 @@ import './MovieCard.scss'
 
 /**
  * Tries to infer a poster URL from heterogeneous movie objects coming from different APIs.
- * @param {any} m - Raw movie object with possible poster fields.
- * @returns {string | undefined} A usable poster URL if found.
+ * @param m Raw movie object that may include several poster-related keys.
+ * @returns Poster URL if one of the known fields is present; otherwise undefined.
  */
 function guessPoster(m: any): string | undefined {
   return (
@@ -75,10 +74,10 @@ function guessPoster(m: any): string | undefined {
 }
 
 /**
- * Calculates decorative star glyphs (★/☆) and an accessible label based on rating.
- * Normalizes scales >5 (e.g., TMDB 0–10) down to 0–5.
- * @param {any} m - Raw movie object with possible rating fields.
- * @returns {{ stars: string; aria: string }} The star string and an ARIA label like "4.0 de 5".
+ * Calculates decorative star glyphs and an accessible label based on rating metadata.
+ * Normalizes scales above five (for example, TMDB 0-10) down to the 0-5 range.
+ * @param m Raw movie object with optional rating, score, or vote_average fields.
+ * @returns Object with the star string and an ARIA label such as "4.0 de 5".
  */
 function calcStars(m: any) {
   let r = Number(m?.rating ?? m?.score ?? m?.vote_average ?? 0)
@@ -95,14 +94,13 @@ function calcStars(m: any) {
 const PRELOAD_MARGIN = '200px'
 
 /**
- * Movie card component used inside grids/lists.
+ * Movie card component used inside grids and lists with lazy-loaded imagery and accessible metadata.
  * - Lazy-loads the poster once the card approaches the viewport.
- * - Exposes a robust link to the movie detail using the best available ID.
- * - Keeps placeholders silent for AT while an actual image is loading.
+ * - Exposes a robust link to the movie detail using the best available identifier.
+ * - Keeps placeholders silent for assistive tech while the actual image is loading.
  * @component
- * @param props
- * @param props.movie Movie entity to render.
- * @returns {JSX.Element}
+ * @param props.movie Movie entity to render, including title, genres, and potential poster URLs.
+ * @returns Rendered article element representing the movie card.
  */
 export default function MovieCard({ movie }: { movie: Movie }) {
   const titleText = (movie?.title ?? '').toString().trim() || 'Película sin título'
@@ -210,7 +208,7 @@ export default function MovieCard({ movie }: { movie: Movie }) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:20 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>pages/home/Home.tsx - Documentation</title>
+    <title>pages/favorites/Favorites.tsx - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,7 +35,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">pages/home/Home.tsx</h1>
+    <h1 class="page-title">pages/favorites/Favorites.tsx</h1>
     
 
     
@@ -45,98 +45,149 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// src/pages/home/Home.tsx
-/**
- * @file Home.tsx
- * @description Landing grid that shows a subset of movies.
- * Accessibility notes:
- * - The visible heading is an &lt;h2> for styling, but we expose it as a level-1
- *   heading to assistive tech via role="heading" aria-level={1}.
- * - The heading is marked with [data-skip-target] so the global skip-link
- *   can land here immediately (WCAG 2.4.1 Bypass Blocks).
- * - Clear loading/error/empty states improve UX for everyone.
+            <pre class="prettyprint source linenums"><code>/**
+ * @file Favorites.tsx
+ * @summary Lists the user's favorite movies and allows removing entries.
+ * @remarks Normalizes heterogeneous favorite payloads so MovieCard receives a consistent shape.
  */
-
+// src/pages/favorites/Favorites.tsx
 import { useEffect, useState } from 'react'
-import { api } from '../../services/api'      // reuse your existing API client
 import MovieCard from '../../components/movie/MovieCard'
-import './Home.scss'
+import { Favorites as FavService, Favorite } from '../../services/favorites'
+import '../home/Home.scss'
+import './Favorites.scss'
 
-/** Minimal shape required by MovieCard */
-type Movie = {
-  _id?: string
-  id?: string | number
+type FavMovie = {
+  id: string
   title: string
+  poster?: string
+  posterUrl?: string
   year?: number | string
-  poster_url?: string
-  genres?: string[]
+  genres?: string[] | string
+  rating?: number
+  avgRating?: number
+  vote_average?: number
+  release_date?: string
+  release_year?: string | number
+}
+
+function guessPoster(m: any): string | undefined {
+  return (
+    m?.poster ||
+    m?.posterUrl ||
+    m?.poster_url ||
+    m?.image ||
+    m?.cover ||
+    m?.thumbnail ||
+    m?.images?.poster
+  )
+}
+
+function normRating(x: any): number {
+  let r = Number(x ?? 0)
+  if (Number.isNaN(r)) r = 0
+  if (r > 5) r = r / 2
+  return Math.max(0, Math.min(5, r))
+}
+
+function favToMovie(f: FavMovie) {
+  const poster = guessPoster(f)
+  return {
+    id: f.id,
+    title: f.title || 'Sin título',
+    poster,
+    posterUrl: poster,
+    rating: normRating(f.rating ?? f.avgRating ?? f.vote_average ?? 0),
+    year:
+      f.year ??
+      f.release_year ??
+      (typeof f.release_date === 'string' ? f.release_date.slice(0, 4) : undefined),
+    genres: Array.isArray(f.genres) ? f.genres : (f.genres ? [String(f.genres)] : []),
+  } as any
 }
 
 /**
  * @component
- * @returns Landing grid showing a sample of movies plus loading/error states.
+ * @returns Favorites grid with inline actions to remove items from the saved list.
  */
-export default function Home() {
-  // Basic page state
-  const [movies, setMovies] = useState&lt;Movie[]>([])
+export default function Favorites() {
+  const [items, setItems] = useState&lt;FavMovie[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState&lt;string | null>(null)
+  const [error, setError] = useState&lt;string>()
+  const [removing, setRemoving] = useState&lt;string | null>(null)
 
   useEffect(() => {
     let alive = true
-    ;(async () => {
-      try {
-        setError(null)
-
-        // Same endpoint used by /movies; if your API returns { data: [...] },
-        // we normalize below to keep a consistent array shape.
-        const res = await api.get&lt;any>('/movies')
-
-        // Normalize possible response shapes (array vs { data: [...] })
-        const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
-
-        // Ensure a stable key for MovieCard
-        const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
-
-        if (alive) setMovies(list)
-      } catch (e: any) {
-        if (alive) setError(e?.message || 'No se pudieron cargar las películas')
-      } finally {
-        if (alive) setLoading(false)
-      }
-    })()
-
+      ; (async () => {
+        try {
+          const data = await FavService.list()
+          const arr = Array.isArray(data) ? data : (data as any)?.items ?? []
+          const mapped: FavMovie[] = arr.map((r: Favorite | any) => ({
+            id: String((r as any).id ?? (r as any).movie_id ?? (r as any).movieId),
+            title: (r as any).title ?? (r as any).name ?? '',
+            poster: guessPoster(r),
+            posterUrl: guessPoster(r),
+            rating: (r as any).rating,
+            avgRating: (r as any).avgRating ?? (r as any).avg_rating,
+            vote_average: (r as any).vote_average,
+            year: (r as any).year ?? (r as any).release_year,
+            release_date: (r as any).release_date,
+            genres: (r as any).genres ?? (r as any).genre ?? [],
+          }))
+          if (alive) setItems(mapped)
+        } catch (e: any) {
+          if (alive) setError(e?.message || 'No se pudieron cargar tus favoritos')
+        } finally {
+          if (alive) setLoading(false)
+        }
+      })()
     return () => { alive = false }
   }, [])
 
+  async function remove(id: string) {
+    try {
+      setRemoving(id)
+      await FavService.remove(id)
+      setItems(prev => prev.filter(m => m.id !== id))
+    } catch (e: any) {
+      alert(e?.message || 'No se pudo quitar de favoritos')
+    } finally {
+      setRemoving(null)
+    }
+  }
+
   return (
-    &lt;section className='container home-page'>
-      {/**
-       * Visible heading kept as &lt;h2> (to match current styles), but exposed
-       * as the main page heading to SR using role/aria-level.
-       * Marked as [data-skip-target] so the skip-link focuses here.
-       */}
-      &lt;h2 data-skip-target role="heading" aria-level={1}>Películas&lt;/h2>
+    &lt;section className="home favorites-page">
+      &lt;h1 className="title" data-skip-target>Favoritos&lt;/h1>
 
-      {/* Loading skeletons for perceived performance while fetching */}
-      {loading &amp;&amp; (
-        &lt;div className='grid'>
-          {Array.from({ length: 8 }).map((_, i) => (
-            &lt;div className='movie-card skeleton' key={i} />
-          ))}
-        &lt;/div>
-      )}
-
-      {/* Short error state; message kept in Spanish to match UI language */}
+      {loading &amp;&amp; &lt;p style={{ opacity: .8 }}>Cargando…&lt;/p>}
       {error &amp;&amp; &lt;p style={{ color: 'salmon' }}>{error}&lt;/p>}
 
-      {/* Normal render once loaded and not errored */}
       {!loading &amp;&amp; !error &amp;&amp; (
-        &lt;div className='grid'>
-          {movies.map(m => (
-            &lt;MovieCard key={m._id ?? String(m.id)} movie={m as any} />
-          ))}
-        &lt;/div>
+        items.length > 0 ? (
+          &lt;div className="grid">
+            {items.map(f => {
+              const movie = favToMovie(f)
+              return (
+                &lt;div className="favorite-item" key={f.id}>
+                  &lt;MovieCard movie={movie as any} />
+                  &lt;button
+                    className="btn danger"
+                    disabled={removing === f.id}
+                    onClick={() => remove(f.id)}
+                    aria-busy={removing === f.id || undefined}
+                  >
+                    {removing === f.id ? 'Quitando…' : 'Quitar de favoritos'}
+                  &lt;/button>
+                &lt;/div>
+              )
+            })}
+          &lt;/div>
+        ) : (
+          &lt;p style={{ opacity: .8 }}>
+            Aún no tienes favoritos. Ve a una película y pulsa &lt;strong>Añadir a favoritos&lt;/strong>.
+          &lt;/p>
+        )
       )}
     &lt;/section>
   )

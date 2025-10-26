@@ -29,7 +29,7 @@
 <nav >
     
     
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
     
 </nav>
 
@@ -45,15 +45,15 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// src/pages/movies/Movies.tsx
-/**
+            <pre class="prettyprint source linenums"><code>/**
  * @file Movies.tsx
- * @description Movies listing with optional search via ?q=.
- * Accessibility notes:
+ * @summary Movies listing view with optional search driven by the `?q=` query string.
+ * @remarks Accessibility notes:
  * - Keeps a single &lt;h1> per page (WCAG 1.3.1 Info &amp; Relationships).
  * - &lt;h1> is marked with [data-skip-target] so the global skip-link lands here (WCAG 2.4.1 Bypass Blocks).
- * - Clear loading / error / empty states for all users.
+ * - Provides explicit loading, error, and empty states for all users.
  */
+// src/pages/movies/Movies.tsx
 
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
@@ -83,6 +83,10 @@ function isMovieArray(x: any): x is RawMovie[] {
     return Array.isArray(x) &amp;&amp; (x.length === 0 || typeof x[0]?.title === 'string')
 }
 
+/**
+ * @component
+ * @returns Movies grid fed by the `/movies` endpoint and filtered via the `?q=` parameter.
+ */
 export default function MoviesPage() {
     // Page state for list, loading and error
     const [movies, setMovies] = useState&lt;RawMovie[]>([])
@@ -179,7 +183,7 @@ export default function MoviesPage() {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

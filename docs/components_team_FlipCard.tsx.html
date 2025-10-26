@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>components/team/FlipCard.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">components/team/FlipCard.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>﻿/**
+ * @file src/components/team/FlipCard.tsx
+ * @summary Team member flip card with animated gradients and front/back faces.
+ */
+
+import React from 'react'
+import styled from 'styled-components'
+
+type Props = {
+    name: string
+    role: string
+    avatarUrl?: string
+    accentA?: string
+    accentB?: string
+    accentC?: string
+    iconUrl?: string
+    backText?: string   // Text shown on the back face (defaults to role)
+}
+
+/**
+ * @component
+ * @param props Card labels, optional imagery, and accent colors.
+ * @returns Interactive flip-card element describing a teammate.
+ */
+const FlipCard: React.FC&lt;Props> = ({
+    name,
+    role,
+    avatarUrl,
+    accentA = '#ffbb66',
+    accentB = '#ff8866',
+    accentC = '#ff2233',
+    iconUrl,
+    backText,
+}) => {
+    return (
+        &lt;StyledWrapper $accentA={accentA} $accentB={accentB} $accentC={accentC}>
+            &lt;div className="card" role="button" aria-label={`${name}, ${role}`}>
+                &lt;div className="content">
+                    {/* ---------- FRONT (icon) ---------- */}
+                    &lt;div className="front">
+                        &lt;div className="img" aria-hidden="true">
+                            {avatarUrl ? (
+                                &lt;div className="avatar" style={{ backgroundImage: `url(${avatarUrl})` }} />
+                            ) : (
+                                &lt;>
+                                    &lt;div className="circle" />
+                                    &lt;div className="circle" id="right" />
+                                    &lt;div className="circle" id="bottom" />
+                                &lt;/>
+                            )}
+                        &lt;/div>
+
+                        &lt;div className="front-icon" aria-hidden="true">
+                            {iconUrl ? (
+                                &lt;img src={iconUrl} alt="" />
+                            ) : (
+                                // Simple fallback icon (lines); not the pizza
+                                &lt;svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+                                    &lt;path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" />
+                                &lt;/svg>
+                            )}
+                        &lt;/div>
+                    &lt;/div>
+
+                    {/* ---------- BACK (text) ---------- */}
+                    &lt;div className="back" aria-hidden="true">
+                        {/* Animated halo/border */}
+                        &lt;div className="back-content">
+                            {/* Simplified text-only back face */}
+                            &lt;strong>{backText ?? role}&lt;/strong>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/StyledWrapper>
+    )
+}
+
+const StyledWrapper = styled.div&lt;{
+    $accentA: string
+    $accentB: string
+    $accentC: string
+}>`
+  .card { overflow: visible; width: 210px; height: 270px; }
+
+  .content {
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 300ms;
+    box-shadow: 0 2px 16px rgba(0,0,0,.18);
+    border-radius: 10px;
+    position: relative;
+  }
+
+  .front, .back {
+    background-color: #151515;
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px; overflow: hidden;
+  }
+
+  /* Hover rotates 180deg to reveal the text side */
+  .card:hover .content { transform: rotateY(180deg); }
+
+  /* ---------- ORIENTATION (front visible by default) ---------- */
+  .front { /* front without rotation: visible by default */ }
+  .back  { transform: rotateY(180deg); } /* back */
+
+  /* ---------- FRONT (icon + background) ---------- */
+  .img { position: absolute; inset: 0; }
+  .avatar { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(.95); }
+
+  .circle {
+    width: 90px; height: 90px; border-radius: 50%;
+    background-color: ${p => p.$accentA};
+    position: absolute; left: 24px; top: 24px; filter: blur(15px); animation: floating 2600ms infinite linear;
+  }
+  #bottom { background-color:${p => p.$accentB}; left:48px; top:90px; width:160px; height:160px; animation-delay:-800ms; }
+  #right  { background-color:${p => p.$accentC}; left:150px; top:16px; width:40px; height:40px; animation-delay:-1800ms; }
+  @keyframes floating { 0%{transform:translateY(0)} 50%{transform:translateY(10px)} 100%{transform:translateY(0)} }
+
+  .front-icon {
+    position: absolute; inset: 0;
+    display: grid; place-items: center; z-index: 2;
+  }
+  .front-icon img {
+    width: 64px; height: 64px;
+    filter: brightness(0) invert(1) contrast(1.05) drop-shadow(0 4px 10px rgba(0,0,0,.45));
+    opacity: .98;
+  }
+  .front-icon svg {
+    width: 64px; height: 64px; color: #fff; fill: currentColor; opacity: .98;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.45));
+  }
+
+    /* ---------- BACK (text) ---------- */
+  .back {
+    transform: rotateY(180deg);
+    position: relative;            /* so z-index works properly */
+  }
+
+  .back::before {
+    position: absolute;
+    content: '';
+    width: 160px;
+    height: 160%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      ${p => p.$accentB},
+      ${p => p.$accentB},
+      ${p => p.$accentB},
+      transparent
+    );
+    animation: rotation_481 5000ms infinite linear;
+    z-index: 0;                 
+  }
+
+  @keyframes rotation_481 { 0%{transform:rotateZ(0deg)} 100%{transform:rotateZ(360deg)} }
+
+  .back-content {
+    position: absolute;
+    inset: 0.4rem;
+    background-color: #151515;
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    z-index: 1;           
+  }
+
+  .back-content strong {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* true optical centering */
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    line-height: 1.25;
+    display: block;
+    /* optional micro-adjustment:
+       transform: translate(-50%, -52%);
+    */
+  }
+`
+
+export default FlipCard</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:20 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

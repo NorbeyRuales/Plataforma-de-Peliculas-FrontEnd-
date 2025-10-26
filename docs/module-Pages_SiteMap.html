@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>services/auth.ts - Documentation</title>
+    <title>Pages/SiteMap - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,106 +35,252 @@
 
 <div id="main">
     
-    <h1 class="page-title">services/auth.ts</h1>
+    <h1 class="page-title">Pages/SiteMap</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>// src/services/auth.ts
-import { api } from './api'
+        
+            
+        
+    
+</header>
 
-export interface User {
-    id: string
-    name: string
-    apellido?: string | null
-    email: string
-    age?: number | null
-    birthdate?: string | null
-    created_at?: string
-    updated_at?: string
-}
+<article>
+    
+        <div class="container-overview">
+        
+            
+                <div class="description usertext"><p>Renders a structured list of key app routes for quick discovery.
+A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></div>
+            
 
-export interface AuthResponse { token: string; user: User }
-export interface MeResponse { user: User }
+            
+                
 
-const TOKEN_KEY = 'token'
-export const getToken = () => localStorage.getItem(TOKEN_KEY)
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
 
-/** Utilidad: si recibimos DOB, lo convertimos a edad. */
-function ageFromDob(dob: string): number {
-    const d = new Date(dob)
-    if (isNaN(d.getTime())) return 0
-    const today = new Date()
-    let age = today.getFullYear() - d.getFullYear()
-    const m = today.getMonth() - d.getMonth()
-    if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; d.getDate())) age--
-    return age
-}
 
-export const Auth = {
-    /**
-     * Registro.
-     * Acepta edad (number) o fecha (string). Siempre envía `age` al backend.
-     */
-    async signup(
-        name: string,
-        apellido: string,
-        email: string,
-        password: string,
-        confirmPassword: string,
-        ageOrDob?: number | string
-    ) {
-        const body: any = { name, apellido, email, password, confirmPassword } // ← añadimos apellido ✅
 
-        if (typeof ageOrDob === 'number' &amp;&amp; Number.isFinite(ageOrDob)) {
-            body.age = ageOrDob
-        } else if (typeof ageOrDob === 'string' &amp;&amp; ageOrDob.trim()) {
-            // si llega un string, probamos número y luego fecha
-            const maybeNum = Number(ageOrDob)
-            if (Number.isFinite(maybeNum)) {
-                body.age = maybeNum
-            } else {
-                const a = ageFromDob(ageOrDob)
-                if (a > 0) body.age = a
-            }
-        }
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Renders a structured list of key app routes for quick discovery.
+A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></li></ul></dd>
+    
 
-        const r = await api.post&lt;AuthResponse>('/auth/signup', body)
-        setToken(r.token)
-        return r
-    },
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line3">line 3</a>
+    </li></ul></dd>
+    
 
-    async login(email: string, password: string) {
-        const r = await api.post&lt;AuthResponse>('/auth/login', { email, password })
-        setToken(r.token)
-        return r
-    },
+    
 
-    me() {
-        return api.get&lt;MeResponse>('/auth/me')
-    },
+    
 
-    logout() {
-        clearToken()
-    },
+    
 
-    async changePassword(currentPassword: string, newPassword: string) {
-        return api.post&lt;{ ok: boolean }>('/auth/change-password', {
-            currentPassword,
-            newPassword,
-        })
-    },
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="~SiteMap"><span class="type-signature type-signature-inner">(inner) </span>SiteMap<span class="signature">()</span><span class="type-signature"> &rarr; {JSX.Element}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li><p>Site map page.</p></li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Section with grouped navigation links.</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">JSX.Element</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -146,7 +292,7 @@ export const Auth = {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:20 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

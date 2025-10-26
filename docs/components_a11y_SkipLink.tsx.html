@@ -29,7 +29,7 @@
 <nav >
     
     
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AGE_MAX">AGE_MAX</a></li><li><a href="global.html#AGE_MIN">AGE_MIN</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#DelayedFallback">DelayedFallback</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#FooterSwitcher">FooterSwitcher</a></li><li><a href="global.html#GuestOnly">GuestOnly</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MovieCard">MovieCard</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#PRELOAD_MARGIN">PRELOAD_MARGIN</a></li><li><a href="global.html#Protected">Protected</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#calcStars">calcStars</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#guessPoster">guessPoster</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
     
 </nav>
 
@@ -45,40 +45,34 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
+            <pre class="prettyprint source linenums"><code>﻿/**
  * @file SkipLink.tsx
- * @description Enlace "Saltar al contenido" (Skip Link) para cumplir con
- * WCAG 2.4.1 (Bypass Blocks). Permite a los usuarios que navegan con teclado
- * o lector de pantalla saltar la navegación repetitiva y mover el foco
- * directamente al contenido principal (#main) o a un objetivo más útil dentro
- * de &lt;main> si existe (p.ej., un &lt;h1> con [data-skip-target]).
- *
- * Detalles A11y:
- * - 2.4.1 Bypass Blocks: primer Tab enfoca el skip-link y Enter lo activa.
- * - 2.1.1 Teclado: accesible 100% con teclado.
- * - 2.4.3 Orden del foco: al activar, el foco se traslada al contenido real.
- *
- * Notas de integración:
- * - Debe existir &lt;main id="main"> en el layout (ya presente en AppRouter).
- * - Opcional: marca el título de cada vista con [data-skip-target] para que el
- *   foco aterrice en ese elemento en lugar de en &lt;main>.
+ * @summary WCAG-compliant skip link that routes keyboard users directly to the main content.
+ * @remarks
+ * - WCAG 2.4.1 Bypass Blocks: the first Tab focuses the pill and Enter activates it.
+ * - Works fully with keyboard and screen readers by moving focus inside &lt;main> or a [data-skip-target] element.
+ * - Requires &lt;main id="main"> in the layout; optionally mark headings with [data-skip-target].
  */
 
 import { useEffect, useRef } from 'react';
 
+/**
+ * Skip link component that exposes a focusable pill to jump past repeated navigation blocks.
+ * @component
+ * @returns Anchor element that focuses the preferred landmark before scrolling.
+ */
 export default function SkipLink() {
-    // Referencia al &lt;a> para poder enfocarlo programáticamente.
+    // Reference used to focus the anchor programmatically when forcing the first Tab.
     const ref = useRef&lt;HTMLAnchorElement>(null);
 
     /**
-     * Fuerza que el PRIMER Tab de la página enfoque la píldora.
-     * Esto evita que el foco "empiece" en la barra del navegador o en elementos
-     * no visibles/útiles. Solo se ejecuta si no había ningún elemento enfocado
-     * (inicio real de la navegación por teclado).
+     * Forces the very first Tab press on the page to land on the pill.
+     * Prevents focus from starting in the browser chrome or hidden elements.
+     * Runs only when no other element was focused (real keyboard start).
      */
     useEffect(() => {
         const handleFirstTab = (e: KeyboardEvent) => {
-            // Solo reacciona al primer Tab (no Shift+Tab).
+            // React only to the first forward Tab (ignore Shift+Tab).
             if (e.key !== 'Tab' || e.shiftKey) return;
 
             const active = document.activeElement as HTMLElement | null;
@@ -89,21 +83,20 @@ export default function SkipLink() {
 
             if (isStarting) {
                 e.preventDefault();
-                ref.current?.focus(); // Enfoca la píldora de "Saltar al contenido"
+                ref.current?.focus(); // Focus the pill before the rest of the UI
             }
         };
 
-        // Captura en fase de captura para que ocurra antes de otra lógica global
+        // Capture phase so this executes before other global handlers.
         document.addEventListener('keydown', handleFirstTab, true);
         return () => document.removeEventListener('keydown', handleFirstTab, true);
     }, []);
 
     /**
-     * Al ACTIVAR el skip link:
-     * - Busca primero un objetivo marcado con [data-skip-target] dentro de &lt;main>
-     * - Si no existe, intenta un heading (h1/h2) o el primer control navegable
-     * - Como último recurso, pone foco en &lt;main> (añadiendo tabindex=-1 si hace falta)
-     *   y hace scroll al inicio para dar feedback visual del salto.
+     * When the skip link is activated:
+     * - Prefers a [data-skip-target] inside &lt;main>.
+     * - Falls back to the first heading or focusable control.
+     * - As a last resort, focuses &lt;main> (forcing tabindex=-1) and scrolls it into view.
      */
     function handleActivate(e: React.MouseEvent&lt;HTMLAnchorElement>) {
         const main = document.getElementById('main');
@@ -111,18 +104,18 @@ export default function SkipLink() {
 
         e.preventDefault();
 
-        // Preferencia: un objetivo explícito marcado por nosotros
+        // Preference: explicit skip targets defined per view.
         let target =
             main.querySelector&lt;HTMLElement>('[data-skip-target]') ||
-            // Fallback: primer título o control interactivo lógico
+            // Fallback: first heading or logical focusable inside &lt;main>.
             main.querySelector&lt;HTMLElement>(
                 'h1, [role="heading"][aria-level="1"], h2, [role="heading"], a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
             );
 
         const el = target || main;
-        if (el === main) main.setAttribute('tabindex', '-1'); // asegura que &lt;main> sea enfocables
+        if (el === main) main.setAttribute('tabindex', '-1'); // ensure &lt;main> can receive focus
 
-        // Mueve foco y desplaza a la parte superior del contenido
+        // Move focus and give visual feedback of the jump.
         el.focus({ preventScroll: false });
         el.scrollIntoView({ block: 'start' });
     }
@@ -134,8 +127,8 @@ export default function SkipLink() {
             className="skip-link"
             onClick={handleActivate}
             aria-label="Saltar al contenido principal"
-            accessKey="s"                // atajo del navegador (puede variar según SO)
-            aria-keyshortcuts="Alt+Shift+S" // documentación del atajo sugerido
+            accessKey="s"                // Browser shortcut (varies per OS)
+            aria-keyshortcuts="Alt+Shift+S" // Document the suggested shortcut
         >
             Saltar al contenido
         &lt;/a>
@@ -155,7 +148,7 @@ export default function SkipLink() {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 03:57:12 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

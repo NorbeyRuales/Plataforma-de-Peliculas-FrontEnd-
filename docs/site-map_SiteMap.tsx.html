@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>services/auth.ts - Documentation</title>
+    <title>site-map/SiteMap.tsx - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,7 +35,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">services/auth.ts</h1>
+    <h1 class="page-title">site-map/SiteMap.tsx</h1>
     
 
     
@@ -45,92 +45,80 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// src/services/auth.ts
-import { api } from './api'
+            <pre class="prettyprint source linenums"><code>// src/site-map/SiteMap.tsx
 
-export interface User {
-    id: string
-    name: string
-    apellido?: string | null
-    email: string
-    age?: number | null
-    birthdate?: string | null
-    created_at?: string
-    updated_at?: string
-}
+/**
+ * @file SiteMap.tsx
+ * @summary Simple site map page with grouped navigation links.
+ * @module Pages/SiteMap
+ * @description
+ * Renders a structured list of key app routes for quick discovery.
+ * A11Y: Uses semantic headings and nested lists for proper outline and navigation.
+ */
 
-export interface AuthResponse { token: string; user: User }
-export interface MeResponse { user: User }
+import { Link } from 'react-router-dom'
+import './SiteMap.scss'
 
-const TOKEN_KEY = 'token'
-export const getToken = () => localStorage.getItem(TOKEN_KEY)
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
+/**
+ * Site map page.
+ * @component
+ * @returns {JSX.Element} Section with grouped navigation links.
+ */
+export default function SiteMap(){
+  return (
+    &lt;section className='container site-map'>
+      {/* Page title (h1) for screen reader landmarking */}
+      &lt;h1>Mapa del sitio&lt;/h1>
 
-/** Utilidad: si recibimos DOB, lo convertimos a edad. */
-function ageFromDob(dob: string): number {
-    const d = new Date(dob)
-    if (isNaN(d.getTime())) return 0
-    const today = new Date()
-    let age = today.getFullYear() - d.getFullYear()
-    const m = today.getMonth() - d.getMonth()
-    if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; d.getDate())) age--
-    return age
-}
+      &lt;div className='cols'>
+        {/* Authentication cluster */}
+        &lt;div className='col'>
+          &lt;h2>Autenticación&lt;/h2>
+          &lt;ul>
+            &lt;li>&lt;Link to='/login'>Inicio de sesión&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/register'>Registro&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/forgot-password'>Recuperar contraseña&lt;/Link>&lt;/li>
+          &lt;/ul>
+        &lt;/div>
 
-export const Auth = {
-    /**
-     * Registro.
-     * Acepta edad (number) o fecha (string). Siempre envía `age` al backend.
-     */
-    async signup(
-        name: string,
-        apellido: string,
-        email: string,
-        password: string,
-        confirmPassword: string,
-        ageOrDob?: number | string
-    ) {
-        const body: any = { name, apellido, email, password, confirmPassword } // ← añadimos apellido ✅
+        {/* Movies cluster */}
+        &lt;div className='col'>
+          &lt;h2>Película&lt;/h2>
+          &lt;ul>
+            &lt;li>&lt;Link to='/movies'>Buscar película&lt;/Link>&lt;/li>
+            &lt;li>
+              {/* Nested list keeps hierarchy clear for SRs */}
+              &lt;span>Ver película&lt;/span>
+              &lt;ul>
+                &lt;li>Reproducir/Pausar&lt;/li>
+                &lt;li>Añadir a lista&lt;/li>
+              &lt;/ul>
+            &lt;/li>
+          &lt;/ul>
+        &lt;/div>
 
-        if (typeof ageOrDob === 'number' &amp;&amp; Number.isFinite(ageOrDob)) {
-            body.age = ageOrDob
-        } else if (typeof ageOrDob === 'string' &amp;&amp; ageOrDob.trim()) {
-            // si llega un string, probamos número y luego fecha
-            const maybeNum = Number(ageOrDob)
-            if (Number.isFinite(maybeNum)) {
-                body.age = maybeNum
-            } else {
-                const a = ageFromDob(ageOrDob)
-                if (a > 0) body.age = a
-            }
-        }
+        {/* Account cluster */}
+        &lt;div className='col'>
+          &lt;h2>Cuenta&lt;/h2>
+          &lt;ul>
+            &lt;li>&lt;Link to='/account'>Perfil usuario&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/account/edit'>Actualizar&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/account/delete'>Eliminar&lt;/Link>&lt;/li>
+          &lt;/ul>
+        &lt;/div>
 
-        const r = await api.post&lt;AuthResponse>('/auth/signup', body)
-        setToken(r.token)
-        return r
-    },
-
-    async login(email: string, password: string) {
-        const r = await api.post&lt;AuthResponse>('/auth/login', { email, password })
-        setToken(r.token)
-        return r
-    },
-
-    me() {
-        return api.get&lt;MeResponse>('/auth/me')
-    },
-
-    logout() {
-        clearToken()
-    },
-
-    async changePassword(currentPassword: string, newPassword: string) {
-        return api.post&lt;{ ok: boolean }>('/auth/change-password', {
-            currentPassword,
-            newPassword,
-        })
-    },
+        {/* Info cluster */}
+        &lt;div className='col'>
+          &lt;h2>Información&lt;/h2>
+          &lt;ul>
+            &lt;li>&lt;Link to='/'>Inicio&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/about'>Sobre nosotros&lt;/Link>&lt;/li>
+            &lt;li>&lt;Link to='/favorites'>Mi lista&lt;/Link>&lt;/li>
+          &lt;/ul>
+        &lt;/div>
+      &lt;/div>
+    &lt;/section>
+  )
 }
 </code></pre>
         </article>
@@ -146,7 +134,7 @@ export const Auth = {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:20 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Sat Oct 25 2025 19:19:21 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
