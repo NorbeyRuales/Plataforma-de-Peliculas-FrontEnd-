@@ -4,7 +4,8 @@
  */
 
 import AppRouter from './routes/AppRouter'
-import { ToastProvider } from './components/toast/ToastProvider' // ← NUEVO
+import { ToastProvider } from './components/toast/ToastProvider'
+import ToastFlashMount from './components/toast/ToastFlashMount' // ✅ NUEVO
 
 /**
  * @component
@@ -13,6 +14,8 @@ import { ToastProvider } from './components/toast/ToastProvider' // ← NUEVO
 export default function App() {
     return (
         <ToastProvider>
+            {/* Lee y muestra la toast almacenada en sessionStorage tras una redirección */}
+            <ToastFlashMount /> 
             <AppRouter />
         </ToastProvider>
     )

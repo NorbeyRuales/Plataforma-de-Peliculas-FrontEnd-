@@ -20,6 +20,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import './Account.scss'
 import { api } from '../../services/api'
 import { Auth } from '../../services/auth'
+import { useToast } from '../../components/toast/ToastProvider' // ✅ Toasts (éxito)
 
 /**
  * Shape of a user profile persisted by the backend.
@@ -93,6 +94,7 @@ const AGE_MAX = 120
 export default function Account() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
+  const { success } = useToast() // ✅ helper de toast para mensajes de éxito
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [form, setForm] = useState<Profile | null>(null)
@@ -276,6 +278,7 @@ export default function Account() {
   /**
    * Persist profile changes to the backend.
    * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   * @remarks Añade toast de éxito manteniendo la UI actual (párrafo "Datos guardados").
    */
   async function onSave(e?: React.FormEvent) {
     e?.preventDefault()
@@ -296,6 +299,7 @@ export default function Account() {
       setProfile(form)
       setEditing(false)
       setSaved(true)
+      success('Tu perfil se actualizó correctamente.') // ✅ Toast de éxito (look consistente)
       window.setTimeout(() => setSaved(false), 2500)
     } catch (err: any) {
       alert(err.message || 'Error al guardar')
@@ -307,6 +311,7 @@ export default function Account() {
   /**
    * Change password flow. Uses Auth.changePassword and local inline panel feedback.
    * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   * @remarks Añade toast de éxito manteniendo el mensaje inline existente.
    */
   async function onChangePassword(e?: React.FormEvent) {
     e?.preventDefault()
@@ -319,6 +324,7 @@ export default function Account() {
       setCurrPwd(''); setNewPwd(''); setNewPwd2('')
       setPwdOpen(false)
       setPwdSaved(true)
+      success('Contraseña actualizada.') // ✅ Toast de éxito
       setTimeout(() => setPwdSaved(false), 2500)
     } catch (err: any) {
       const msg =

@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Register.scss'
 import { Auth } from '../../services/auth'
+import { pushFlashToast } from '../../utils/flashToast' // ✅ Flash toast para mostrar éxito tras redirigir
 
 /**
  * Minimum allowed age.
@@ -32,8 +33,8 @@ export default function Register() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
-  const [apellido, setApellido] = useState('')            
-  const [age, setAge] = useState<number | ''>('')         
+  const [apellido, setApellido] = useState('')
+  const [age, setAge] = useState<number | ''>('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
@@ -47,8 +48,8 @@ export default function Register() {
   const [error, setError] = useState<string | undefined>()
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
-  const apellidoRef = useRef<HTMLInputElement>(null)       
-  const ageRef = useRef<HTMLInputElement>(null)            
+  const apellidoRef = useRef<HTMLInputElement>(null)
+  const ageRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
@@ -134,7 +135,7 @@ export default function Register() {
 
   const canSubmit =
     !!name.trim() &&
-    !!apellido.trim() &&          
+    !!apellido.trim() &&
     ageOk &&
     emailOk &&
     !validatePassword(password) &&
@@ -178,12 +179,20 @@ export default function Register() {
       // use suggestion when the user still has a mistyped domain
       await Auth.signup(
         name,
-        apellido,                                   
+        apellido,
         emailSuggestion || email,
         password,
         password2,
         typeof age === 'number' ? age : Number(age)
       )
+
+      //  Flash toast de ÉXITO: se mostrará en la siguiente vista.
+      pushFlashToast({
+        kind: 'success',
+        title: 'Éxito',
+        text: 'Cuenta creada. Revisa tu correo para verificarla.'
+      })
+
       navigate('/login')
     } catch (err: any) {
       const fieldErrors = err?.response?.data?.error?.fieldErrors || {}
