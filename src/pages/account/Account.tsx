@@ -20,6 +20,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import './Account.scss'
 import { api } from '../../services/api'
 import { Auth } from '../../services/auth'
+import { useToast } from '../../components/toast/ToastProvider' // ✅ Toasts (éxito + error)
 
 /**
  * Shape of a user profile persisted by the backend.
@@ -93,6 +94,7 @@ const AGE_MAX = 120
 export default function Account() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
+  const { success, error: showErrorToast } = useToast() // ✅ éxito + error
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [form, setForm] = useState<Profile | null>(null)
@@ -101,6 +103,7 @@ export default function Account() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [bootError, setBootError] = useState<string | null>(null) // 🔴 error de arranque (backend caído)
 
   const nameRef = useRef<HTMLInputElement>(null)
 
@@ -140,6 +143,7 @@ export default function Account() {
   useEffect(() => {
     (async () => {
       try {
+        setBootError(null) // limpiar error previo si reintenta
         const me: any = await api.get('/auth/me')
         const id = me?.user?.id ?? me?.id
         const email = me?.user?.email ?? me?.email ?? ''
@@ -165,8 +169,13 @@ export default function Account() {
 
         setProfile(p)
         setForm(p)
-      } catch (err) {
-        console.error(err)
+      } catch (err: any) {
+        // 🔴 Si /auth/me falla (backend caído), notificamos y evitamos quedar en "Cargando…"
+        const msg = err?.response?.data?.message || err?.message || 'No se pudo cargar tu perfil'
+        setBootError(msg)
+        showErrorToast(msg)
+        // Cargamos un "stub" para que la vista renderice y no quede bloqueada en el esqueleto
+        setForm({ id: 'offline', name: '', apellido: '', age: undefined, email: '' })
       }
     })()
   }, [])
@@ -276,6 +285,7 @@ export default function Account() {
   /**
    * Persist profile changes to the backend.
    * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   * @remarks Añade toast de éxito manteniendo la UI actual (párrafo "Datos guardados").
    */
   async function onSave(e?: React.FormEvent) {
     e?.preventDefault()
@@ -296,9 +306,15 @@ export default function Account() {
       setProfile(form)
       setEditing(false)
       setSaved(true)
+      success('Tu perfil se actualizó correctamente.') // ✅ Toast de éxito (look consistente)
       window.setTimeout(() => setSaved(false), 2500)
     } catch (err: any) {
-      alert(err.message || 'Error al guardar')
+      const msg =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'Error al guardar'
+      showErrorToast(msg) // 🔴
     } finally {
       setSaving(false)
     }
@@ -307,6 +323,7 @@ export default function Account() {
   /**
    * Change password flow. Uses Auth.changePassword and local inline panel feedback.
    * @param {React.FormEvent} [e] - Optional submit event to prevent default.
+   * @remarks Añade toast de éxito manteniendo el mensaje inline existente.
    */
   async function onChangePassword(e?: React.FormEvent) {
     e?.preventDefault()
@@ -319,6 +336,7 @@ export default function Account() {
       setCurrPwd(''); setNewPwd(''); setNewPwd2('')
       setPwdOpen(false)
       setPwdSaved(true)
+      success('Contraseña actualizada.') //  Toast de éxito
       setTimeout(() => setPwdSaved(false), 2500)
     } catch (err: any) {
       const msg =
@@ -327,6 +345,7 @@ export default function Account() {
         err?.message ||
         'No se pudo cambiar la contraseña'
       setPwdErrorMsg(msg)
+      showErrorToast(msg) // 🔴
     } finally {
       setPwdSaving(false)
     }
@@ -338,7 +357,8 @@ export default function Account() {
     try {
       await api.del(`/users/${profile.id}`)
     } catch (err: any) {
-      alert(err.message || 'No se pudo eliminar')
+      const msg = err?.response?.data?.message || err?.message || 'No se pudo eliminar'
+      showErrorToast(msg) // 🔴
       return
     }
     localStorage.removeItem('token')
@@ -354,6 +374,13 @@ export default function Account() {
     <section className='auth-screen container account-page'>
       <div className='logo-big' aria-label='PYRA' />
       <h1 className='sr-only'>Perfil</h1>
+
+      {/* 🔴 Si falló el arranque (backend OFF), mostramos un resumen de error accesible */}
+      {bootError && (
+        <div role='alert' className='form-summary form-summary--error' style={{ marginBottom: '.75rem' }}>
+          {bootError}
+        </div>
+      )}
 
       <form className={`auth-form ${!editing ? 'is-readonly' : ''}`} onSubmit={onSave} noValidate>
         <label className='field'>

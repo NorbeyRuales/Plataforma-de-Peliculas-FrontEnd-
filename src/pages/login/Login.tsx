@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import './Login.scss'
 import { Auth } from '../../services/auth'
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
 /**
  * LocalStorage key used to remember the last email the user typed.
@@ -35,6 +36,8 @@ export default function Login() {
   const errSummaryRef = useRef<HTMLDivElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
+
+  const { error: showErrorToast } = useToast() // 👈 toast roja
 
   // Persist last email typed to speed up future logins
   useEffect(() => { if (email) localStorage.setItem(EMAIL_KEY, email) }, [email])
@@ -71,7 +74,9 @@ export default function Login() {
       await Auth.login(email, password)
       navigate('/', { replace: true })
     } catch (err: any) {
-      setError(err?.message || 'Error al iniciar sesión')
+      const msg = err?.message || 'Error al iniciar sesión'
+      setError(msg)
+      showErrorToast(msg) // 🔴 toast
       errSummaryRef.current?.focus()
     } finally {
       setLoading(false)

@@ -1,0 +1,135 @@
+@use '../../styles/variables' as *;
+
+.toast-viewport {
+    position: fixed;
+    inset: 16px 16px auto auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    pointer-events: none;
+
+    @media (max-width: 600px) {
+        inset: 8px 8px auto 8px;
+    }
+}
+
+.toast {
+    --toast-accent: var(--primary, #2266ff);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: .75rem;
+    padding: .75rem;
+    background: $card;
+    color: $text;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    max-width: min(560px, 92vw);
+    pointer-events: auto;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 4px;
+        background: var(--toast-accent);
+    }
+
+    .toast__icon {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 999px;
+        margin-left: 6px;
+        background: color-mix(in srgb, var(--toast-accent) 18%, transparent);
+        border: 1px solid color-mix(in srgb, var(--toast-accent) 40%, transparent);
+
+        svg {
+            stroke: var(--toast-accent);
+            fill: none;
+            stroke-width: 2;
+        }
+    }
+
+    .toast__content {
+        display: grid;
+        gap: .25rem;
+    }
+
+    .toast__title {
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .toast__body {
+        line-height: 1.3;
+    }
+
+    .toast__action,
+    .toast__close {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        border-radius: $radius-sm;
+        padding: .3rem .5rem;
+    }
+
+    .toast__action {
+        font-weight: 600;
+    }
+
+    .toast__close {
+        place-self: start;
+        padding: .2rem;
+    }
+
+    transform: translateY(-6px);
+    opacity: 0;
+    animation: toast-slide-in .18s ease-out forwards;
+}
+
+.toast--success {
+    --toast-accent: var(--success, #22c55e);
+}
+
+.toast--error {
+    --toast-accent: var(--danger, #ef4444);
+}
+
+/* 🔴 */
+.toast--info {
+    --toast-accent: var(--info, #0ea5e9);
+}
+
+.toast--warning {
+    --toast-accent: var(--warning, #f59e0b);
+}
+
+@keyframes toast-slide-in {
+    from {
+        transform: translateY(-6px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
