@@ -51,6 +51,14 @@ const TEAM: TeamMate[] = [
   { name: 'Cristian', role: 'Product Owner', avatar: '/brand/placeholder-poster.png', iconUrl: '/brand/icons/trello.svg', backText: 'Cristian: Product Owner' },
 ]
 
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 /**
  * About page: highlights brand, principles and the team.
  * A11y notes:
@@ -63,10 +71,8 @@ const TEAM: TeamMate[] = [
 export default function About() {
   const rootRef = useRef<HTMLElement | null>(null)
 
-  
   const { error: showErrorToast } = useToast()
   const [healthMsg, setHealthMsg] = useState<string | null>(null)
-
 
   useEffect(() => {
     let mounted = true
@@ -86,10 +92,10 @@ export default function About() {
     if (!navigator.onLine) {
       warn('Sin conexión a Internet. Algunas funciones podrían no cargar.')
     } else {
-      // 2) Intento de ping al backend
+      // 2) Intento de ping al backend (con TopLoader)
       ; (async () => {
+        loaderStart()
         try {
-          
           const res: any = await api.get('/health')
           if (res && (res.ok === false || (res.status && res.status >= 500))) {
             warn('No podemos conectar con el servidor. Intenta más tarde.')
@@ -100,7 +106,8 @@ export default function About() {
           if (isNetwork || (status && status >= 500)) {
             warn('No podemos conectar con el servidor. Intenta más tarde.')
           }
-          
+        } finally {
+          if (mounted) loaderStop()
         }
       })()
     }
@@ -112,6 +119,8 @@ export default function About() {
     window.addEventListener('offline', onOffline)
     return () => {
       mounted = false
+      // En caso de que el efecto se desmonte durante el ping
+      loaderStop()
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
     }
@@ -189,7 +198,6 @@ export default function About() {
         <Link to="/" className="about-back hit-24" aria-label="Volver al inicio">←</Link>
       </header>
 
-      
       {healthMsg && (
         <div role="alert" className="form-summary form-summary--error" style={{ margin: '1rem 0' }}>
           {healthMsg}

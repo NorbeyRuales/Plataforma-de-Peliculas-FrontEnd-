@@ -1,3 +1,23 @@
 @use '../../styles/variables' as *;
 @use '../common/_auth' as *;
 
+/* Hover rojo para el botón "Cancelar" solo en el registro */
+.auth-screen .auth-form .form-actions .btn.ghost {
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.auth-screen .auth-form .form-actions .btn.ghost:hover,
+.auth-screen .auth-form .form-actions .btn.ghost:focus-visible {
+    color: #b3261e;
+    /* rojo texto */
+    background: rgba(179, 38, 30, .08);
+    /* fondo rojizo suave */
+    border-color: rgba(179, 38, 30, .5);
+    box-shadow: 0 0 0 3px rgba(179, 38, 30, .15);
+    /* anillo de foco accesible */
+}
+
+.auth-screen .auth-form .form-actions .btn.ghost:active {
+    background: rgba(179, 38, 30, .14);
+    border-color: rgba(179, 38, 30, .7);
+}

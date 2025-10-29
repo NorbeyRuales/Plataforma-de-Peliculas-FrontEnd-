@@ -229,3 +229,52 @@
     margin-inline: auto;
     padding-inline: clamp(.75rem, 2vw, 1.25rem);
 }
+
+/* ===== SINOPSIS: botón Ver más / Ver menos con estilo “pastilla” ===== */
+.movie-detail .movie-synopsis {
+    margin-top: 1.25rem;
+    line-height: 1.65;
+    max-width: 72ch;
+
+    .linklike {
+        /* Mismo look & feel que .toolbar .ctrl */
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+
+        border: 1px solid $border;
+        background: $card;
+        color: $text;
+        border-radius: 999px;
+        padding: .45rem .7rem;
+        line-height: 1;
+        box-shadow: $shadow;
+        cursor: pointer;
+        font-size: .95rem;
+        user-select: none;
+        margin-top: .5rem;
+
+        /* Interacción */
+        transition: filter .15s ease, background-color .15s ease, border-color .15s ease;
+
+        &:hover {
+            filter: brightness(1.05);
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+
+        /* Accesibilidad: foco visible */
+        &:focus-visible {
+            outline: 2px solid var(--primary, #2266ff);
+            outline-offset: 2px;
+        }
+
+        /* Estado expandido (coincide con las pastillas activas) */
+        &[aria-expanded="true"] {
+            background: color-mix(in srgb, var(--primary, #2266ff) 12%, transparent);
+            border-color: color-mix(in srgb, var(--primary, #2266ff) 40%, transparent);
+        }
+    }
+}

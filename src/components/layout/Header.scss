@@ -45,7 +45,7 @@
     transform: translateY(var(--logo-shift)) scale(var(--logo-scale));
 }
 
-/* ====== Menú hamburguesa (solo móvil) ====== */
+/* ====== Menú hamburguesa (por defecto oculto; se muestra en móvil) ====== */
 .menu-btn {
     display: none;
     align-items: center;
@@ -114,7 +114,6 @@
     display: flex;
     align-items: center;
     margin-left: .25rem;
-    /* separadito del botón Salir */
 }
 
 /* Input de búsqueda con altura fija */
@@ -141,7 +140,6 @@
 
 .search__input:focus-visible {
     @include focus-ring($brand);
-    /* ⬇️ antes: color.change($brand, .55) —> rompe con var() */
     border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
@@ -185,17 +183,33 @@
     background: color.change(#fff, $alpha: .18);
 }
 
-/* ====== Responsive ====== */
+/* ====== Desktop (refuerzo) ====== */
 @media (min-width: 821px) {
+
+    /* Nunca mostrar el hamburguesa en escritorio */
     .menu-btn {
-        display: none;
+        display: none !important;
     }
 
+    /* Menú siempre visible y en línea, ignorando .open */
+    .nav-links {
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        display: flex !important;
+    }
+
+    /* Backdrop nunca en desktop */
     .menu-backdrop {
         display: none !important;
     }
 }
 
+/* ====== Móvil ====== */
 @media (max-width: 820px) {
     .menu-btn {
         display: inline-flex;

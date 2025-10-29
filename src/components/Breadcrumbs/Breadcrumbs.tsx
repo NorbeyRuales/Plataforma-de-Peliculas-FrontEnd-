@@ -26,6 +26,7 @@ const LABELS: { pattern: RegExp; label: string }[] = [
     { pattern: /^\/favorites(\/|$)/, label: "Favoritos" },
     { pattern: /^\/account(\/|$)/, label: "Cuenta" },
     { pattern: /^\/about(\/|$)/, label: "Sobre nosotros" },
+    { pattern: /^\/register(\/|$)/, label: "Registro" },
 
     // Optional routes in case slugs change to Spanish later
     { pattern: /^\/peliculas(\/|$)/, label: "Películas" },
