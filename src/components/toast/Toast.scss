@@ -1,178 +1,135 @@
 @use '../../styles/variables' as *;
 
-/* Reutiliza la grilla global .grid como en /Películas */
-.favorites-page {
-    .title {
-        margin: 2rem 0 1rem;
+.toast-viewport {
+    position: fixed;
+    inset: 16px 16px auto auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    pointer-events: none;
+
+    @media (max-width: 600px) {
+        inset: 8px 8px auto 8px;
     }
 }
 
-/* Envolver cada card para alojar el botón debajo sin romper el grid */
-.favorite-item {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-}
+.toast {
+    --toast-accent: var(--primary, #2266ff);
 
-/* Botón a ancho completo, consistente en desktop */
-.favorite-item > .btn {
-    width: 100%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    padding: .8rem 1rem;
-    border-radius: 0 0 $radius $radius;
-    box-sizing: border-box;
-}
-
-/* ============================= */
-/*  Toast de “Deshacer” (INFO)   */
-/*  Namespaced para evitar choques */
-/* ============================= */
-
-.toast-inline-layer {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    transform: translateX(-50%);
-    z-index: 1000;
-    pointer-events: none; /* fuera del toast no bloquea */
-}
-
-/* Tarjeta con proporciones y look de la referencia */
-.fav-toast-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: .75rem;
+    padding: .75rem;
+    background: $card;
+    color: $text;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    max-width: min(560px, 92vw);
     pointer-events: auto;
-    width: 330px;
-    max-width: min(92vw, 330px);
-    height: 80px;
-    border-radius: 12px; /* un poco más redondeada */
-    box-sizing: border-box;
-    padding: 10px 15px;
-    background-color: #fff;
-    border: 1px solid #e5e7eb; /* gris claro (no azul) */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .08); /* sombra suave */
-    position: relative;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 12px;
-    outline: none;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 4px;
+        background: var(--toast-accent);
+    }
+
+    .toast__icon {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 999px;
+        margin-left: 6px;
+        background: color-mix(in srgb, var(--toast-accent) 18%, transparent);
+        border: 1px solid color-mix(in srgb, var(--toast-accent) 40%, transparent);
+
+        svg {
+            stroke: var(--toast-accent);
+            fill: none;
+            stroke-width: 2;
+        }
+    }
+
+    .toast__content {
+        display: grid;
+        gap: .25rem;
+    }
+
+    .toast__title {
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .toast__body {
+        line-height: 1.3;
+    }
+
+    .toast__action,
+    .toast__close {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        border-radius: $radius-sm;
+        padding: .3rem .5rem;
+    }
+
+    .toast__action {
+        font-weight: 600;
+    }
+
+    .toast__close {
+        place-self: start;
+        padding: .2rem;
+    }
+
+    transform: translateY(-6px);
+    opacity: 0;
+    animation: toast-slide-in .18s ease-out forwards;
 }
 
-/* Borde troquelado azul suave (como la captura) */
-.fav-toast-card::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 12px;
-    background:
-        radial-gradient(circle at 0 6px, transparent 6px, #dbeafe 6.2px) left top / 12px 12px repeat-y, /* “perforado” */
-        linear-gradient(#dbeafe, #dbeafe); /* relleno azul muy claro */
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
+.toast--success {
+    --toast-accent: var(--success, #22c55e);
 }
 
-/* La referencia no muestra ola SVG */
-.fav-toast-wave { display: none; }
-
-/* Bloque de textos */
-.fav-toast-message {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    flex-grow: 1;
-    min-width: 0; /* evita desbordes */
+.toast--error {
+    --toast-accent: var(--danger, #ef4444);
 }
 
-.fav-toast-title,
-.fav-toast-subtext { margin: 0; }
-
-.fav-toast-title {
-    color: #2563eb;   /* azul de la referencia */
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.1;
-}
-.fav-toast-subtext {
-    font-size: 14px;
-    color: #4b5563;   /* gris-700 */
-    line-height: 1.25;
-    white-space: normal;
+/* 🔴 */
+.toast--info {
+    --toast-accent: var(--info, #0ea5e9);
 }
 
-/* Acción “Deshacer” */
-.fav-toast-action {
-    appearance: none;
-    background: transparent;
-    border: 1px solid #2563eb;
-    color: #2563eb;
-    border-radius: 10px;
-    padding: 6px 10px;
-    line-height: 1;
-    cursor: pointer;
-    font-weight: 600;
-}
-.fav-toast-action:hover { background: #eff6ff; }
-
-/* Cerrar “X” minimal */
-.fav-toast-close {
-    background: transparent;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-    width: 28px;
-    height: 28px;
-    display: grid;
-    place-items: center;
-    color: #6b7280; /* gris-500 */
-}
-.fav-toast-cross { width: 16px; height: 16px; }
-
-/* Accesibilidad: realce al foco dentro del toast */
-.fav-toast-card:focus,
-.fav-toast-card:focus-within {
-    box-shadow:
-        0 8px 24px rgba(0, 0, 0, .08),
-        0 0 0 3px rgba(199, 210, 254, .9); /* anillo azul suave */
+.toast--warning {
+    --toast-accent: var(--warning, #f59e0b);
 }
 
-/* === Ajuste del icono “info” para que sea un círculo perfecto === */
-.fav-toast-icon-container {
-    /* tamaño exacto */
-    width: 28px;
-    height: 28px;
-    min-width: 28px;     /* evita encogimiento por flex */
-    min-height: 28px;
-    flex: 0 0 28px;      /* NO shrink, NO grow */
-    /* layout */
-    display: grid;
-    place-items: center;
-    position: relative;
-    border-radius: 999px;
-    line-height: 0;      /* evita deformaciones por line-height */
-    background: #dbeafe; /* relleno azul claro */
+@keyframes toast-slide-in {
+    from {
+        transform: translateY(-6px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-/* Aro azul interior */
-.fav-toast-icon-container::after {
-    content: "";
-    position: absolute;
-    inset: 3px;                 /* diámetro del aro */
-    border: 2px solid #2563eb;  /* grosor y color del aro */
-    border-radius: 999px;
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
 }
-
-/* “i” centrada y encima del aro */
-.fav-toast-icon {
-    position: relative;
-    z-index: 1;
-    display: block;  /* elimina espacios inline que alteran el box-model */
-    width: 12px;
-    height: 12px;
-    color: #2563eb;
-}
-
-/* El SVG trae un círculo propio; lo ocultamos para no duplicar el aro */
-.fav-toast-icon path:nth-child(2) { display: none; }

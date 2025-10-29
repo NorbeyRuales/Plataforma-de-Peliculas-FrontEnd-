@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../../services/api'      // reuse your existing API client
 import MovieCard from '../../components/movie/MovieCard'
 import './Home.scss'
+import { useToast } from '../../components/toast/ToastProvider' // 🔴 Toasts
 
 /** Minimal shape required by MovieCard */
 type Movie = {
@@ -35,32 +36,37 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const { error: showErrorToast } = useToast() // 🔴 helper para toast roja
+
   useEffect(() => {
     let alive = true
-    ;(async () => {
-      try {
-        setError(null)
+      ; (async () => {
+        try {
+          setError(null)
 
-        // Same endpoint used by /movies; if your API returns { data: [...] },
-        // we normalize below to keep a consistent array shape.
-        const res = await api.get<any>('/movies')
+          // Same endpoint used by /movies; if your API returns { data: [...] },
+          // we normalize below to keep a consistent array shape.
+          const res = await api.get<any>('/movies')
 
-        // Normalize possible response shapes (array vs { data: [...] })
-        const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
+          // Normalize possible response shapes (array vs { data: [...] })
+          const raw: Movie[] = Array.isArray(res) ? res : (res?.data ?? [])
 
-        // Ensure a stable key for MovieCard
-        const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
+          // Ensure a stable key for MovieCard
+          const list = raw.map(m => ({ ...m, _id: m._id ?? (m.id ? String(m.id) : undefined) }))
 
-        if (alive) setMovies(list)
-      } catch (e: any) {
-        if (alive) setError(e?.message || 'No se pudieron cargar las películas')
-      } finally {
-        if (alive) setLoading(false)
-      }
-    })()
+          if (alive) setMovies(list)
+        } catch (e: any) {
+          if (!alive) return
+          const msg = e?.response?.data?.message || e?.message || 'No se pudieron cargar las películas'
+          setError(msg)         // estado inline (A11Y)
+          showErrorToast(msg)   // 🔴 toast roja
+        } finally {
+          if (alive) setLoading(false)
+        }
+      })()
 
     return () => { alive = false }
-  }, [])
+  }, [showErrorToast])
 
   return (
     <section className='container home-page'>
@@ -81,7 +87,7 @@ export default function Home() {
       )}
 
       {/* Short error state; message kept in Spanish to match UI language */}
-      {error && <p style={{ color: 'salmon' }}>{error}</p>}
+      {error && <p role="alert" style={{ color: 'salmon' }}>{error}</p>}
 
       {/* Normal render once loaded and not errored */}
       {!loading && !error && (

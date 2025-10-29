@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import './Register.scss'
 import { Auth } from '../../services/auth'
 import { pushFlashToast } from '../../utils/flashToast' // ✅ Flash toast para mostrar éxito tras redirigir
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
 /**
  * Minimum allowed age.
@@ -53,6 +54,8 @@ export default function Register() {
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
+
+  const { error: showErrorToast } = useToast() // 👈 toast roja
 
   // Move focus to error summary when a new error is set
   useEffect(() => { if (error) errSummaryRef.current?.focus() }, [error])
@@ -199,7 +202,9 @@ export default function Register() {
       const backendMsg =
         err?.response?.data?.error?.formErrors?.[0] ||
         (Object.values(fieldErrors)[0] as string[] | undefined)?.[0]
-      setError(backendMsg || err?.message || 'Error al crear la cuenta')
+      const msg = backendMsg || err?.message || 'Error al crear la cuenta'
+      setError(msg)
+      showErrorToast(msg) // 🔴 toast
     } finally {
       setLoading(false)
     }

@@ -13,6 +13,7 @@ import { api } from '../../services/api'
 import { useSearchParams } from 'react-router-dom'
 import MovieCard from '../../components/movie/MovieCard'
 import '../home/Home.scss'
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
 /** Shape returned by the API; MovieCard uses a subset of these fields */
 type RawMovie = {
@@ -50,6 +51,8 @@ export default function MoviesPage() {
     const [searchParams] = useSearchParams()
     const q = (searchParams.get('q') || '').trim()
 
+    const { error: showErrorToast } = useToast() // 👈 toast roja
+
     // Fetch on mount and whenever `q` changes
     useEffect(() => {
         let alive = true
@@ -69,14 +72,20 @@ export default function MoviesPage() {
                 } catch (err: any) {
                     if (!alive) return
                     // Copy kept in Spanish to match current UI language
-                    setError(err?.message || 'No se pudieron cargar las películas')
+                    const msg =
+                        err?.response?.data?.error?.message ||
+                        err?.response?.data?.message ||
+                        err?.message ||
+                        'No se pudieron cargar las películas'
+                    setError(msg)
+                    showErrorToast(msg) // 🔴 toast
                 } finally {
                     if (alive) setLoading(false)
                 }
             })()
 
         return () => { alive = false }
-    }, [q])
+    }, [q, showErrorToast])
 
     const hasQuery = q.length > 0
 

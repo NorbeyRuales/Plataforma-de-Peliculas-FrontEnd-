@@ -18,6 +18,7 @@ import { api } from '../../services/api'
 import { getRandomPexelsVideo } from '../../services/pexelsServices'
 import { Favorites } from '../../services/favorites'
 import { getToken } from '../../services/auth'
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
 /**
  * Lightweight movie shape used locally in this view.
@@ -45,6 +46,8 @@ export default function MovieDetail() {
   const navigate = useNavigate()
   const location = useLocation()
   const playerRef = useRef<HTMLVideoElement>(null)
+
+  const { error: showErrorToast } = useToast() // 👈 toast roja
 
   // ------- Data / UI state -------
   const [movie, setMovie] = useState<Movie | null>(null)
@@ -86,12 +89,14 @@ export default function MovieDetail() {
           const m = (resp as any)?.movie ?? resp
           setMovie(m as Movie)
         } catch (e: any) {
-          setError(e?.message || 'No se pudo cargar la película')
+          const msg = e?.response?.data?.message || e?.message || 'No se pudo cargar la película'
+          setError(msg)
+          showErrorToast(msg) // 🔴 toast
         } finally {
           setLoading(false)
         }
       })()
-  }, [id])
+  }, [id, showErrorToast])
 
   /**
    * If no streamUrl in the movie, try finding a relevant stock video on Pexels.
@@ -304,7 +309,7 @@ export default function MovieDetail() {
         e?.response?.data?.message ||
         e?.message ||
         'No se pudo actualizar tus favoritos'
-      alert(msg)
+      showErrorToast(msg) // 🔴 toast
     } finally {
       setFavBusy(false)
     }

@@ -104,13 +104,17 @@ export default function Favorites() {
           }))
           if (alive) setItems(mapped)
         } catch (e: any) {
-          if (alive) setError(e?.message || 'No se pudieron cargar tus favoritos')
+          if (alive) {
+            const msg = e?.message || 'No se pudieron cargar tus favoritos'
+            setError(msg)
+            showErrorToast(msg) // 🔴 toast
+          }
         } finally {
           if (alive) setLoading(false)
         }
       })()
     return () => { alive = false }
-  }, [])
+  }, [showErrorToast])
 
   useEffect(() => {
     return () => {
@@ -304,7 +308,6 @@ export default function Favorites() {
                 <rect x="11.1" y="10" width="1.8" height="6" rx=".9" />
               </svg>
             </div>
-
 
             <div className="fav-toast-message">
               <p className="fav-toast-title">Info</p>

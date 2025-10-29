@@ -1,3 +1,4 @@
+// src/pages/about/About.tsx
 /**
  * @file src/pages/about/About.tsx
  * @module pages/about/About
@@ -14,10 +15,14 @@
  * @since 1.0.0
  */
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import FlipCard from '../../components/team/FlipCard'
 import './About.scss'
+
+// ✅ añadido (no rompe nada): toast + api para ping opcional al backend
+import { useToast } from '../../components/toast/ToastProvider'
+import { api } from '../../services/api'
 
 /**
  * Represents a team member card content.
@@ -56,29 +61,107 @@ const TEAM: TeamMate[] = [
  * @returns JSX.Element
  */
 export default function About() {
+  const rootRef = useRef<HTMLElement | null>(null)
+
+  
+  const { error: showErrorToast } = useToast()
+  const [healthMsg, setHealthMsg] = useState<string | null>(null)
+
+
+  useEffect(() => {
+    let mounted = true
+    const warnedAt = Number(sessionStorage.getItem('pyra.healthWarnedAt') || 0)
+    const recentlyWarned = Date.now() - warnedAt < 60_000
+
+    const warn = (msg: string) => {
+      if (!mounted) return
+      setHealthMsg(msg)
+      if (!recentlyWarned) {
+        showErrorToast(msg)
+        sessionStorage.setItem('pyra.healthWarnedAt', String(Date.now()))
+      }
+    }
+
+    // 1) Sin conexión local
+    if (!navigator.onLine) {
+      warn('Sin conexión a Internet. Algunas funciones podrían no cargar.')
+    } else {
+      // 2) Intento de ping al backend
+      ; (async () => {
+        try {
+          
+          const res: any = await api.get('/health')
+          if (res && (res.ok === false || (res.status && res.status >= 500))) {
+            warn('No podemos conectar con el servidor. Intenta más tarde.')
+          }
+        } catch (err: any) {
+          const status = err?.response?.status
+          const isNetwork = !status // típicamente error de red/CORS/timeout
+          if (isNetwork || (status && status >= 500)) {
+            warn('No podemos conectar con el servidor. Intenta más tarde.')
+          }
+          
+        }
+      })()
+    }
+
+    const onOnline = () => { if (mounted) setHealthMsg(null) }
+    const onOffline = () => warn('Sin conexión a Internet. Algunas funciones podrían no cargar.')
+
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    return () => {
+      mounted = false
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
+    }
+  }, [showErrorToast])
+
   /**
    * Enhances in-page anchor navigation (#intro, #team, etc.):
-   * - Intercepts clicks on `<a href="#...">`.
+   * - Intercepts clicks on `<a href="#...">` **solo dentro de esta página** (no en todo el documento).
    * - Smoothly scrolls to the target and moves focus for screen readers.
+   * - If the page loads with a hash in the URL, auto-focus/scrolls to it.
    * - Cleans up the listener on unmount.
    */
   useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+
     const onClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest('a[href^="#"]') as HTMLAnchorElement | null
-      if (!target) return
-      const id = target.getAttribute('href')!.slice(1)
+      const t = e.target as HTMLElement | null
+      const anchor = t?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
+      if (!anchor || !root.contains(anchor)) return
+      const id = anchor.getAttribute('href')!.slice(1)
+      if (!id) return
       const el = document.getElementById(id)
       if (!el) return
       e.preventDefault()
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      el.focus({ preventScroll: true })
+        ; (el as HTMLElement).focus({ preventScroll: true }) // secciones tienen tabIndex={-1}
     }
-    document.addEventListener('click', onClick)
-    return () => document.removeEventListener('click', onClick)
+
+    root.addEventListener('click', onClick)
+
+    // Soporte para entrar con #hash directamente
+    if (window.location.hash) {
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const el = document.getElementById(id)
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            ; (el as HTMLElement).focus({ preventScroll: true })
+        }, 0)
+      }
+    }
+
+    return () => {
+      root.removeEventListener('click', onClick)
+    }
   }, [])
 
   return (
-    <section className="about-page">
+    <section className="about-page" ref={rootRef}>
       {/* HERO */}
       <header className="about-hero" aria-labelledby="about-title">
         <div className="hero-media" aria-hidden="true">
@@ -105,6 +188,13 @@ export default function About() {
         {/* hit-24 ensures a minimum 24×24px interactive area (WCAG 2.5.8) */}
         <Link to="/" className="about-back hit-24" aria-label="Volver al inicio">←</Link>
       </header>
+
+      
+      {healthMsg && (
+        <div role="alert" className="form-summary form-summary--error" style={{ margin: '1rem 0' }}>
+          {healthMsg}
+        </div>
+      )}
 
       {/* METRICS / HIGHLIGHTS */}
       <section className="metrics" aria-label="Indicadores principales">

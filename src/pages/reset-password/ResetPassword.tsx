@@ -24,6 +24,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ResetPassword.scss';
 import { supa } from '../../services/supa';
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
 /**
  * @component
@@ -31,6 +32,7 @@ import { supa } from '../../services/supa';
  */
 export default function ResetPassword() {
     const navigate = useNavigate();
+    const { error: showErrorToast } = useToast() // 👈 toast roja
 
     // --- form state ---
     const [pass1, setPass1] = useState('');
@@ -111,7 +113,9 @@ export default function ResetPassword() {
             try { await supa.auth.signOut(); } catch { }
             setTimeout(() => navigate('/login', { replace: true }), 1200);
         } catch (e: any) {
-            setErr(e?.message || 'No se pudo actualizar la contraseña.');
+            const msg = e?.message || 'No se pudo actualizar la contraseña.'
+            setErr(msg);
+            showErrorToast(msg) // 🔴 toast
         } finally {
             setLoading(false);
         }
