@@ -14,6 +14,7 @@ import { useSearchParams } from 'react-router-dom'
 import MovieCard from '../../components/movie/MovieCard'
 import '../home/Home.scss'
 import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
+import { slugify } from '../../utils/slug' // 👈 clave estable por si falta id
 
 /** Shape returned by the API; MovieCard uses a subset of these fields */
 type RawMovie = {
@@ -117,9 +118,19 @@ export default function MoviesPage() {
                      * <ul>/<li> would also be valid; cards use <article> semantics internally.
                      */
                     <div className='grid'>
-                        {movies.map(m => (
-                            <MovieCard key={m._id ?? String(m.id)} movie={m as any} />
-                        ))}
+                        {movies.map((m, i) => {
+                            const year =
+                                (m as any).year ??
+                                (typeof (m as any).release_date === 'string' ? (m as any).release_date.slice(0, 4) : '')
+                            // 👇 key estable: usa _id/id/slug y si faltan, título+year+índice
+                            const key =
+                                (m as any)._id ??
+                                (m as any).id ??
+                                (m as any).slug ??
+                                `${slugify(m.title)}-${year}-${i}`
+
+                            return <MovieCard key={String(key)} movie={m as any} />
+                        })}
                     </div>
                 ) : (
                     // Clear empty state, adapted depending on whether a query is active

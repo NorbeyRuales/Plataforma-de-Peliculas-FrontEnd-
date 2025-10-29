@@ -1,4 +1,3 @@
-// src/pages/home/Home.tsx
 /**
  * @file Home.tsx
  * @description Landing grid that shows a subset of movies.
@@ -15,6 +14,7 @@ import { api } from '../../services/api'      // reuse your existing API client
 import MovieCard from '../../components/movie/MovieCard'
 import './Home.scss'
 import { useToast } from '../../components/toast/ToastProvider' // 🔴 Toasts
+import { slugify } from '../../utils/slug' // 👈 clave estable por si falta id
 
 /** Minimal shape required by MovieCard */
 type Movie = {
@@ -92,9 +92,19 @@ export default function Home() {
       {/* Normal render once loaded and not errored */}
       {!loading && !error && (
         <div className='grid'>
-          {movies.map(m => (
-            <MovieCard key={m._id ?? String(m.id)} movie={m as any} />
-          ))}
+          {movies.map((m, i) => {
+            const year =
+              (m as any).year ??
+              (typeof (m as any).release_date === 'string' ? (m as any).release_date.slice(0, 4) : '')
+            // 👇 key estable: usa _id/id/slug y si faltan, título+year+índice
+            const key =
+              (m as any)._id ??
+              (m as any).id ??
+              (m as any).slug ??
+              `${slugify(m.title)}-${year}-${i}`
+
+            return <MovieCard key={String(key)} movie={m as any} />
+          })}
         </div>
       )}
     </section>
