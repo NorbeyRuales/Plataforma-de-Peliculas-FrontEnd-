@@ -269,7 +269,7 @@ export default function Favorites() {
                 <div className="favorite-item" key={f.id}>
                   <MovieCard movie={movie as any} />
                   <button
-                    className="btn danger"
+                    className="btn danger fav-remove-btn"
                     disabled={removing === f.id}
                     onClick={() => remove(f.id)}
                     aria-busy={removing === f.id || undefined}
@@ -302,9 +302,7 @@ export default function Favorites() {
             {/* Icono circular */}
             <div className="fav-toast-icon-container" aria-hidden="true">
               <svg viewBox="0 0 24 24" className="fav-toast-icon" aria-hidden="true" focusable="false">
-                {/* punto de la “i” */}
                 <circle cx="12" cy="7.5" r="1.2" />
-                {/* cuerpo de la “i” */}
                 <rect x="11.1" y="10" width="1.8" height="6" rx=".9" />
               </svg>
             </div>

@@ -49,11 +49,10 @@ export default function MovieCard({ movie }: { movie: Movie }) {
     return list.map(u => (u.startsWith('/') ? `${baseUrl()}${u}` : u))
   }, [movie])
 
-  // Estado de imagen actual (sin IntersectionObserver — usamos lazy nativo)
+  // Estado de imagen actual (lazy nativo sin IntersectionObserver)
   const [idx, setIdx] = useState(0)
   const [loaded, setLoaded] = useState(false)
 
-  // Reinicia cuando cambian los candidatos (p. ej. otra película)
   useEffect(() => {
     setIdx(0)
     setLoaded(false)
@@ -64,7 +63,6 @@ export default function MovieCard({ movie }: { movie: Movie }) {
 
   function handleImgError() {
     setLoaded(false)
-    // prueba el siguiente candidato; si ya no hay, en el próximo render caerá al placeholder
     setIdx(i => (i < candidates.length ? i + 1 : i))
   }
 
@@ -79,31 +77,35 @@ export default function MovieCard({ movie }: { movie: Movie }) {
     <article className='movie-card'>
       <Link to={to} state={{ breadcrumb: titleText }}>
         <div className='poster'>
+          {/* Imagen real: siempre presente (no display:none). Fade-in con opacity. */}
           <img
             src={src}
             alt={`Póster de ${titleText}`}
-            loading='lazy'        // lazy nativo del navegador
+            loading='lazy'
             decoding='async'
             width={300}
             height={450}
             onLoad={() => setLoaded(true)}
             onError={handleImgError}
             style={{
+              position: 'absolute',
+              inset: 0,
               width: '100%',
-              height: 220,
+              height: '100%',
               objectFit: 'cover',
-              display: loaded ? 'block' : 'none',
+              opacity: loaded ? 1 : 0,
+              transition: 'opacity .25s ease',
+              zIndex: 1,
             }}
           />
 
-          {/* Placeholder visible mientras no hay imagen lista */}
-          {!loaded && (
-            <div
-              className='poster-placeholder'
-              role='img'
-              aria-label='Sin póster disponible'
-            />
-          )}
+          {/* Placeholder siempre presente debajo de la imagen */}
+          <div
+            className='poster-placeholder'
+            role='img'
+            aria-label='Sin póster disponible'
+            aria-hidden={loaded || undefined}
+          />
         </div>
 
         <div className='info'>
