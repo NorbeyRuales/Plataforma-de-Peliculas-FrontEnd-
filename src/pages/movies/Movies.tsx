@@ -29,6 +29,14 @@ type RawMovie = {
     streamUrl?: string
 }
 
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+    window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+    window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 /**
  * Small type guard:
  * Accepts an empty array or an array whose first element has a string `title`.
@@ -59,6 +67,7 @@ export default function MoviesPage() {
         let alive = true
             ; (async () => {
                 try {
+                    loaderStart()             // ⬅️ START loader
                     setLoading(true)
                     setError(null)
 
@@ -82,10 +91,13 @@ export default function MoviesPage() {
                     showErrorToast(msg) // 🔴 toast
                 } finally {
                     if (alive) setLoading(false)
+                    loaderStop()             // ⬅️ STOP loader
                 }
             })()
 
-        return () => { alive = false }
+        return () => {
+            alive = false
+        }
     }, [q, showErrorToast])
 
     const hasQuery = q.length > 0
@@ -105,7 +117,7 @@ export default function MoviesPage() {
             </h1>
 
             {/* Lightweight loading indicator (could add aria-busy on a wrapper if desired) */}
-            {loading && <p style={{ opacity: .8 }}>Cargando…</p>}
+            {loading && <p style={{ opacity: 0.8 }}>Cargando…</p>}
 
             {/* Error message in a distinct color for quick visual scanning */}
             {error && <p style={{ color: 'salmon' }}>{error}</p>}
@@ -117,7 +129,7 @@ export default function MoviesPage() {
                      * Responsive grid of MovieCard articles.
                      * <ul>/<li> would also be valid; cards use <article> semantics internally.
                      */
-                    <div className='grid'>
+                    <div className="grid">
                         {movies.map((m, i) => {
                             const year =
                                 (m as any).year ??
@@ -134,7 +146,7 @@ export default function MoviesPage() {
                     </div>
                 ) : (
                     // Clear empty state, adapted depending on whether a query is active
-                    <p style={{ opacity: .8 }}>
+                    <p style={{ opacity: 0.8 }}>
                         {hasQuery ? 'No hay coincidencias.' : 'No hay películas para mostrar.'}
                     </p>
                 )

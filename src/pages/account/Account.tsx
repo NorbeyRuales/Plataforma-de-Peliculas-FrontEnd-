@@ -13,6 +13,7 @@
  *   - 3.3.1/3.3.3: Error identification & hints (inline errors + hints).
  *   - 2.4.3: Focus sent to first field when entering edit mode.
  *   - 3.2.2: No unexpected context changes on input; actions require explicit user intent.
+ *   - 2.1.1/2.1.2/2.4.7: Modal con focus-trap + Escape + foco inicial y restauración.
  */
 
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -21,6 +22,14 @@ import './Account.scss'
 import { api } from '../../services/api'
 import { Auth } from '../../services/auth'
 import { useToast } from '../../components/toast/ToastProvider' // ✅ Toasts (éxito + error)
+
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
 
 /**
  * Shape of a user profile persisted by the backend.
@@ -139,46 +148,119 @@ export default function Account() {
   const samePwd = newPwd === newPwd2
   const canChangePwd = !!currPwd && newPwdOk && samePwd && !pwdSaving
 
+  // ---------- A11y modal: focus trap + ESC + restore focus + backdrop click ----------
+  const modalRef = useRef<HTMLDivElement>(null)
+  const deleteBtnRef = useRef<HTMLButtonElement>(null) // botón que abre el modal
+  const confirmBtnRef = useRef<HTMLButtonElement>(null) // foco inicial en modal
+  const lastFocusedRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!confirmDelete) return
+
+    // Guardar el foco actual para restaurarlo al cerrar
+    lastFocusedRef.current = (document.activeElement as HTMLElement) || null
+    // Bloquear scroll del fondo
+    document.body.classList.add('no-scroll')
+
+    // Enfocar confirmación (o contenedor del modal)
+    const focusSoon = setTimeout(() => {
+      (confirmBtnRef.current ?? modalRef.current)?.focus()
+    }, 0)
+
+    // Focus trap + Escape
+    const focusableSel =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    const onKey = (e: KeyboardEvent) => {
+      if (!modalRef.current) return
+      const nodes = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(focusableSel)
+      ).filter(n => !n.hasAttribute('disabled') && n.getAttribute('aria-hidden') !== 'true')
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setConfirmDelete(false)
+        return
+      }
+      if (e.key !== 'Tab' || nodes.length === 0) return
+
+      const first = nodes[0]
+      const last = nodes[nodes.length - 1]
+      const active = document.activeElement as HTMLElement | null
+
+      if (e.shiftKey) {
+        if (active === first || !modalRef.current.contains(active)) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (active === last || !modalRef.current.contains(active)) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+
+    return () => {
+      clearTimeout(focusSoon)
+      document.removeEventListener('keydown', onKey)
+      document.body.classList.remove('no-scroll')
+      // Restaurar foco
+      const tgt = deleteBtnRef.current ?? lastFocusedRef.current
+      tgt?.focus()
+    }
+  }, [confirmDelete])
+
   // Load profile (auth + DB profile). Tolerant to different shapes.
   useEffect(() => {
-    (async () => {
-      try {
-        setBootError(null) // limpiar error previo si reintenta
-        const me: any = await api.get('/auth/me')
-        const id = me?.user?.id ?? me?.id
-        const email = me?.user?.email ?? me?.email ?? ''
+    let mounted = true
+      ; (async () => {
+        loaderStart()
+        try {
+          setBootError(null) // limpiar error previo si reintenta
+          const me: any = await api.get('/auth/me')
+          const id = me?.user?.id ?? me?.id
+          const email = me?.user?.email ?? me?.email ?? ''
 
-        let fromDb: any = {}
-        try { fromDb = await api.get(`/users/${id}`) } catch { /* ignore if not found */ }
+          let fromDb: any = {}
+          try { fromDb = await api.get(`/users/${id}`) } catch { /* ignore if not found */ }
 
-        const pObj: any = (fromDb && 'profile' in fromDb) ? fromDb.profile : fromDb
+          const pObj: any = (fromDb && 'profile' in fromDb) ? fromDb.profile : fromDb
 
-        // Age: DB first; else try to derive from birthdate if present.
-        const ageFromDb = toNum(pObj?.age ?? pObj?.edad)
-        const ageFromMeta = calcAgeFromBirthdate(
-          pObj?.birthdate ?? pObj?.birth_date ?? pObj?.dob ?? me?.user?.user_metadata?.birthdate
-        )
+          // Age: DB first; else try to derive from birthdate if present.
+          const ageFromDb = toNum(pObj?.age ?? pObj?.edad)
+          const ageFromMeta = calcAgeFromBirthdate(
+            pObj?.birthdate ?? pObj?.birth_date ?? pObj?.dob ?? me?.user?.user_metadata?.birthdate
+          )
 
-        const p: Profile = {
-          id,
-          email: pickStr(pObj?.email, email),
-          name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
-          apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅ last name
-          age: ageFromDb ?? ageFromMeta,
+          const p: Profile = {
+            id,
+            email: pickStr(pObj?.email, email),
+            name: pickStr(pObj?.name, me?.user?.user_metadata?.name),
+            apellido: pickStr(pObj?.apellido, me?.user?.user_metadata?.apellido), // ✅ last name
+            age: ageFromDb ?? ageFromMeta,
+          }
+
+          if (!mounted) return
+          setProfile(p)
+          setForm(p)
+        } catch (err: any) {
+          const msg = err?.response?.data?.message || err?.message || 'No se pudo cargar tu perfil'
+          if (mounted) {
+            setBootError(msg)
+            showErrorToast(msg)
+            setForm({ id: 'offline', name: '', apellido: '', age: undefined, email: '' })
+          }
+        } finally {
+          if (mounted) loaderStop()
         }
+      })()
 
-        setProfile(p)
-        setForm(p)
-      } catch (err: any) {
-        // 🔴 Si /auth/me falla (backend caído), notificamos y evitamos quedar en "Cargando…"
-        const msg = err?.response?.data?.message || err?.message || 'No se pudo cargar tu perfil'
-        setBootError(msg)
-        showErrorToast(msg)
-        // Cargamos un "stub" para que la vista renderice y no quede bloqueada en el esqueleto
-        setForm({ id: 'offline', name: '', apellido: '', age: undefined, email: '' })
-      }
-    })()
-  }, [])
+    return () => {
+      mounted = false
+      loaderStop() // por si se desmonta en medio de la carga
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle deep-link actions (?mode=edit|delete)
   useEffect(() => {
@@ -257,7 +339,6 @@ export default function Account() {
       name === 'age'
         ? (() => {
           if (value === '') return undefined
-          // Sanitize: keep only digits and limit to 3 chars (max 120).
           const digits = value.replace(/[^\d]/g, '').slice(0, 3)
           if (digits === '') return undefined
           const n = Math.trunc(Number(digits))
@@ -296,6 +377,7 @@ export default function Account() {
     if (Object.keys(vErr).length > 0) return
 
     setSaving(true)
+    loaderStart()
     try {
       await api.put(`/users/${profile.id}`, {
         name: form.name,
@@ -306,7 +388,7 @@ export default function Account() {
       setProfile(form)
       setEditing(false)
       setSaved(true)
-      success('Tu perfil se actualizó correctamente.') // ✅ Toast de éxito (look consistente)
+      success('Tu perfil se actualizó correctamente.') // ✅ Toast de éxito
       window.setTimeout(() => setSaved(false), 2500)
     } catch (err: any) {
       const msg =
@@ -317,6 +399,7 @@ export default function Account() {
       showErrorToast(msg) // 🔴
     } finally {
       setSaving(false)
+      loaderStop()
     }
   }
 
@@ -331,6 +414,7 @@ export default function Account() {
     if (!canChangePwd) return
 
     setPwdSaving(true)
+    loaderStart()
     try {
       await Auth.changePassword(currPwd, newPwd)
       setCurrPwd(''); setNewPwd(''); setNewPwd2('')
@@ -348,21 +432,24 @@ export default function Account() {
       showErrorToast(msg) // 🔴
     } finally {
       setPwdSaving(false)
+      loaderStop()
     }
   }
 
   /** Permanently deletes the account and clears local auth token. */
   async function handleDelete() {
     if (!profile) return
+    loaderStart()
     try {
       await api.del(`/users/${profile.id}`)
+      localStorage.removeItem('token')
+      navigate('/login', { replace: true })
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || 'No se pudo eliminar'
       showErrorToast(msg) // 🔴
-      return
+    } finally {
+      loaderStop()
     }
-    localStorage.removeItem('token')
-    navigate('/login', { replace: true })
   }
 
   // Skeleton state while fetching the initial profile.
@@ -382,7 +469,13 @@ export default function Account() {
         </div>
       )}
 
-      <form className={`auth-form ${!editing ? 'is-readonly' : ''}`} onSubmit={onSave} noValidate>
+      {/* Ocultamos el fondo a SR cuando el modal está abierto */}
+      <form
+        className={`auth-form ${!editing ? 'is-readonly' : ''}`}
+        onSubmit={onSave}
+        noValidate
+        aria-hidden={confirmDelete ? true : undefined}
+      >
         <label className='field'>
           <span className='field__label'>Tú nombre</span>
           <input
@@ -556,7 +649,7 @@ export default function Account() {
                   value={newPwd2}
                   onChange={(e) => setNewPwd2(e.target.value)}
                   onKeyUp={(e) => setCaps3(e.getModifierState('CapsLock'))}
-                  aria-invalid={!!newPwd2 && !samePwd || undefined}
+                  aria-invalid={!!newPwd2 && !samePwd ? true : undefined}
                   aria-describedby='pwd_new2_hint'
                 />
                 <button
@@ -615,19 +708,48 @@ export default function Account() {
         {saved && <p role="status" className="muted" style={{ marginTop: '.5rem' }}>Datos guardados</p>}
         {pwdSaved && <p role="status" className="muted" style={{ marginTop: '.25rem' }}>Contraseña actualizada</p>}
 
-        <button type='button' className='btn danger' onClick={() => setConfirmDelete(true)}>
+        <button
+          type='button'
+          className='btn danger'
+          onClick={() => setConfirmDelete(true)}
+          ref={deleteBtnRef}
+        >
           Eliminar cuenta
         </button>
       </form>
 
       {confirmDelete && (
-        <div className='modal' role='dialog' aria-modal='true' aria-labelledby='delTitle'>
+        <div
+          className='modal'
+          role='dialog'
+          aria-modal='true'
+          aria-labelledby='delTitle'
+          aria-describedby='delDesc'
+          ref={modalRef}
+          // Cerrar al clicar fuera de la tarjeta
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setConfirmDelete(false)
+          }}
+        >
           <div className='modal-card'>
             <h3 id='delTitle'>¿Eliminar tu cuenta?</h3>
-            <p>Esta acción no se puede deshacer.</p>
+            <p id='delDesc'>Esta acción no se puede deshacer.</p>
             <div className='row'>
-              <button type='button' className='btn danger' onClick={handleDelete}>Confirmar eliminación</button>
-              <button type='button' className='btn ghost' onClick={() => setConfirmDelete(false)}>Cancelar</button>
+              <button
+                type='button'
+                className='btn danger'
+                onClick={handleDelete}
+                ref={confirmBtnRef}
+              >
+                Confirmar eliminación
+              </button>
+              <button
+                type='button'
+                className='btn ghost'
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>

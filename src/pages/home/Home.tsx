@@ -26,6 +26,14 @@ type Movie = {
   genres?: string[]
 }
 
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 /**
  * @component
  * @returns Landing grid showing a sample of movies plus loading/error states.
@@ -42,6 +50,8 @@ export default function Home() {
     let alive = true
       ; (async () => {
         try {
+          loaderStart()          // ⬅️ START loader
+          setLoading(true)
           setError(null)
 
           // Same endpoint used by /movies; if your API returns { data: [...] },
@@ -62,6 +72,7 @@ export default function Home() {
           showErrorToast(msg)   // 🔴 toast roja
         } finally {
           if (alive) setLoading(false)
+          loaderStop()          // ⬅️ STOP loader
         }
       })()
 

@@ -9,27 +9,20 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Register.scss'
 import { Auth } from '../../services/auth'
-import { pushFlashToast } from '../../utils/flashToast' // ✅ Flash toast para mostrar éxito tras redirigir
-import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
+import { pushFlashToast } from '../../utils/flashToast'
+import { useToast } from '../../components/toast/ToastProvider'
 
-/**
- * Minimum allowed age.
- * @constant
- */
 const AGE_MIN = 13
-/**
- * Maximum allowed age.
- * @constant
- */
 const AGE_MAX = 120
 
-/**
- * Register page component.
- * Renders an accessible registration form with password strength feedback
- * and validates fields before calling the backend.
- * @component
- * @returns {JSX.Element}
- */
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 export default function Register() {
   const navigate = useNavigate()
 
@@ -55,23 +48,13 @@ export default function Register() {
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
 
-  const { error: showErrorToast } = useToast() // 👈 toast roja
+  const { error: showErrorToast } = useToast()
 
-  // Move focus to error summary when a new error is set
   useEffect(() => { if (error) errSummaryRef.current?.focus() }, [error])
 
   const emailOk = /^\S+@\S+\.\S+$/.test(email.trim())
   const same = password === password2
 
-  /**
-   * Validates the password against a simple rule set:
-   * - at least 8 characters
-   * - at least 1 uppercase letter
-   * - at least 1 digit
-   * - at least 1 special character
-   * @param {string} pwd
-   * @returns {string | null} Error message or null when valid.
-   */
   function validatePassword(pwd: string): string | null {
     if (pwd.length < 8) return 'La contraseña debe tener al menos 8 caracteres.'
     if (!/[A-Z]/.test(pwd)) return 'Debe contener al menos una letra mayúscula.'
@@ -80,10 +63,6 @@ export default function Register() {
     return null
   }
 
-  // ====== EXTRAS ======
-  /**
-   * Password strength score (0–4). Purely informative (no blocking).
-   */
   const pwdScore = useMemo(() => {
     let score = 0
     if (password.length >= 8) score++
@@ -99,10 +78,6 @@ export default function Register() {
     (pwdScore >= 3 ? ' pwd-meter--3' : '') +
     (pwdScore >= 4 ? ' pwd-meter--4' : '')
 
-  /**
-   * Suggests a common email domain fix when the user mistypes well-known providers.
-   * Example: gmal.com -> gmail.com.
-   */
   const emailSuggestion = useMemo(() => {
     const fixes: Record<string, string> = {
       'gmal.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gnail.com': 'gmail.com',
@@ -118,7 +93,6 @@ export default function Register() {
     }
     return ''
   }, [email])
-  // =======================
 
   const pwdError = validatePassword(password)
   const pwdValid = !!password && !pwdError
@@ -145,17 +119,9 @@ export default function Register() {
     same &&
     !loading
 
-  /**
-   * High-level form validation:
-   * - checks required fields
-   * - validates age range and email format
-   * - ensures password respects rules and matches confirmation
-   * It focuses the first invalid field and sets an error string for the summary.
-   * @returns {boolean} True when the form is valid.
-   */
   function validate(): boolean {
     if (!name.trim()) { setError('Escribe tu nombre.'); nameRef.current?.focus(); return false }
-    if (!apellido.trim()) { setError('Escribe tu apellido.'); apellidoRef.current?.focus(); return false } // ✅
+    if (!apellido.trim()) { setError('Escribe tu apellido.'); apellidoRef.current?.focus(); return false }
     if (!ageOk) { setError(`La edad debe estar entre ${AGE_MIN} y ${AGE_MAX}.`); ageRef.current?.focus(); return false }
     if (!emailOk) { setError('El correo no es válido.'); emailRef.current?.focus(); return false }
     if (pwdError) { setError(pwdError); pwdRef.current?.focus(); return false }
@@ -163,23 +129,13 @@ export default function Register() {
     return true
   }
 
-  /**
-   * Submit handler:
-   * - clears prior errors
-   * - validates
-   * - calls Auth.signup using the suggestion if present
-   * - routes to /login on success
-   * - shows backend errors in a summary box and manages loading state
-   * @param {React.FormEvent<HTMLFormElement>} e
-   * @returns {Promise<void>}
-   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(undefined)
     if (!validate()) return
     setLoading(true)
+    loaderStart() // ⬅️ START loader
     try {
-      // use suggestion when the user still has a mistyped domain
       await Auth.signup(
         name,
         apellido,
@@ -188,14 +144,7 @@ export default function Register() {
         password2,
         typeof age === 'number' ? age : Number(age)
       )
-
-      //  Flash toast de ÉXITO: se mostrará en la siguiente vista.
-      pushFlashToast({
-        kind: 'success',
-        title: 'Éxito',
-        text: 'Cuenta creada. Revisa tu correo para verificarla.'
-      })
-
+      pushFlashToast({ kind: 'success', title: 'Éxito', text: 'Cuenta creada. Revisa tu correo para verificarla.' })
       navigate('/login')
     } catch (err: any) {
       const fieldErrors = err?.response?.data?.error?.fieldErrors || {}
@@ -204,9 +153,10 @@ export default function Register() {
         (Object.values(fieldErrors)[0] as string[] | undefined)?.[0]
       const msg = backendMsg || err?.message || 'Error al crear la cuenta'
       setError(msg)
-      showErrorToast(msg) // 🔴 toast
+      showErrorToast(msg)
     } finally {
       setLoading(false)
+      loaderStop() // ⬅️ STOP loader
     }
   }
 
@@ -246,7 +196,6 @@ export default function Register() {
           />
         </label>
 
-        {/* ← Changed: Date of birth → Age */}
         <label className='field'>
           <span className='field__label'>Edad</span>
           <input
@@ -379,9 +328,19 @@ export default function Register() {
           </small>
         </label>
 
-        <button className='btn primary' type='submit' disabled={!canSubmit}>
-          {loading ? 'Creando...' : 'Crear cuenta'}
-        </button>
+        <div className="form-actions" style={{ display: 'flex', gap: '.5rem', marginTop: '.75rem' }}>
+          <button className='btn primary' type='submit' disabled={!canSubmit}>
+            {loading ? 'Creando...' : 'Crear cuenta'}
+          </button>
+          <button
+            type="button"
+            className="btn ghost"
+            onClick={() => navigate(-1)}
+            aria-label="Cancelar e ir a la página anterior"
+          >
+            Cancelar
+          </button>
+        </div>
       </form>
     </section>
   )

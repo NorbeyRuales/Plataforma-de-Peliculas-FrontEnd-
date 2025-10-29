@@ -31,6 +31,45 @@ type Movie = {
   streamUrl?: string
 }
 
+/* ---------- Helpers locales (loader + formato humano) ---------- */
+
+// Barra superior (TopLoader): eventos globales
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
+function formatDateES(d?: string | Date) {
+  if (!d) return ''
+  const date = typeof d === 'string' ? new Date(d) : d
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('es-CO', { year: 'numeric', month: 'long', day: '2-digit' }).format(date)
+}
+
+function formatYearES(d?: string | Date) {
+  if (!d) return ''
+  const date = typeof d === 'string' ? new Date(d) : d
+  return Number.isNaN(date.getTime()) ? '' : String(date.getFullYear())
+}
+
+function formatDuration(mins?: number | string) {
+  const m = Number(mins)
+  if (!Number.isFinite(m) || m <= 0) return ''
+  const h = Math.floor(m / 60)
+  const r = m % 60
+  return h > 0 ? `${h} h ${r} min` : `${r} min`
+}
+
+function pickText(m: any, keys: string[]) {
+  for (const k of keys) {
+    const v = m?.[k]
+    if (typeof v === 'string' && v.trim()) return v.trim()
+  }
+  return ''
+}
+
 /**
  * Movie detail page component.
  * Fetches movie data, wires the <video> element with custom controls,
@@ -68,6 +107,9 @@ export default function MovieDetail() {
   const [rate, setRate] = useState(1)
   const [loop, setLoop] = useState(false)
 
+  // Sinopsis expand/collapse
+  const [synopsisExpanded, setSynopsisExpanded] = useState(false)
+
   /**
    * Guard against invalid route id.
    */
@@ -78,10 +120,12 @@ export default function MovieDetail() {
   /**
    * Fetch movie by id from backend.
    * Accepts either `{ movie }` or the movie object directly.
+   * 🔵 Enciende/Apaga TopLoader para visibilidad del estado.
    */
   useEffect(() => {
     if (!id || id === 'undefined') return
       ; (async () => {
+        loaderStart()               // ⬅️ START loader
         setLoading(true)
         setError(undefined)
         try {
@@ -94,6 +138,7 @@ export default function MovieDetail() {
           showErrorToast(msg) // 🔴 toast
         } finally {
           setLoading(false)
+          loaderStop()              // ⬅️ STOP loader
         }
       })()
   }, [id, showErrorToast])
@@ -101,17 +146,22 @@ export default function MovieDetail() {
   /**
    * If no streamUrl in the movie, try finding a relevant stock video on Pexels.
    * Falls back to "cinema" keyword.
+   * 🔵 Opcional: pulso del loader para la búsqueda del trailer.
    */
   useEffect(() => {
-    if (!movie?.title || movie.streamUrl) return
+    if (!movie?.title || (movie as any).streamUrl) return
     let canceled = false
       ; (async () => {
+        loaderStart()               // ⬅️ START loader (pulso)
         let url = await getRandomPexelsVideo(movie.title)
         if (!url) url = await getRandomPexelsVideo('cinema')
         if (!canceled) setPexelsVideoUrl(url)
+        loaderStop()                // ⬅️ STOP loader
       })()
-    return () => { canceled = true }
-  }, [movie?.title, movie?.streamUrl])
+    return () => {
+      canceled = true
+    }
+  }, [movie?.title, (movie as any)?.streamUrl])
 
   /**
    * Sync local "playing" state by listening to native <video> events.
@@ -176,9 +226,7 @@ export default function MovieDetail() {
 
   // ------- Player helpers -------
 
-  /**
-   * Play/pause the video depending on current state.
-   */
+  /** Play/pause the video depending on current state. */
   function togglePlay() {
     const v = playerRef.current
     if (!v) return
@@ -199,7 +247,9 @@ export default function MovieDetail() {
   }
 
   /** Mute/unmute shortcut. */
-  function toggleMute() { setMuted(m => !m) }
+  function toggleMute() {
+    setMuted(m => !m)
+  }
 
   /**
    * Volume range input handler (0..1).
@@ -217,11 +267,13 @@ export default function MovieDetail() {
   }
 
   /** Toggle loop mode. */
-  function toggleLoop() { setLoop(l => !l) }
+  function toggleLoop() {
+    setLoop(l => !l)
+  }
 
   /**
    * Toggle Picture-in-Picture when supported.
-   * Silently catches failures (e.g., browser policies).
+   * Silently catches failures (e.e., browser policies).
    */
   async function togglePiP() {
     const v = playerRef.current as any
@@ -236,20 +288,18 @@ export default function MovieDetail() {
     }
   }
 
-  /**
-   * Toggle native fullscreen for the <video> element.
-   */
+  /** Toggle native fullscreen for the <video> element. */
   async function toggleFullscreen() {
-    const v = playerRef.current;
-    if (!v) return;
+    const v = playerRef.current
+    if (!v) return
     try {
       if (document.fullscreenElement) {
-        await document.exitFullscreen();
+        await document.exitFullscreen()
       } else {
-        await v.requestFullscreen?.();
+        await v.requestFullscreen?.()
       }
     } catch (e) {
-      console.error('Fullscreen error', e);
+      console.error('Fullscreen error', e)
     }
   }
 
@@ -261,8 +311,14 @@ export default function MovieDetail() {
    */
   useEffect(() => {
     const movieId = String((movie?.id ?? (movie as any)?._id ?? (movie as any)?.uuid ?? id) ?? '')
-    if (!movieId) { setIsFav(false); return }
-    if (!getToken()) { setIsFav(false); return }
+    if (!movieId) {
+      setIsFav(false)
+      return
+    }
+    if (!getToken()) {
+      setIsFav(false)
+      return
+    }
 
     let alive = true
       ; (async () => {
@@ -273,7 +329,9 @@ export default function MovieDetail() {
           if (alive) setIsFav(false)
         }
       })()
-    return () => { alive = false }
+    return () => {
+      alive = false
+    }
   }, [movie, id])
 
   /**
@@ -336,7 +394,25 @@ export default function MovieDetail() {
   if (!movie) return null
 
   // Prefer backend stream, otherwise Pexels fallback (or undefined)
-  const videoSrc = movie.streamUrl || pexelsVideoUrl || undefined
+  const videoSrc = (movie as any).streamUrl || pexelsVideoUrl || undefined
+
+  // ---------- Meta “humana” (estreno/duración/géneros) ----------
+  // Fallback: si no hay release_date, usamos year de la DB.
+  const rawRelease = (movie as any)?.release_date ?? (movie as any)?.releaseDate
+  const yearField = (movie as any)?.year
+  const year = formatYearES(rawRelease) || (yearField ? String(yearField) : '')
+  const estreno = formatDateES(rawRelease) || (year ? year : '')
+  const duracion = formatDuration((movie as any)?.runtime ?? (movie as any)?.duration)
+  const genres = Array.isArray((movie as any)?.genres)
+    ? ((movie as any).genres as any[]).map(g => (typeof g === 'string' ? g : g?.name)).filter(Boolean)
+    : []
+
+  // ---------- Sinopsis con fallback + “ver más/menos” ----------
+  const rawSynopsis =
+    pickText(movie, ['description', 'overview', 'synopsis', 'plot', 'summary']) || (movie as any)?.description || ''
+  const hasSynopsis = !!rawSynopsis
+  const maxChars = 280
+  const shortText = hasSynopsis && rawSynopsis.length > maxChars ? rawSynopsis.slice(0, maxChars) + '…' : rawSynopsis
 
   return (
     <section className="container movie-detail movie-detail--single">
@@ -347,7 +423,7 @@ export default function MovieDetail() {
           ref={playerRef}
           id="player"
           controls
-          poster={movie.posterUrl}
+          poster={(movie as any).posterUrl}
           src={videoSrc}
           style={{ width: '100%', maxWidth: 980, borderRadius: 8 }}
         />
@@ -365,18 +441,16 @@ export default function MovieDetail() {
               {playing ? '⏸ Pausa' : '▶ Reproducir'}
             </button>
 
-            <button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s</button>
-            <button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭</button>
+            <button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>
+              ⏮ 10s
+            </button>
+            <button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>
+              10s ⏭
+            </button>
           </div>
 
           <div className="group volume">
-            <button
-              type="button"
-              className="ctrl hit-24"
-              onClick={toggleMute}
-              aria-pressed={muted}
-              disabled={!videoSrc}
-            >
+            <button type="button" className="ctrl hit-24" onClick={toggleMute} aria-pressed={muted} disabled={!videoSrc}>
               {muted || volume === 0 ? '🔇 Mute' : '🔊 Volumen'}
             </button>
             <input
@@ -395,7 +469,7 @@ export default function MovieDetail() {
           <div className="spacer" />
 
           <div className="group rate">
-            <span style={{ opacity: .8 }}>Vel:</span>
+            <span style={{ opacity: 0.8 }}>Vel:</span>
             <select value={rate} onChange={onRate} disabled={!videoSrc} aria-label="Velocidad de reproducción">
               <option value={0.5}>0.5×</option>
               <option value={0.75}>0.75×</option>
@@ -407,27 +481,20 @@ export default function MovieDetail() {
           </div>
 
           <div className="group">
-            <button
-              type="button"
-              className="ctrl hit-24"
-              onClick={toggleLoop}
-              aria-pressed={loop}
-              disabled={!videoSrc}
-            >
+            <button type="button" className="ctrl hit-24" onClick={toggleLoop} aria-pressed={loop} disabled={!videoSrc}>
               {loop ? '🔁 Loop ON' : 'Loop OFF'}
             </button>
-            <button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP</button>
-            <button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full</button>
+            <button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>
+              🗔 PiP
+            </button>
+            <button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>
+              ⛶ Full
+            </button>
           </div>
         </div>
 
         <div className="actions actions--video">
-          <button
-            className="btn primary"
-            onClick={toggleFav}
-            disabled={favBusy || isFav === null}
-            aria-pressed={!!isFav}
-          >
+          <button className="btn primary" onClick={toggleFav} disabled={favBusy || isFav === null} aria-pressed={!!isFav}>
             {favBusy ? 'Guardando…' : isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           </button>
         </div>
@@ -435,21 +502,37 @@ export default function MovieDetail() {
         {added && <p role="status" className="muted">{addedMsg}</p>}
       </div>
 
-      {movie.description && (
-        <>
-          {/* Hidden label + readOnly textarea to show long text without being editable */}
-          <label className="sr-only" htmlFor="desc">Descripción</label>
-          <textarea
-            id="desc"
-            className="description description--readonly"
-            defaultValue={movie.description}
-            rows={4}
-            readOnly
-            aria-readonly="true"
-            tabIndex={-1}
-          />
-        </>
+      {/* ---- Detalles ---- */}
+      {(estreno || duracion || genres.length) && (
+        <section className="movie-meta" aria-labelledby="meta-title">
+          <h2 id="meta-title">Detalles</h2>
+          <ul className="meta-list">
+            {estreno && <li><strong>Estreno:</strong> {estreno}{year ? ` (${year})` : ''}</li>}
+            {duracion && <li><strong>Duración:</strong> {duracion}</li>}
+            {!!genres.length && <li><strong>Géneros:</strong> {genres.join(', ')}</li>}
+          </ul>
+        </section>
       )}
+
+      {/* ---- SINOPSIS (texto legible con “ver más/menos”) ---- */}
+      <section className="movie-synopsis" aria-labelledby="syn-title">
+        <h2 id="syn-title">Sinopsis</h2>
+        <p id="synopsis-text" style={{ whiteSpace: 'pre-line' }}>
+          {hasSynopsis ? (synopsisExpanded ? rawSynopsis : shortText) : 'No hay sinopsis disponible por ahora.'}
+        </p>
+
+        {hasSynopsis && rawSynopsis.length > maxChars && (
+          <button
+            type="button"
+            className="linklike"
+            aria-expanded={synopsisExpanded}
+            aria-controls="synopsis-text"
+            onClick={() => setSynopsisExpanded(v => !v)}
+          >
+            {synopsisExpanded ? 'Ver menos' : 'Ver más'}
+          </button>
+        )}
+      </section>
     </section>
   )
 }

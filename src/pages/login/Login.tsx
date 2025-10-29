@@ -17,6 +17,14 @@ import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
  */
 const EMAIL_KEY = 'last_email'
 
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 /**
  * Login page component.
  * Renders an accessible login form, validates on submit,
@@ -62,6 +70,7 @@ export default function Login() {
    * - validates fields
    * - calls Auth.login and redirects on success
    * - focuses the error summary on failure
+   * - 🔵 enciende/apaga TopLoader para visibilidad del estado
    * @param {React.FormEvent<HTMLFormElement>} e
    * @returns {Promise<void>}
    */
@@ -70,6 +79,7 @@ export default function Login() {
     setError(undefined)
     if (!validate()) { errSummaryRef.current?.focus(); return }
     setLoading(true)
+    loaderStart() // ⬅️ START loader
     try {
       await Auth.login(email, password)
       navigate('/', { replace: true })
@@ -80,6 +90,7 @@ export default function Login() {
       errSummaryRef.current?.focus()
     } finally {
       setLoading(false)
+      loaderStop() // ⬅️ STOP loader
     }
   }
 

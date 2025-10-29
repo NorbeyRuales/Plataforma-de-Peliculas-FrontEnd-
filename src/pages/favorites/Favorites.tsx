@@ -25,6 +25,14 @@ type FavMovie = {
   release_year?: string | number
 }
 
+/* ===== TopLoader helpers (eventos globales) ===== */
+function loaderStart() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
+}
+function loaderStop() {
+  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
+}
+
 function guessPoster(m: any): string | undefined {
   return (
     m?.poster ||
@@ -87,6 +95,7 @@ export default function Favorites() {
   useEffect(() => {
     let alive = true
       ; (async () => {
+        loaderStart() // ⬅️ START loader (carga inicial)
         try {
           const data = await FavService.list()
           const arr = Array.isArray(data) ? data : (data as any)?.items ?? []
@@ -111,6 +120,7 @@ export default function Favorites() {
           }
         } finally {
           if (alive) setLoading(false)
+          loaderStop() // ⬅️ STOP loader
         }
       })()
     return () => { alive = false }
@@ -128,9 +138,10 @@ export default function Favorites() {
     pendingCommit.current = { id, committed: false }
     undoTimer.current = window.setTimeout(async () => {
       setToast(null)
+      loaderStart() // ⬅️ START loader justo al enviar commit diferido
       try {
         // Marca que se envió el commit
-        if (pendingCommit.current) pendingCommit.current.committed = true
+        if (pendingCommit.current) pendingCommit.current!.committed = true
         await FavService.remove(id)
       } catch (e: any) {
         // Si falla el commit, revertimos UI y avisamos
@@ -146,6 +157,7 @@ export default function Favorites() {
       } finally {
         pendingCommit.current = null
         undoTimer.current = null
+        loaderStop() // ⬅️ STOP loader
       }
     }, 6000)
   }
@@ -161,6 +173,7 @@ export default function Favorites() {
     cancelCommit()
     setToast(null)
     if (!id) return
+    loaderStart() // ⬅️ START loader (commit inmediato)
     try {
       pendingCommit.current!.committed = true
       await FavService.remove(id)
@@ -177,6 +190,7 @@ export default function Favorites() {
       showErrorToast(e?.message || 'No se pudo quitar de favoritos')
     } finally {
       pendingCommit.current = null
+      loaderStop() // ⬅️ STOP loader
     }
   }
 
@@ -195,6 +209,7 @@ export default function Favorites() {
 
     // 2) Si el commit YA se había enviado, re-crea en backend
     if (pendingCommit.current?.committed) {
+      loaderStart() // ⬅️ START loader (re-add tras commit enviado)
       try {
         const movieId =
           item.id ?? (item as any).movie_id ?? (item as any).movieId
@@ -209,6 +224,8 @@ export default function Favorites() {
         }
       } catch (e: any) {
         showErrorToast(e?.message || 'No se pudo deshacer: reintenta')
+      } finally {
+        loaderStop() // ⬅️ STOP loader
       }
     }
 
