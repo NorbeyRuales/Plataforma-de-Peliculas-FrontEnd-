@@ -1,25 +1,23 @@
 @use '../../styles/variables' as *;
 
-/* Que el grid estire todos los ítems por igual */
+/* ====== GRID ====== */
 .favorites-page .grid {
     align-items: stretch;
 }
 
-/* Wrapper de cada favorito: reserva espacio al botón y uniforma altura */
 .favorite-item {
     position: relative;
     display: flex;
     flex-direction: column;
+    /* Reserva espacio para el botón sin empujar la card */
     padding-bottom: 48px;
-    /* alto del botón + margen */
 }
 
-/* La MovieCard ocupa todo el alto disponible */
 .favorite-item .movie-card {
     flex: 1 1 auto;
 }
 
-/* Botón fijo al fondo del wrapper sin empujar la tarjeta */
+/* Botón fijo al fondo del wrapper */
 .fav-remove-btn {
     position: absolute;
     left: 50%;
@@ -27,4 +25,215 @@
     bottom: 0;
     min-width: 180px;
     max-width: 220px;
+}
+
+/* ====== (ANTI-Flicker) estabiliza las portadas durante quitar/deshacer ====== */
+.favorites-page .movie-card img,
+.favorites-page .movie-card .poster img {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    /* fuerza capa GPU */
+    will-change: opacity, transform;
+    display: block;
+}
+
+/* ====== TOAST INLINE (mensaje completo visible) ====== */
+.toast-inline-layer {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.fav-toast-card {
+    --toast-accent: #124fff;
+
+    width: clamp(330px, 52vw, 560px);
+    min-height: 80px;
+    /* permite crecer si el texto ocupa varias líneas */
+    height: auto;
+    padding: 12px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .14);
+
+    /* grid: icon | texto (1fr) | deshacer | cerrar */
+    display: grid;
+    grid-template-columns: 36px 1fr auto 28px;
+    column-gap: 12px;
+    align-items: center;
+    /* ⬅️ centra verticalmente el botón Deshacer */
+
+    position: relative;
+    overflow: hidden;
+    pointer-events: auto;
+    animation: toast-pop .18s ease-out;
+}
+
+/* “Onda” de fondo (sutil, sin SVG extra) */
+.fav-toast-card::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 14px;
+    width: 64px;
+    height: 64px;
+    background: radial-gradient(ellipse at center, rgba(18, 79, 255, .12) 0%, rgba(18, 79, 255, .12) 55%, transparent 56%);
+    transform: rotate(90deg);
+}
+
+.fav-toast-icon-container {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--toast-accent) 12%, transparent);
+    border-radius: 50%;
+    align-self: center;
+}
+
+.fav-toast-icon {
+    width: 17px;
+    height: 17px;
+    color: var(--toast-accent);
+}
+
+/* Texto */
+.fav-toast-message {
+    min-width: 0;
+    /* necesario para que el 1fr permita wrap */
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-self: start;
+    /* título + cuerpo arrancan arriba */
+}
+
+.fav-toast-title {
+    margin: 0;
+    color: var(--toast-accent);
+    font-size: 16px;
+    line-height: 1.1;
+    font-weight: 800;
+}
+
+/* Sin ellipsis: permite varias líneas */
+.fav-toast-subtext {
+    margin: 0;
+    color: #3f3f3f;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+    word-break: break-word;
+}
+
+/* Acción “Deshacer” */
+.fav-toast-action {
+    margin: 0;
+    background: transparent;
+    border: 0;
+    color: var(--toast-accent);
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    /* no cortar la palabra */
+    align-self: center;
+    /* ⬅️ centrado vertical exacto */
+}
+
+.fav-toast-action:hover {
+    text-decoration: underline;
+}
+
+.fav-toast-action:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--toast-accent) 40%, transparent);
+    outline-offset: 2px;
+}
+
+/* Botón cerrar (commit inmediato) */
+.fav-toast-close {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: transparent;
+    color: #6b6b6b;
+    cursor: pointer;
+    margin-left: 4px;
+    border-radius: 6px;
+}
+
+.fav-toast-close:hover {
+    background: rgba(0, 0, 0, .06);
+}
+
+.fav-toast-close:focus-visible {
+    outline: 2px solid rgba(0, 0, 0, .25);
+    outline-offset: 2px;
+}
+
+.fav-toast-cross {
+    width: 16px;
+    height: 16px;
+}
+
+/* Pop-in suave (solo Y para no interferir con el translateX del layer) */
+@keyframes toast-pop {
+    from {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Modo oscuro */
+:root[data-theme='dark'] .fav-toast-card {
+    background: #1e1f22;
+    border-color: rgba(255, 255, 255, .06);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+
+:root[data-theme='dark'] .fav-toast-subtext {
+    color: #e8e8e8;
+}
+
+:root[data-theme='dark'] .fav-toast-close {
+    color: #cfcfcf;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .fav-toast-card {
+        animation: none;
+    }
+}
+
+/* Responsive: en móviles “Deshacer” baja para dar más ancho al texto */
+@media (max-width: 480px) {
+    .fav-toast-card {
+        width: 92vw;
+        grid-template-columns: 36px 1fr 28px;
+        /* icon | texto | X */
+        grid-template-rows: auto auto;
+        row-gap: 4px;
+    }
+
+    .fav-toast-action {
+        grid-column: 2;
+        justify-self: start;
+        margin-top: 2px;
+    }
 }

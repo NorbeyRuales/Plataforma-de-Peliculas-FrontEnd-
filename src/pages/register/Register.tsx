@@ -9,7 +9,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Register.scss'
 import { Auth } from '../../services/auth'
-import { pushFlashToast } from '../../utils/flashToast'
 import { useToast } from '../../components/toast/ToastProvider'
 
 const AGE_MIN = 13
@@ -48,7 +47,7 @@ export default function Register() {
   const pwdRef = useRef<HTMLInputElement>(null)
   const pwd2Ref = useRef<HTMLInputElement>(null)
 
-  const { error: showErrorToast } = useToast()
+  const { error: showErrorToast, success: showSuccessToast } = useToast()
 
   useEffect(() => { if (error) errSummaryRef.current?.focus() }, [error])
 
@@ -144,8 +143,8 @@ export default function Register() {
         password2,
         typeof age === 'number' ? age : Number(age)
       )
-      pushFlashToast({ kind: 'success', title: 'Éxito', text: 'Cuenta creada. Revisa tu correo para verificarla.' })
-      navigate('/login')
+      showSuccessToast('Cuenta creada. Revisa tu correo para verificarla.')
+      navigate('/')
     } catch (err: any) {
       const fieldErrors = err?.response?.data?.error?.fieldErrors || {}
       const backendMsg =
