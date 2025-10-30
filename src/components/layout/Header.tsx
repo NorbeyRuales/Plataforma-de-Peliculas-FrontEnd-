@@ -9,10 +9,75 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Switch from '../../components/Switch/Switch'
 import './Header.scss'
+import { supa } from '../../services/supa' // ⬅️ Supabase para intentar obtener nombre
+import { Auth, TOKEN_EVENT } from '../../services/auth'
+
+// --- Helpers para obtener un nombre legible ---
+function decodeNameFromJWT(token: string | null): string | null {
+  if (!token) return null
+  try {
+    const [, payload] = token.split('.')
+    if (!payload) return null
+    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    return (
+      json.name ||
+      json.full_name ||
+      json.given_name ||
+      json.preferred_username ||
+      (json.email ? String(json.email).split('@')[0] : null) ||
+      null
+    )
+  } catch {
+    return null
+  }
+}
+
+function guessNameFromLocalStorage(): string | null {
+  try {
+    const direct =
+      localStorage.getItem('full_name') ||
+      localStorage.getItem('name') ||
+      localStorage.getItem('username') ||
+      null
+    if (direct) return direct
+
+    const userRaw =
+      localStorage.getItem('user') ||
+      localStorage.getItem('profile') ||
+      localStorage.getItem('account') ||
+      null
+    if (userRaw) {
+      const u = JSON.parse(userRaw)
+      return u?.full_name || u?.name || u?.username || (u?.email ? u.email.split('@')[0] : null) || null
+    }
+  } catch {
+    /* noop */
+  }
+  return null
+}
+
+// Reduce any raw name/email/usernames to a friendly first name for display
+function extractFirstName(raw: string | null): string | null {
+  if (!raw) return null
+  let text = raw.trim()
+  if (!text) return null
+  if (text.includes('@')) text = text.split('@')[0] // correos → parte antes de @
+  text = text.replace(/[_\-.]+/g, ' ')
+  const parts = text.split(/\s+/).filter(Boolean)
+  if (!parts.length) return null
+  let first = parts[0].replace(/^\W+|\W+$/g, '')
+  if (!first) return null
+  const noDigits = first.replace(/\d+$/, '')
+  if (noDigits.trim()) first = noDigits.trim()
+  if (!first) return null
+  return first.charAt(0).toUpperCase() + first.slice(1)
+}
 
 export default function Header() {
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null) // ⬅️ nombre mostrado
+
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const searchRef = useRef<HTMLInputElement>(null)
@@ -33,6 +98,72 @@ export default function Header() {
     return () => {
       if (mq.removeEventListener) mq.removeEventListener('change', onChange)
       else mq.removeListener(onChange as any)
+    }
+  }, [])
+
+  // Intentar resolver el nombre (Supabase → token → localStorage)
+  useEffect(() => {
+    let mounted = true
+    async function resolveDisplayName() {
+      let name: string | null = null
+
+      // 0) API propia (Auth.me) con datos de perfil
+      try {
+        const me = await Auth.me()
+        const u = me?.user
+        if (u) {
+          name = u.name || null
+          if (!name && u.email) name = u.email
+        }
+      } catch {
+        /* noop */
+      }
+
+      // 1) Supabase user + (opcional) tabla profiles
+      try {
+        const { data } = await supa.auth.getUser()
+        const user = data?.user
+        if (user) {
+          name =
+            (user.user_metadata as any)?.full_name ||
+            (user.user_metadata as any)?.name ||
+            (user.user_metadata as any)?.username ||
+            null
+
+          if (!name) {
+            const { data: profile } = await supa
+              .from('profiles')
+              .select('full_name, name, username')
+              .eq('id', user.id)
+              .maybeSingle()
+            name = profile?.full_name || profile?.name || profile?.username || null
+          }
+
+          if (!name && user.email) name = user.email.split('@')[0]
+        }
+      } catch {
+        /* noop */
+      }
+
+      // 2) JWT en localStorage
+      if (!name) name = decodeNameFromJWT(localStorage.getItem('token'))
+
+      // 3) Claves varias en localStorage
+      if (!name) name = guessNameFromLocalStorage()
+
+      if (mounted) setDisplayName(extractFirstName(name))
+    }
+
+    resolveDisplayName()
+
+    const onToken = () => resolveDisplayName()
+    if (typeof window !== 'undefined') window.addEventListener(TOKEN_EVENT, onToken)
+
+    const sub = supa.auth.onAuthStateChange(() => resolveDisplayName())
+    return () => {
+      mounted = false
+      sub.data?.subscription?.unsubscribe?.()
+      if (typeof window !== 'undefined') window.removeEventListener(TOKEN_EVENT, onToken)
     }
   }, [])
 
@@ -141,6 +272,16 @@ export default function Header() {
             </form>
 
             <NavLink to='/account' className='avatar-btn hit-24' aria-label='Cuenta'>👤</NavLink>
+
+            {/*  Nombre visible al lado del icono (con fallback) */}
+            <NavLink
+              to='/account'
+              className='account-name'
+              title={displayName ?? 'Mi cuenta'}
+              aria-label={displayName ?? 'Mi cuenta'}
+            >
+              {displayName ?? 'Mi cuenta'}
+            </NavLink>
 
             <button type='button' className='logout-btn hit-24' onClick={onLogout} aria-label='Cerrar sesión'>
               Salir

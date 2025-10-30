@@ -17,8 +17,21 @@ export interface MeResponse { user: User }
 
 const TOKEN_KEY = 'token'
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t)
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
+export const TOKEN_EVENT = 'auth-token-changed'
+
+function emitTokenChange(token: string | null) {
+    if (typeof window === 'undefined') return
+    window.dispatchEvent(new CustomEvent(TOKEN_EVENT, { detail: token }))
+}
+
+export const setToken = (t: string) => {
+    localStorage.setItem(TOKEN_KEY, t)
+    emitTokenChange(t)
+}
+export const clearToken = () => {
+    localStorage.removeItem(TOKEN_KEY)
+    emitTokenChange(null)
+}
 
 /** Utilidad: si recibimos DOB, lo convertimos a edad. */
 function ageFromDob(dob: string): number {

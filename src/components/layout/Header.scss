@@ -102,7 +102,7 @@
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent) inset;
 }
 
-/* ====== Lado derecho (buscador, avatar, salir) ====== */
+/* ====== Lado derecho (buscador, avatar, nombre, salir) ====== */
 .right {
     display: flex;
     align-items: center;
@@ -167,6 +167,35 @@
 }
 
 .avatar-btn:focus-visible {
+    @include focus-ring($brand);
+}
+
+/* === Nombre del usuario (nuevo) === */
+.account-name {
+    display: inline-flex;
+    align-items: center;
+    height: var(--control);
+    padding: 0 .5rem;
+    color: #e9edf7;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+
+    max-width: 16ch;
+    /* evita desbordes largos */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    transition: background .15s, color .15s;
+}
+
+.account-name:hover {
+    color: #fff;
+    background: color.change(#fff, $alpha: .06);
+}
+
+.account-name:focus-visible {
     @include focus-ring($brand);
 }
 
@@ -251,6 +280,11 @@
         width: min(28ch, 60vw);
     }
 
+    /* En móvil ocultamos el nombre para ahorrar espacio */
+    .account-name {
+        display: none;
+    }
+
     @media (max-width: 480px) {
         .search {
             display: none;
@@ -269,4 +303,9 @@
 
 .menu-backdrop.show {
     display: block;
+}
+
+/* Dark theme ajustes */
+:root[data-theme='dark'] .account-name {
+    color: #e3e7ef;
 }
