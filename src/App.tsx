@@ -5,8 +5,8 @@
 
 import AppRouter from './routes/AppRouter'
 import { ToastProvider } from './components/toast/ToastProvider'
-import ToastFlashMount from './components/toast/ToastFlashMount' // ✅ NUEVO
-import TopLoader from './components/toploader/TopLoader' // ✅ Barra superior (heurística #1)
+import ToastFlashMount from './components/toast/ToastFlashMount' 
+import TopLoader from './components/toploader/TopLoader' 
 
 /**
  * @component

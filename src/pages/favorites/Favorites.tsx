@@ -3,7 +3,6 @@
  * @summary Lists the user's favorite movies and allows removing entries.
  * @remarks Normalizes heterogeneous favorite payloads so MovieCard receives a consistent shape.
  */
-// src/pages/favorites/Favorites.tsx
 import { useEffect, useRef, useState } from 'react'
 import MovieCard from '../../components/movie/MovieCard'
 import { Favorites as FavService, Favorite } from '../../services/favorites'
@@ -26,12 +25,8 @@ type FavMovie = {
 }
 
 /* ===== TopLoader helpers (eventos globales) ===== */
-function loaderStart() {
-  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
-}
-function loaderStop() {
-  window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
-}
+function loaderStart() { window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' })) }
+function loaderStop() { window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' })) }
 
 function guessPoster(m: any): string | undefined {
   return (
@@ -52,50 +47,67 @@ function normRating(x: any): number {
   return Math.max(0, Math.min(5, r))
 }
 
-function favToMovie(f: FavMovie) {
+/* Cache estable por id para evitar re-renders de MovieCard y el “flicker” de portadas */
+function buildMovieFromFav(f: FavMovie) {
   const poster = guessPoster(f)
+  const rating = normRating((f as any).rating ?? (f as any).avgRating ?? (f as any).vote_average ?? 0)
+  const year =
+    (f as any).year ??
+    (f as any).release_year ??
+    (typeof (f as any).release_date === 'string' ? (f as any).release_date.slice(0, 4) : undefined)
+  const genres = Array.isArray((f as any).genres) ? (f as any).genres : ((f as any).genres ? [String((f as any).genres)] : [])
   return {
     id: f.id,
     title: f.title || 'Sin título',
     poster,
     posterUrl: poster,
-    rating: normRating(f.rating ?? f.avgRating ?? f.vote_average ?? 0),
-    year:
-      f.year ??
-      f.release_year ??
-      (typeof f.release_date === 'string' ? f.release_date.slice(0, 4) : undefined),
-    genres: Array.isArray(f.genres) ? f.genres : (f.genres ? [String(f.genres)] : []),
+    rating,
+    year,
+    genres,
   } as any
 }
 
-/**
- * @component
- * @returns Favorites grid with inline actions to remove items from the saved list.
- */
 export default function Favorites() {
   const [items, setItems] = useState<FavMovie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>()
   const [removing, setRemoving] = useState<string | null>(null)
 
-  // Toast inline “deshacer”
+  /* Toast inline “deshacer” */
   const [toast, setToast] = useState<{ text: string; onUndo?: () => void } | null>(null)
 
-  // Timer del toast + commit diferido
+  /* Timers / control */
   const undoTimer = useRef<number | null>(null)
-
-  // Último removido (para poder restaurarlo o re-commit)
   const lastRemoved = useRef<{ item: FavMovie; index: number } | null>(null)
-
-  // Estado del commit diferido
   const pendingCommit = useRef<{ id: string; committed: boolean } | null>(null)
 
   const { error: showErrorToast } = useToast()
 
+  /* Cache estable para MovieCard props */
+  const movieCache = useRef<Map<string, any>>(new Map())
+
+  function favToMovieStable(f: FavMovie) {
+    const id = f.id
+    const cached = movieCache.current.get(id)
+    if (!cached) {
+      const built = buildMovieFromFav(f)
+      movieCache.current.set(id, built)
+      return built
+    }
+    // actualizar campos por si cambiaron, manteniendo la referencia
+    const upd = buildMovieFromFav(f)
+    Object.assign(cached, upd)
+    return cached
+  }
+
+  function purgeFromCache(id: string) {
+    movieCache.current.delete(id)
+  }
+
   useEffect(() => {
     let alive = true
       ; (async () => {
-        loaderStart() // ⬅️ START loader (carga inicial)
+        loaderStart()
         try {
           const data = await FavService.list()
           const arr = Array.isArray(data) ? data : (data as any)?.items ?? []
@@ -116,35 +128,31 @@ export default function Favorites() {
           if (alive) {
             const msg = e?.message || 'No se pudieron cargar tus favoritos'
             setError(msg)
-            showErrorToast(msg) // 🔴 toast
+            showErrorToast(msg)
           }
         } finally {
           if (alive) setLoading(false)
-          loaderStop() // ⬅️ STOP loader
+          loaderStop()
         }
       })()
     return () => { alive = false }
   }, [showErrorToast])
 
   useEffect(() => {
-    return () => {
-      if (undoTimer.current) window.clearTimeout(undoTimer.current)
-    }
+    return () => { if (undoTimer.current) window.clearTimeout(undoTimer.current) }
   }, [])
 
   function scheduleCommitRemove(id: string) {
-    // Limpia y programa cierre + commit en 6s
     if (undoTimer.current) window.clearTimeout(undoTimer.current)
     pendingCommit.current = { id, committed: false }
     undoTimer.current = window.setTimeout(async () => {
       setToast(null)
-      loaderStart() // ⬅️ START loader justo al enviar commit diferido
+      loaderStart()
       try {
-        // Marca que se envió el commit
-        if (pendingCommit.current) pendingCommit.current!.committed = true
+        if (pendingCommit.current) pendingCommit.current.committed = true
         await FavService.remove(id)
+        purgeFromCache(id)  // limpieza del cache al confirmar
       } catch (e: any) {
-        // Si falla el commit, revertimos UI y avisamos
         if (lastRemoved.current) {
           const { item, index } = lastRemoved.current
           setItems(prev => {
@@ -157,7 +165,7 @@ export default function Favorites() {
       } finally {
         pendingCommit.current = null
         undoTimer.current = null
-        loaderStop() // ⬅️ STOP loader
+        loaderStop()
       }
     }, 6000)
   }
@@ -168,17 +176,16 @@ export default function Favorites() {
   }
 
   async function forceCommitNow() {
-    // Llama al commit inmediato (pulsar ✕)
     const id = pendingCommit.current?.id
     cancelCommit()
     setToast(null)
     if (!id) return
-    loaderStart() // ⬅️ START loader (commit inmediato)
+    loaderStart()
     try {
       pendingCommit.current!.committed = true
       await FavService.remove(id)
+      purgeFromCache(id)  // limpieza del cache al confirmar
     } catch (e: any) {
-      // revertimos si falla
       if (lastRemoved.current) {
         const { item, index } = lastRemoved.current
         setItems(prev => {
@@ -190,7 +197,7 @@ export default function Favorites() {
       showErrorToast(e?.message || 'No se pudo quitar de favoritos')
     } finally {
       pendingCommit.current = null
-      loaderStop() // ⬅️ STOP loader
+      loaderStop()
     }
   }
 
@@ -209,7 +216,7 @@ export default function Favorites() {
 
     // 2) Si el commit YA se había enviado, re-crea en backend
     if (pendingCommit.current?.committed) {
-      loaderStart() // ⬅️ START loader (re-add tras commit enviado)
+      loaderStart()
       try {
         const movieId =
           item.id ?? (item as any).movie_id ?? (item as any).movieId
@@ -219,13 +226,13 @@ export default function Favorites() {
           await (FavService as any).create({
             movieId,
             title: item.title,
-            posterUrl: item.posterUrl ?? item.poster,
+            posterUrl: (item as any).posterUrl ?? (item as any).poster,
           })
         }
       } catch (e: any) {
         showErrorToast(e?.message || 'No se pudo deshacer: reintenta')
       } finally {
-        loaderStop() // ⬅️ STOP loader
+        loaderStop()
       }
     }
 
@@ -246,15 +253,11 @@ export default function Favorites() {
       lastRemoved.current = { item, index: idx }
 
       // 2) Mostrar toast con opción de "Deshacer"
-      setToast({
-        text: `"${item.title || 'Elemento'}" se quitó de favoritos.`,
-        onUndo: undoRemove,
-      })
+      setToast({ text: `"${item.title || 'Elemento'}" se quitó de favoritos.`, onUndo: undoRemove })
 
       // 3) Programar commit diferido (NO llamar remove aún)
       scheduleCommitRemove(id)
     } catch (e: any) {
-      // Si algo raro falla antes del schedule, revertimos
       if (lastRemoved.current) {
         const { item, index } = lastRemoved.current
         setItems(prev => {
@@ -281,7 +284,7 @@ export default function Favorites() {
         items.length > 0 ? (
           <div className="grid">
             {items.map(f => {
-              const movie = favToMovie(f)
+              const movie = favToMovieStable(f)  // objeto estable por id
               return (
                 <div className="favorite-item" key={f.id}>
                   <MovieCard movie={movie as any} />
@@ -318,7 +321,14 @@ export default function Favorites() {
           >
             {/* Icono circular */}
             <div className="fav-toast-icon-container" aria-hidden="true">
-              <svg viewBox="0 0 24 24" className="fav-toast-icon" aria-hidden="true" focusable="false">
+              <svg
+                className="fav-toast-icon"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                focusable="false"
+              >
                 <circle cx="12" cy="7.5" r="1.2" />
                 <rect x="11.1" y="10" width="1.8" height="6" rx=".9" />
               </svg>
@@ -336,7 +346,13 @@ export default function Favorites() {
             )}
 
             <button className="fav-toast-close" aria-label="Cerrar" onClick={forceCommitNow}>
-              <svg viewBox="0 0 15 15" className="fav-toast-cross" aria-hidden="true">
+              <svg
+                className="fav-toast-cross"
+                viewBox="0 0 15 15"
+                width="14"
+                height="14"
+                aria-hidden="true"
+              >
                 <path
                   fill="currentColor"
                   d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
