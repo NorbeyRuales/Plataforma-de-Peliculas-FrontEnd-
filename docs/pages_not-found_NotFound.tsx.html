@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Pages/SiteMap - Documentation</title>
+    <title>pages/not-found/NotFound.tsx - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,252 +35,109 @@
 
 <div id="main">
     
-    <h1 class="page-title">Pages/SiteMap</h1>
+    <h1 class="page-title">pages/not-found/NotFound.tsx</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-            
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-                <div class="description usertext"><p>Renders a structured list of key app routes for quick discovery.
-A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></div>
-            
-
-            
-                
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Renders a structured list of key app routes for quick discovery.
-A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line3">line 3</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="~SiteMap"><span class="type-signature type-signature-inner">(inner) </span>SiteMap<span class="signature">()</span><span class="type-signature"> &rarr; {JSX.Element}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Site map page.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5 class="h5-returns">Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Section with grouped navigation links.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">JSX.Element</span>
-
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// src/pages/not-found/NotFound.tsx
+/**
+ * @file NotFound.tsx
+ * @description 404 “TV estática” (basado en el recurso de Uiverse). Centrada y con “404”
+ * grande de fondo. Incluye botón para volver al inicio.
+ */
+
+import { Link } from 'react-router-dom'
+import './NotFound.scss'
+
+export default function NotFound() {
+    return (
+        &lt;section className="notfound-page">
+            &lt;h1 className="sr-only">Página no encontrada&lt;/h1>
+
+            &lt;div className="main_wrapper" aria-hidden="true">
+                {/* 404 de fondo */}
+                &lt;div className="text_404">
+                    &lt;div className="text_4041">4&lt;/div>
+                    &lt;div className="text_4042">0&lt;/div>
+                    &lt;div className="text_4043">4&lt;/div>
+                &lt;/div>
+
+                {/* TV */}
+                &lt;div className="main">
+                    &lt;div className="antenna">
+                        &lt;div className="antenna_shadow" />
+                        &lt;div className="a1" />
+                        &lt;div className="a1d" />
+                        &lt;div className="a2" />
+                        &lt;div className="a2d" />
+                        &lt;div className="a_base" />
+                    &lt;/div>
+
+                    &lt;div className="tv">
+                        &lt;svg className="curve_svg" viewBox="0 0 189.929 189.929" aria-hidden="true">
+                            &lt;path d="M70.343,70.343c-30.554,30.553-44.806,72.7-39.102,115.635l-29.738,3.951C-5.442,137.659,11.917,86.34,49.129,49.13
+                C86.34,11.918,137.664-5.445,189.928,1.502l-3.95,29.738C143.041,25.54,100.895,39.789,70.343,70.343z"/>
+                        &lt;/svg>
+
+                        &lt;div className="display_div">
+                            &lt;div className="screen_out">
+                                &lt;div className="screen_out1">
+                                    {/* Estática */}
+                                    &lt;div className="screen">
+                                        &lt;span className="notfound_text">NOT FOUND&lt;/span>
+                                    &lt;/div>
+                                    {/* Barras de color para móviles */}
+                                    &lt;div className="screenM">
+                                        &lt;span className="notfound_text">NOT FOUND&lt;/span>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
+
+                        &lt;div className="lines">
+                            &lt;div className="line1" />
+                            &lt;div className="line2" />
+                            &lt;div className="line3" />
+                        &lt;/div>
+
+                        &lt;div className="buttons_div" aria-hidden="true">
+                            &lt;div className="b1">&lt;div />&lt;/div>
+                            &lt;div className="b2" />
+                            &lt;div className="speakers">
+                                &lt;div className="g1">
+                                    &lt;div className="g11" />
+                                    &lt;div className="g12" />
+                                    &lt;div className="g13" />
+                                &lt;/div>
+                                &lt;div className="g" />
+                                &lt;div className="g" />
+                            &lt;/div>
+                        &lt;/div>
+                    &lt;/div>
+
+                    &lt;div className="bottom" aria-hidden="true">
+                        &lt;div className="base1" />
+                        &lt;div className="base2" />
+                        &lt;div className="base3" />
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+
+            &lt;div className="cta">
+                &lt;Link to="/" className="btn ghost">Volver al inicio&lt;/Link>
+            &lt;/div>
+        &lt;/section>
+    )
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

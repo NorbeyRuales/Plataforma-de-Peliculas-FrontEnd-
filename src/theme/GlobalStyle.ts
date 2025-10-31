@@ -1,8 +1,14 @@
-// src/theme/GlobalStyle.ts
+/**
+ * @file GlobalStyle.ts
+ * @description Global CSS baseline shared across light and dark themes.
+ */
 import { createGlobalStyle } from 'styled-components'
 
+/**
+ * Styled-components global stylesheet that maps design tokens to CSS variables.
+ */
 export const GlobalStyle = createGlobalStyle`
-  /* Variables por tema (se activan con <html data-theme="...">) */
+  /* Theme variables activated via <html data-theme="..."> */
   html[data-theme='light'] {
     --bg: ${({ theme }) => theme.colors.bg};
     --surface: ${({ theme }) => theme.colors.surface};

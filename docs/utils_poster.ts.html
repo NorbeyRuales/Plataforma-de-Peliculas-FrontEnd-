@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Pages/SiteMap - Documentation</title>
+    <title>utils/poster.ts - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -35,252 +35,51 @@
 
 <div id="main">
     
-    <h1 class="page-title">Pages/SiteMap</h1>
+    <h1 class="page-title">utils/poster.ts</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        
-            
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-                <div class="description usertext"><p>Renders a structured list of key app routes for quick discovery.
-A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></div>
-            
-
-            
-                
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Renders a structured list of key app routes for quick discovery.
-A11Y: Uses semantic headings and nested lists for proper outline and navigation.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line3">line 3</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="~SiteMap"><span class="type-signature type-signature-inner">(inner) </span>SiteMap<span class="signature">()</span><span class="type-signature"> &rarr; {JSX.Element}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li><p>Site map page.</p></li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="site-map_SiteMap.tsx.html">site-map/SiteMap.tsx</a>, <a href="site-map_SiteMap.tsx.html#line15">line 15</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5 class="h5-returns">Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Section with grouped navigation links.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">JSX.Element</span>
-
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file poster.ts
+ * @description Utilities for resolving poster URLs from movie payloads.
+ */
+import { slugify } from './slug'
+
+/**
+ * Generates candidate poster URLs based on the movie title, slug and year.
+ * @param m - Movie-like object containing title, slug or release metadata.
+ * @returns Unique list of poster paths relative to `/public/posters`.
+ */
+export function posterCandidatesFrom(m: any): string[] {
+  const title = String(m?.title ?? '').trim()
+  const year =
+    m?.year ? String(m.year)
+      : (typeof m?.release_date === 'string' ? m.release_date.slice(0, 4) : undefined)
+
+  // Generate canonical file names that exist under /public/posters.
+  const bases = [
+    slugify(m?.slug ?? title),
+    year ? `${slugify(m?.slug ?? title)}-${year}` : null,
+  ].filter(Boolean) as string[]
+
+  // Only .jpg files to match the existing assets.
+  const urls: string[] = []
+  for (const b of bases) {
+    urls.push(`/posters/${b}.jpg`)
+  }
+
+  // Remove duplicates while preserving order.
+  return Array.from(new Set(urls))
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -6,9 +6,9 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import './Register.scss'
-import { Auth } from '../../services/auth'
+import { Auth, setToken } from '../../services/auth'
 import { useToast } from '../../components/toast/ToastProvider'
 
 const AGE_MIN = 13
@@ -24,6 +24,12 @@ function loaderStop() {
 
 export default function Register() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const originState = location.state as {
+    fromFooter?: boolean
+    returnTo?: string
+    tokenSnapshot?: string | null
+  } | undefined
 
   const [name, setName] = useState('')
   const [apellido, setApellido] = useState('')
@@ -50,7 +56,6 @@ export default function Register() {
   const { error: showErrorToast, success: showSuccessToast } = useToast()
 
   useEffect(() => { if (error) errSummaryRef.current?.focus() }, [error])
-
   const emailOk = /^\S+@\S+\.\S+$/.test(email.trim())
   const same = password === password2
 
@@ -118,6 +123,19 @@ export default function Register() {
     same &&
     !loading
 
+  const handleCancel = () => {
+    if (originState?.tokenSnapshot) {
+      setToken(originState.tokenSnapshot)
+    }
+
+    if (originState?.fromFooter && originState.returnTo) {
+      navigate(originState.returnTo, { replace: true })
+      return
+    }
+    navigate('/login', { replace: true })
+  }
+
+
   function validate(): boolean {
     if (!name.trim()) { setError('Escribe tu nombre.'); nameRef.current?.focus(); return false }
     if (!apellido.trim()) { setError('Escribe tu apellido.'); apellidoRef.current?.focus(); return false }
@@ -143,7 +161,7 @@ export default function Register() {
         password2,
         typeof age === 'number' ? age : Number(age)
       )
-      showSuccessToast('Cuenta creada. Revisa tu correo para verificarla.')
+      showSuccessToast('Cuenta creada con exito!!.')
       navigate('/')
     } catch (err: any) {
       const fieldErrors = err?.response?.data?.error?.fieldErrors || {}
@@ -334,8 +352,8 @@ export default function Register() {
           <button
             type="button"
             className="btn ghost"
-            onClick={() => navigate(-1)}
-            aria-label="Cancelar e ir a la página anterior"
+            onClick={handleCancel}
+            aria-label="Cancelar y volver"
           >
             Cancelar
           </button>
@@ -344,3 +362,4 @@ export default function Register() {
     </section>
   )
 }
+
