@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>services/favorites.ts - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#GlobalStyle">GlobalStyle</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InnerApp">InnerApp</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MOVIE_KEY">MOVIE_KEY</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#Movies">Movies</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#TopLoader">TopLoader</a></li><li><a href="global.html#api">api</a></li><li><a href="global.html#authHeaders">authHeaders</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#darkTheme">darkTheme</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#hasSupabaseAuthParams">hasSupabaseAuthParams</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#lightTheme">lightTheme</a></li><li><a href="global.html#mapNetError">mapNetError</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#popFlashToast">popFlashToast</a></li><li><a href="global.html#posterCandidatesFrom">posterCandidatesFrom</a></li><li><a href="global.html#pushFlashToast">pushFlashToast</a></li><li><a href="global.html#request">request</a></li><li><a href="global.html#slugify">slugify</a></li><li><a href="global.html#supa">supa</a></li><li><a href="global.html#themes">themes</a></li><li><a href="global.html#urlJoin">urlJoin</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">services/favorites.ts</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file favorites.ts
+ * @description Client helpers for interacting with the favorites API endpoints.
+ */
+import { api } from './api'
+import { getToken } from './auth'
+
+/**
+ * Favorite entry returned by the backend. When favorites are expanded with movie data
+ * the optional movie-related properties are populated.
+ */
+export type Favorite = {
+  /** Unique identifier for the favorite. */
+  id: string
+  /** Identifier for the user that owns the favorite entry. */
+  user_id?: string
+  /** Identifier for the associated movie. */
+  movie_id?: string
+  /** ISO timestamp describing when the favorite was created. */
+  created_at?: string
+  /** Movie title attached to the favorite payload. */
+  title?: string
+  /** Movie year embedded in the favorite payload. */
+  year?: number
+  /** Movie genres as returned by the API. */
+  genres?: unknown
+  /** Optional poster URL included in the payload. */
+  poster_url?: string
+  /** Optional movie description available in the payload. */
+  description?: string
+  /** Aggregated rating value returned by the service. */
+  avg_rating?: number
+}
+
+const MOVIE_KEY = 'movieId' // backend expects movieId in the request body
+
+/**
+ * Service layer that wraps the favorites REST endpoints with auth guards.
+ */
+export const Favorites = {
+  /**
+   * Adds the provided movie to the authenticated user's favorites.
+   * @param movieId - Identifier of the movie to favorite.
+   */
+  async add(movieId: string) {
+    if (!getToken()) throw new Error('No autenticado')
+    return api.post&lt;{ ok: boolean }>('/favorites', { [MOVIE_KEY]: movieId })
+  },
+
+  /**
+   * Removes the provided movie from the authenticated user's favorites.
+   * Falls back to a query-string version for legacy backends.
+   * @param movieId - Identifier of the movie to remove.
+   */
+  async remove(movieId: string) {
+    if (!getToken()) throw new Error('No autenticado')
+    try {
+      return await api.del&lt;{ removed: number }>(`/favorites/${movieId}`)
+    } catch {
+      return api.del&lt;{ removed: number }>(`/favorites?movieId=${encodeURIComponent(movieId)}`)
+    }
+  },
+
+  /**
+   * Determines whether the authenticated user has favorited the provided movie.
+   * @param movieId - Identifier of the movie to check.
+   * @returns A boolean flag indicating if the favorite exists.
+   */
+  async has(movieId: string) {
+    if (!getToken()) return false
+    try {
+      const r = await api.get&lt;{ exists: boolean }>(`/favorites/${movieId}`)
+      return !!r.exists
+    } catch {
+      const list = await api.get&lt;Favorite[] | { items: Favorite[] }>('/favorites')
+      const items = Array.isArray(list) ? list : (list.items ?? [])
+      return items.some(f =>
+        f.id === movieId || (f as any).movie_id === movieId || (f as any).movieId === movieId
+      )
+    }
+  },
+
+  /**
+   * Retrieves the favorites collection for the authenticated user.
+   * @returns Either the raw favorite array or an object wrapping items, depending on the backend.
+   */
+  async list() {
+    if (!getToken()) return []
+    return api.get&lt;Favorite[] | { items: Favorite[] }>('/favorites')
+  },
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri Oct 31 2025 00:48:56 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

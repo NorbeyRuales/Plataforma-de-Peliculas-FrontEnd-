@@ -1,11 +1,17 @@
-// src/@types/styled.d.ts
+/**
+ * @file styled.d.ts
+ * @description Module augmentation that defines the design tokens available through styled-components themes.
+ */
 import 'styled-components';
 
 declare module 'styled-components' {
+  /**
+   * Shared contract between the light and dark themes exposed through styled-components.
+   */
   export interface DefaultTheme {
     name: 'light' | 'dark';
     colors: {
-      // tokens base (presentes en light y dark)
+      /** Base color tokens present in both themes. */
       bg: string;
       surface: string;
       text: string;
@@ -15,10 +21,11 @@ declare module 'styled-components' {
       border: string;
       shadow: string;
 
-      // tokens extra (opcionales)
+      /** Optional interactive state tokens. */
       primaryHover?: string;
       primaryActive?: string;
 
+      /** Optional semantic tokens used by feedback components. */
       success?: string;
       successBg?: string;
       successBorder?: string;

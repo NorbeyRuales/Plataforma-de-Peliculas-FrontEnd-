@@ -1,6 +1,12 @@
-// src/theme/themes.ts
+/**
+ * @file themes.ts
+ * @description Light and dark theme definitions consumed by styled-components.
+ */
 import { DefaultTheme } from 'styled-components'
 
+/**
+ * Primary light theme used across the public surface.
+ */
 export const lightTheme: DefaultTheme = {
   name: 'light',
   colors: {
@@ -20,10 +26,13 @@ export const lightTheme: DefaultTheme = {
     danger: '#d93025',
     dangerBg: '#ffe8e6',
     info: '#007bff',
-    infoBg: '#e6f0ff'
-  }
+    infoBg: '#e6f0ff',
+  },
 }
 
+/**
+ * Dark theme tuned for higher contrast in low-light environments.
+ */
 export const darkTheme: DefaultTheme = {
   name: 'dark',
   colors: {
@@ -31,7 +40,7 @@ export const darkTheme: DefaultTheme = {
     surface: '#151b22',
     text: '#e6e6e6',
     mutedText: '#a6a6a6',
-    primary: '#2b7cff',   // azul PYRA
+    primary: '#2b7cff',
     accent: '#4f9dff',
     border: 'rgba(255,255,255,0.08)',
     shadow: 'rgba(0,0,0,0.4)',
@@ -43,8 +52,11 @@ export const darkTheme: DefaultTheme = {
     danger: '#ff5c5c',
     dangerBg: '#2a1b1b',
     info: '#3399ff',
-    infoBg: '#14263a'
-  }
+    infoBg: '#14263a',
+  },
 }
 
+/**
+ * Theme registry exposed to context providers.
+ */
 export const themes = { light: lightTheme, dark: darkTheme }

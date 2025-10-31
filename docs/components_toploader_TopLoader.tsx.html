@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>components/toploader/TopLoader.tsx - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_Account.html">Pages/Account</a><ul class='methods'><li data-type='method'><a href="module-Pages_Account.html#~Account">Account</a></li><li data-type='method'><a href="module-Pages_Account.html#~calcAgeFromBirthdate">calcAgeFromBirthdate</a></li><li data-type='method'><a href="module-Pages_Account.html#~pickStr">pickStr</a></li><li data-type='method'><a href="module-Pages_Account.html#~toNum">toNum</a></li></ul></li><li><a href="module-Pages_ForgotPassword.html">Pages/ForgotPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ForgotPassword.html#~ForgotPassword">ForgotPassword</a></li></ul></li><li><a href="module-Pages_ResetPassword.html">Pages/ResetPassword</a><ul class='methods'><li data-type='method'><a href="module-Pages_ResetPassword.html#~ResetPassword">ResetPassword</a></li></ul></li><li><a href="module-Pages_SiteMap.html">Pages/SiteMap</a><ul class='methods'><li data-type='method'><a href="module-Pages_SiteMap.html#~SiteMap">SiteMap</a></li></ul></li><li><a href="module-pages_about_About.html">pages/about/About</a><ul class='methods'><li data-type='method'><a href="module-pages_about_About.html#~About">About</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#AppRouter">AppRouter</a></li><li><a href="global.html#AppThemeProvider">AppThemeProvider</a></li><li><a href="global.html#AuthCallback">AuthCallback</a></li><li><a href="global.html#Breadcrumbs">Breadcrumbs</a></li><li><a href="global.html#EMAIL_KEY">EMAIL_KEY</a></li><li><a href="global.html#Favorites">Favorites</a></li><li><a href="global.html#FlipCard">FlipCard</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#GlobalStyle">GlobalStyle</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#InnerApp">InnerApp</a></li><li><a href="global.html#LABELS">LABELS</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#MOVIE_KEY">MOVIE_KEY</a></li><li><a href="global.html#MovieDetail">MovieDetail</a></li><li><a href="global.html#Movies">Movies</a></li><li><a href="global.html#MoviesPage">MoviesPage</a></li><li><a href="global.html#SkipLink">SkipLink</a></li><li><a href="global.html#Switch">Switch</a></li><li><a href="global.html#TopLoader">TopLoader</a></li><li><a href="global.html#api">api</a></li><li><a href="global.html#authHeaders">authHeaders</a></li><li><a href="global.html#clearToken">clearToken</a></li><li><a href="global.html#darkTheme">darkTheme</a></li><li><a href="global.html#getRandomPexelsVideo">getRandomPexelsVideo</a></li><li><a href="global.html#hasSupabaseAuthParams">hasSupabaseAuthParams</a></li><li><a href="global.html#isAuthed">isAuthed</a></li><li><a href="global.html#isMovieArray">isMovieArray</a></li><li><a href="global.html#lightTheme">lightTheme</a></li><li><a href="global.html#mapNetError">mapNetError</a></li><li><a href="global.html#pathToLabel">pathToLabel</a></li><li><a href="global.html#popFlashToast">popFlashToast</a></li><li><a href="global.html#posterCandidatesFrom">posterCandidatesFrom</a></li><li><a href="global.html#pushFlashToast">pushFlashToast</a></li><li><a href="global.html#request">request</a></li><li><a href="global.html#slugify">slugify</a></li><li><a href="global.html#supa">supa</a></li><li><a href="global.html#themes">themes</a></li><li><a href="global.html#urlJoin">urlJoin</a></li><li><a href="global.html#useDelayedVisible">useDelayedVisible</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">components/toploader/TopLoader.tsx</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useRef, useState } from 'react'
+
+/**
+ * Lightweight top-loading bar that reacts to:
+ *   window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' | 'stop' }))
+ */
+export default function TopLoader() {
+    const [visible, setVisible] = useState(false)
+    const [progress, setProgress] = useState(0)
+    const rafRef = useRef&lt;number | null>(null)
+    const finishingRef = useRef(false)
+
+    // avanza hacia ~85% mientras esté en "start"
+    const tick = () => {
+        setProgress(prev => {
+            const target = finishingRef.current ? 100 : 85
+            const next = prev + (target - prev) * 0.12
+            return next > 99.5 ? 100 : next
+        })
+        rafRef.current = requestAnimationFrame(tick)
+    }
+
+    useEffect(() => {
+        const onEvt = (e: Event) => {
+            const ce = e as CustomEvent&lt;string>
+            if (ce.detail === 'start') {
+                finishingRef.current = false
+                setVisible(true)
+                if (rafRef.current == null) rafRef.current = requestAnimationFrame(tick)
+            } else if (ce.detail === 'stop') {
+                // empuja a 100% y oculta suavemente
+                finishingRef.current = true
+                setProgress(p => (p &lt; 95 ? 95 : p))
+                setTimeout(() => {
+                    setProgress(100)
+                    setTimeout(() => {
+                        setVisible(false)
+                        setProgress(0)
+                        finishingRef.current = false
+                        if (rafRef.current) {
+                            cancelAnimationFrame(rafRef.current)
+                            rafRef.current = null
+                        }
+                    }, 220) // espera la transición
+                }, 120)
+            }
+        }
+
+        window.addEventListener('top-loader', onEvt as EventListener)
+        return () => {
+            window.removeEventListener('top-loader', onEvt as EventListener)
+            if (rafRef.current) cancelAnimationFrame(rafRef.current)
+        }
+    }, [])
+
+    return (
+        &lt;div
+            aria-hidden="true"
+            style={{
+                position: 'fixed',
+                insetInline: 0,
+                top: 0,
+                height: visible ? 3 : 0,
+                zIndex: 9999,
+                pointerEvents: 'none',
+                transition: 'height .18s ease'
+            }}
+        >
+            &lt;div
+                style={{
+                    width: `${progress}%`,
+                    height: '100%',
+                    background:
+                        'linear-gradient(90deg, var(--primary, #2266ff), rgba(255,255,255,.85))',
+                    boxShadow: '0 1px 6px rgba(0,0,0,.25)',
+                    transition: 'width .2s ease, opacity .25s ease',
+                    opacity: visible ? 1 : 0
+                }}
+            />
+        &lt;/div>
+    )
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Fri Oct 31 2025 00:48:56 GMT-0500 (hora estándar de Colombia) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

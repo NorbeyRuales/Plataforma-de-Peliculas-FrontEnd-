@@ -3,8 +3,10 @@
  * @summary Site-wide footer with brand, grouped navigation links, and a scroll-to-top button.
  */
 
-import { Link } from 'react-router-dom'
+import type { MouseEvent } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import './Footer.scss'
+import { Auth, getToken } from '../../services/auth'
 
 /**
  * @component
@@ -12,6 +14,8 @@ import './Footer.scss'
  */
 export default function Footer() {
   const year = new Date().getFullYear()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   // Existing/handy navigation links (adjust if new routes are added)
   const explorar = [
@@ -23,13 +27,32 @@ export default function Footer() {
 
   const cuenta = [
     { to: '/account', label: 'Cuenta' },
-    { to: '/login', label: 'Iniciar sesión' },
-    { to: '/register', label: 'Registrarse' },
+    { to: '/login', label: 'Iniciar sesión', logout: true },
+    { to: '/register', label: 'Registrarse', logout: true },
   ]
 
   const recursos = [
-    { to: '/site-map', label: 'Mapa del sitio' }, // Keeps the existing site-map route entry
-  ]
+    { to: '/site-map', label: 'Mapa del sitio' },
+    { href: '/manual/Manual.pdf', label: 'Manual de usuario (PDF)', external: true },
+  ] as const
+
+  const handleAuthLinkClick = (event: MouseEvent<HTMLAnchorElement>, to: string) => {
+    event.preventDefault()
+    const tokenSnapshot = getToken()
+    try {
+      Auth.logout()
+    } finally {
+      const returnTo = `${location.pathname}${location.search}${location.hash}`
+      navigate(to, {
+        replace: true,
+        state: {
+          fromFooter: true,
+          returnTo,
+          tokenSnapshot,
+        },
+      })
+    }
+  }
 
   return (
     <footer className="site-footer">
@@ -70,7 +93,14 @@ export default function Footer() {
           <h4 className="footer-title">Cuenta</h4>
           <ul className="footer-list">
             {cuenta.map(l => (
-              <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+              <li key={l.to}>
+                <Link
+                  to={l.to}
+                  onClick={l.logout ? (event) => handleAuthLinkClick(event, l.to) : undefined}
+                >
+                  {l.label}
+                </Link>
+              </li>
             ))}
           </ul>
         </section>
@@ -78,8 +108,14 @@ export default function Footer() {
         <section>
           <h4 className="footer-title">Recursos</h4>
           <ul className="footer-list">
-            {recursos.map(l => (
-              <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+            {recursos.map((l) => (
+              <li key={l.label}>
+                {'href' in l ? (
+                  <a href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+                ) : (
+                  <Link to={l.to}>{l.label}</Link>
+                )}
+              </li>
             ))}
           </ul>
         </section>
@@ -101,3 +137,4 @@ export default function Footer() {
     </footer>
   )
 }
+

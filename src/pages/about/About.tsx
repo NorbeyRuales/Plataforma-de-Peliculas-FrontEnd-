@@ -24,19 +24,17 @@ import './About.scss'
 import { useToast } from '../../components/toast/ToastProvider'
 import { api } from '../../services/api'
 
+// ✅ NUEVO: barra de feedback (la vista ya está protegida por login)
+import FeedbackBar from '../../components/feedback/FeedbackBar'
+
 /**
  * Represents a team member card content.
  */
 type TeamMate = {
-  /** Full name to be shown in the card front */
   name: string
-  /** Role or responsibility (shown on the card) */
   role: string
-  /** Optional avatar URL used by the FlipCard */
   avatar?: string
-  /** Optional icon shown on the card front */
   iconUrl?: string
-  /** Optional back face custom text (fallbacks to `role` if omitted) */
   backText?: string
 }
 
@@ -59,15 +57,6 @@ function loaderStop() {
   window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
 }
 
-/**
- * About page: highlights brand, principles and the team.
- * A11y notes:
- * - Uses `data-skip-target` on the H1 to cooperate with the global SkipLink.
- * - Provides smooth scrolling for in-page anchors (#intro, #team, ...).
- * - Uses `.hit-24` on the back link to meet WCAG 2.5.8 target size (24×24px).
- *
- * @returns JSX.Element
- */
 export default function About() {
   const rootRef = useRef<HTMLElement | null>(null)
 
@@ -88,11 +77,9 @@ export default function About() {
       }
     }
 
-    // 1) Sin conexión local
     if (!navigator.onLine) {
       warn('Sin conexión a Internet. Algunas funciones podrían no cargar.')
     } else {
-      // 2) Intento de ping al backend (con TopLoader)
       ; (async () => {
         loaderStart()
         try {
@@ -102,7 +89,7 @@ export default function About() {
           }
         } catch (err: any) {
           const status = err?.response?.status
-          const isNetwork = !status // típicamente error de red/CORS/timeout
+          const isNetwork = !status
           if (isNetwork || (status && status >= 500)) {
             warn('No podemos conectar con el servidor. Intenta más tarde.')
           }
@@ -119,20 +106,13 @@ export default function About() {
     window.addEventListener('offline', onOffline)
     return () => {
       mounted = false
-      // En caso de que el efecto se desmonte durante el ping
       loaderStop()
       window.removeEventListener('online', onOnline)
       window.removeEventListener('offline', onOffline)
     }
   }, [showErrorToast])
 
-  /**
-   * Enhances in-page anchor navigation (#intro, #team, etc.):
-   * - Intercepts clicks on `<a href="#...">` **solo dentro de esta página** (no en todo el documento).
-   * - Smoothly scrolls to the target and moves focus for screen readers.
-   * - If the page loads with a hash in the URL, auto-focus/scrolls to it.
-   * - Cleans up the listener on unmount.
-   */
+  // In-page anchors smooth scroll + focus
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -147,12 +127,11 @@ export default function About() {
       if (!el) return
       e.preventDefault()
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        ; (el as HTMLElement).focus({ preventScroll: true }) // secciones tienen tabIndex={-1}
+        ; (el as HTMLElement).focus({ preventScroll: true })
     }
 
     root.addEventListener('click', onClick)
 
-    // Soporte para entrar con #hash directamente
     if (window.location.hash) {
       const id = decodeURIComponent(window.location.hash.slice(1))
       const el = document.getElementById(id)
@@ -194,7 +173,6 @@ export default function About() {
           </nav>
         </div>
 
-        {/* hit-24 ensures a minimum 24×24px interactive area (WCAG 2.5.8) */}
         <Link to="/" className="about-back hit-24" aria-label="Volver al inicio">←</Link>
       </header>
 
@@ -334,8 +312,10 @@ export default function About() {
 
       {/* CTA */}
       <footer className="about-cta">
-        <p>¿Tienes una idea, una lista épica o encontraste un bug?</p>
-        <Link to="/account" className="btn">Escríbenos desde tu cuenta</Link>
+        <div className="about-feedback">
+          {/* Quitamos el <p> duplicado; FeedbackBar ya incluye su propia etiqueta/botón */}
+          <FeedbackBar />
+        </div>
       </footer>
     </section>
   )

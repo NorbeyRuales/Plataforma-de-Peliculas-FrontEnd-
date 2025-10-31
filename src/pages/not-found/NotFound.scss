@@ -1,5 +1,5 @@
 @use '../../styles/variables' as *;
-/* 404 TV – replica del recurso (ajustada, sin romper estilos globales) */
+
 
 .notfound-page {
     min-height: clamp(560px, 78vh, 92vh);
@@ -13,6 +13,9 @@
     width: clamp(28rem, 52vmin, 40rem);
     max-width: 92vw;
     aspect-ratio: 1 / 1;
+
+
+    pointer-events: none;
 }
 
 .main {
@@ -23,9 +26,9 @@
     margin-top: 5em;
     transform: translateY(-0.6rem);
     position: relative;
-    /* ✅ asegura stacking por encima del 404 */
+
     z-index: 1;
-    /* ✅ TV por encima del texto de fondo */
+
 }
 
 /* ---------- Antena ---------- */
@@ -434,11 +437,11 @@
     justify-content: center;
     column-gap: 6em;
     z-index: 0;
-    /* ✅ debajo de .main, sin valores negativos */
     opacity: .35;
     color: #000;
     font-family: Montserrat, system-ui, Arial, sans-serif;
     transform: translateY(-.6rem);
+    pointer-events: none;
 }
 
 .text_4041,
@@ -450,6 +453,10 @@
 /* Botón volver */
 .cta {
     margin-top: clamp(1.25rem, 3vh, 2rem);
+
+    /*asegura que el botón quede por encima de cualquier overlay */
+    position: relative;
+    z-index: 5;
 }
 
 /* Responsivo / motion */
@@ -497,3 +504,79 @@
     }
 }
 
+/* Botón volver (modo claro/oscuro, alto contraste) */
+.cta {
+    margin-top: clamp(1.25rem, 3vh, 2rem);
+    position: relative;
+    z-index: 5;
+
+    a.btn {
+        /* apariencia de botón */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .65rem 1.1rem;
+        min-width: 9.5rem;
+
+        border-radius: 12px;
+        border: 1px solid color-mix(in srgb, var(--primary, #{$brand}) 70%, #000);
+        background: linear-gradient(180deg,
+            color-mix(in srgb, var(--primary, #{$brand}) 92%, #fff) 0%,
+            var(--primary, #{$brand}) 100%);
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow:
+            0 6px 14px rgba(0, 0, 0, .18),
+            inset 0 1px 0 rgba(255, 255, 255, .15);
+        transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+
+        /* accesibilidad: foco visible */
+        &:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--primary, #{$brand}) 45%, #fff);
+            outline-offset: 3px;
+        }
+
+        &:hover {
+            filter: brightness(1.05);
+            box-shadow:
+                0 10px 22px rgba(0, 0, 0, .22),
+                inset 0 1px 0 rgba(255, 255, 255, .18);
+        }
+
+        &:active {
+            transform: translateY(1px);
+            box-shadow:
+                0 4px 10px rgba(0, 0, 0, .18),
+                inset 0 1px 0 rgba(255, 255, 255, .12);
+        }
+    }
+
+    /* Variante “ghost” por si quieres mantener la clase,
+     se verá bien en claro y oscuro */
+    a.btn.ghost {
+        background: transparent;
+        color: var(--text, #{$text});
+        border: 1px solid color-mix(in srgb, var(--text, #{$text}) 24%, transparent);
+        box-shadow: none;
+
+        &:hover {
+            background: color-mix(in srgb, var(--primary, #{$brand}) 12%, transparent);
+            color: var(--primary, #{$brand});
+            border-color: color-mix(in srgb, var(--primary, #{$brand}) 45%, transparent);
+        }
+
+        &:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--primary, #{$brand}) 45%, #fff);
+            outline-offset: 3px;
+        }
+    }
+}
+
+/* Respeta usuarios con reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .cta a.btn {
+        transition: none;
+    }
+}
