@@ -27,6 +27,8 @@ const LABELS: { pattern: RegExp; label: string }[] = [
     { pattern: /^\/account(\/|$)/, label: "Cuenta" },
     { pattern: /^\/about(\/|$)/, label: "Sobre nosotros" },
     { pattern: /^\/register(\/|$)/, label: "Registro" },
+    { pattern: /^\/forgot-password(\/|$)/, label: "Olvide mi contraseña" },
+    { pattern: /^\/reset-password(\/|$)/, label: "Recuperar contraseña" },
 
     // Optional routes in case slugs change to Spanish later
     { pattern: /^\/peliculas(\/|$)/, label: "Películas" },

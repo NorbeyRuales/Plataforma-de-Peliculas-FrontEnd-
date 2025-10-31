@@ -284,34 +284,24 @@
     padding: .25rem 0;
   }
 
-  /* =============== CTA =============== */
+  /* =============== CTA (centrada, sin “aire”) =============== */
   .about-cta {
-    margin-top: 1.25rem;
-    background: $card;
-    border: 1px solid $border;
-    border-radius: $radius;
-    padding: 1rem 1.25rem;
+    --content-w: min(1100px, 100% - 2rem);
+    width: var(--content-w);
+    margin: 1rem auto 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+
     display: flex;
-    gap: .75rem;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: $shadow;
+    justify-content: center;
 
-    p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .btn {
-      @include btn(color-mix(in srgb, var(--primary) 12%, transparent), var(--text));
-      border: 1px solid rgba($brand, .35);
-      border-radius: 10px;
-      text-decoration: none;
-      padding: .55rem .9rem;
-
-      &:hover {
-        color: $brand;
-      }
+    .about-feedback {
+      --fb-maxw: 650px;
+      /* ajusta: 720px, 820px, 960px, etc. */
+      width: min(var(--fb-maxw), 100%);
+      margin: 0 auto;
     }
   }
 
@@ -336,9 +326,6 @@
       grid-template-columns: 1fr;
     }
 
-    .about-cta {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+    /* no hace falta cambiar nada más para la CTA */
   }
 }

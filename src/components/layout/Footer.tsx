@@ -32,8 +32,9 @@ export default function Footer() {
   ]
 
   const recursos = [
-    { to: '/site-map', label: 'Mapa del sitio' }, // Keeps the existing site-map route entry
-  ]
+    { to: '/site-map', label: 'Mapa del sitio' },
+    { href: '/manual/Manual.pdf', label: 'Manual de usuario (PDF)', external: true },
+  ] as const
 
   const handleAuthLinkClick = (event: MouseEvent<HTMLAnchorElement>, to: string) => {
     event.preventDefault()
@@ -107,8 +108,14 @@ export default function Footer() {
         <section>
           <h4 className="footer-title">Recursos</h4>
           <ul className="footer-list">
-            {recursos.map(l => (
-              <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+            {recursos.map((l) => (
+              <li key={l.label}>
+                {'href' in l ? (
+                  <a href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+                ) : (
+                  <Link to={l.to}>{l.label}</Link>
+                )}
+              </li>
             ))}
           </ul>
         </section>

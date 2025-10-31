@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manual de Usuario – Plataforma de Películas</title>
+    <style>
+      :root {
+        --bg: #f8f9fb;
+        --surface: #ffffff;
+        --text: #1a1a1a;
+        --mutedText: #5a5a5a;
+        --primary: #2266ff; /* coincide con $primary */
+        --accent: #0044cc;
+        --border: rgba(0,0,0,.08);
+        --card: #ffffff;
+        --shadow: 0 3px 6px rgba(0,0,0,.15);
+      }
+
+      html, body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.45;
+      }
+      .page {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 16px 16px 40px;
+      }
+      header.cover {
+        text-align: center;
+        padding: 48px 16px 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin: 16px 0 24px;
+      }
+      header.cover img { display: block; margin: 0 auto 12px; height: 56px; }
+      header.cover h1 { margin: 0 0 6px; font-size: 28px; }
+      header.cover p { margin: 0; color: var(--mutedText); }
+
+      .toc {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin: 24px 0;
+      }
+      .toc h2 { margin: 0 0 8px; }
+      .toc ol { margin: 0; padding-left: 20px; }
+
+      section { margin: 28px 0; }
+      h2 { margin: 0 0 8px; font-size: 22px; }
+      p { margin: 8px 0; }
+      ol, ul { padding-left: 20px; }
+
+      figure {
+        margin: 12px 0;
+        padding: 10px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      figure img {
+        max-width: 100%;
+        display: block;
+        border-radius: 8px;
+      }
+      figcaption { color: var(--mutedText); font-size: 14px; margin-top: 6px; }
+
+      .actions {
+        margin: 12px 0 0;
+        text-align: right;
+      }
+      .btn {
+        display: inline-block;
+        border: 1px solid transparent;
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+      }
+
+      /* Impresión a PDF */
+      @media print {
+        @page { size: A4; margin: 14mm; }
+        .no-print { display: none !important; }
+        .page { max-width: none; padding: 0; }
+        section { page-break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="cover">
+        <img src="../brand/pyra.svg" alt="PYRA" />
+        <h1>Manual de Usuario</h1>
+        <p>Plataforma de Películas • <span id="fecha"></span></p>
+      </header>
+
+      <div class="actions no-print">
+        <a class="btn" href="#" onclick="window.print(); return false;">Imprimir / Guardar como PDF</a>
+      </div>
+
+      <nav class="toc">
+        <h2>Índice</h2>
+        <ol>
+          <li><a href="#intro">Introducción</a></li>
+          <li><a href="#acceso">Acceso (registro / login / recuperación)</a></li>
+          <li><a href="#navegacion">Navegación y búsqueda</a></li>
+          <li><a href="#detalle">Detalle de película</a></li>
+          <li><a href="#favoritos">Favoritos</a></li>
+          <li><a href="#cuenta">Cuenta y seguridad</a></li>
+          <li><a href="#tema">Tema y accesibilidad</a></li>
+          <li><a href="#feedback">Enviar comentarios (Feedback)</a></li>
+          <li><a href="#faq">Preguntas Frecuentes (FAQ)</a></li>
+          <li><a href="#soporte">Soporte</a></li>
+        </ol>
+      </nav>
+
+      <section id="intro">
+        <h2>Introducción</h2>
+        <p>Esta plataforma permite explorar películas, consultar detalles y gestionar una lista de favoritos. Este manual describe los pasos principales y muestra capturas de cada vista.</p>
+      </section>
+
+      <section id="acceso">
+        <h2>Acceso (registro / login / recuperación)</h2>
+        <ol>
+          <li>Registro: completa nombre, correo y contraseña. Confirma tu correo si es requerido.</li>
+          <li>Inicio de sesión: ingresa correo y contraseña o usa un proveedor externo si está disponible.</li>
+          <li>Recuperación: usa “¿Olvidaste tu contraseña?” y sigue el enlace enviado a tu correo.</li>
+        </ol>
+        <figure>
+          <img src="images/register.png" alt="Pantalla de registro" />
+          <figcaption>Pantalla de registro</figcaption>
+        </figure>
+        <figure>
+          <img src="images/login.png" alt="Pantalla de inicio de sesión" />
+          <figcaption>Pantalla de inicio de sesión</figcaption>
+        </figure>
+        <figure>
+          <img src="images/forgot-password.png" alt="Pantalla de recuperación de contraseña" />
+          <figcaption>Recuperación de contraseña</figcaption>
+        </figure>
+        <figure>
+          <img src="images/reset-password.png" alt="Pantalla de restablecer contraseña" />
+          <figcaption>Restablecer contraseña</figcaption>
+        </figure>
+      </section>
+
+      <section id="navegacion">
+        <h2>Navegación y búsqueda</h2>
+        <p>Explora el catálogo en “Películas”. Busca por título y aplica filtros si están disponibles.</p>
+        <figure>
+          <img src="images/home.png" alt="Inicio" />
+          <figcaption>Página de inicio</figcaption>
+        </figure>
+        <figure>
+          <img src="images/movies.png" alt="Listado de películas" />
+          <figcaption>Listado y búsqueda de películas</figcaption>
+        </figure>
+      </section>
+
+      <section id="detalle">
+        <h2>Detalle de película</h2>
+        <p>Consulta sinopsis, calificación y otros datos. Desde aquí puedes agregar o quitar de Favoritos.</p>
+        <figure>
+          <img src="images/movie-detail.png" alt="Detalle de película" />
+          <figcaption>Vista de detalle</figcaption>
+        </figure>
+      </section>
+
+      <section id="favoritos">
+        <h2>Favoritos</h2>
+        <ol>
+          <li>Agregar: usa el botón/ícono “Favorito” en tarjeta o detalle.</li>
+          <li>Quitar: vuelve a pulsar el mismo botón/ícono.</li>
+          <li>Ver: entra a “Favoritos” desde el menú.</li>
+        </ol>
+        <figure>
+          <img src="images/favorites.png" alt="Vista de favoritos" />
+          <figcaption>Vista de favoritos</figcaption>
+        </figure>
+      </section>
+
+      <section id="cuenta">
+        <h2>Cuenta y seguridad</h2>
+        <p>
+          En esta vista puedes revisar y actualizar datos básicos de tu perfil y gestionar la seguridad de tu cuenta.
+        </p>
+        <ul>
+          <li><strong>Perfil:</strong> edita nombre, apellido y edad con el botón <em>Editar</em>.</li>
+          <li><strong>Cambiar contraseña:</strong> abre el panel, ingresa tu <em>contraseña actual</em>, una <em>nueva contraseña</em> y su confirmación.
+            Debe tener mínimo 8 caracteres, incluir mayúscula, número y símbolo. Usa el icono de ojo para mostrar/ocultar.</li>
+          <li><strong>Cancelar cambio:</strong> usa <em>Cancelar</em> para descartar el cambio si aún no lo guardas.</li>
+          <li><strong>Guardar:</strong> pulsa <em>Guardar nueva contraseña</em> cuando cumpla los requisitos y coincidan los campos.</li>
+          <li><strong>Eliminar cuenta:</strong> disponible al final; acción irreversible. Úsala solo si estás seguro.</li>
+        </ul>
+        <figure>
+          <img src="images/account.png" alt="Página de cuenta" />
+          <figcaption>Página de cuenta</figcaption>
+        </figure>
+      </section>
+
+      <section id="tema">
+        <h2>Tema y accesibilidad</h2>
+        <ul>
+          <li>Tema claro/oscuro: usa el interruptor del encabezado.</li>
+          <li>Accesibilidad: navegación por teclado y saltos a contenido.</li>
+        </ul>
+        <figure>
+          <img src="images/theme.png" alt="Cambio de tema" />
+          <figcaption>Cambio de tema</figcaption>
+        </figure>
+      </section>
+
+      <section id="feedback">
+        <h2>Enviar comentarios (Feedback)</h2>
+        <ol>
+          <li>Abre la barra/botón de Feedback.</li>
+          <li>Escribe tu comentario en el modal y envíalo.</li>
+        </ol>
+        <figure>
+          <img src="images/feedback-bar.png" alt="Barra de feedback" />
+          <figcaption>Barra de feedback</figcaption>
+        </figure>
+        <figure>
+          <img src="images/feedback-modal.png" alt="Modal de feedback" />
+          <figcaption>Modal de feedback</figcaption>
+        </figure>
+      </section>
+
+      <section id="faq">
+        <h2>Preguntas Frecuentes (FAQ)</h2>
+        <ul>
+          <li>Imágenes no cargan: verifica tu conexión y recarga la página.</li>
+          <li>No puedo iniciar sesión: restablece tu contraseña desde “¿Olvidaste tu contraseña?”.</li>
+        </ul>
+      </section>
+
+      <section id="soporte">
+        <h2>Soporte</h2>
+        <p>Envía comentarios desde la app o contacta al equipo por los canales del proyecto. Incluye capturas y pasos para reproducir.</p>
+      </section>
+    </div>
+
+    <script>
+      // Fecha actual en portada
+      document.getElementById('fecha').textContent = new Date().toLocaleDateString();
+    </script>
+  </body>
+  </html>

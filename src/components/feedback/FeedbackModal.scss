@@ -1,0 +1,247 @@
+@use '../../styles/variables' as *;
+
+.fb-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+
+.fb-modal {
+    width: min(560px, 92vw);
+    background: $card;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    padding: .75rem 1rem 1rem;
+    animation: fbPop .12s ease-out both;
+}
+
+@keyframes fbPop {
+    from {
+        transform: scale(.98);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.fb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .5rem;
+
+    h3 {
+        margin: 0;
+    }
+
+    .close {
+        appearance: none;
+        border: 1px solid $border;
+        background: transparent;
+        color: inherit;
+        padding: .2rem .5rem;
+        line-height: 1;
+        border-radius: calc($radius - 4px);
+        cursor: pointer;
+    }
+
+    .close:focus-visible {
+        outline: 2px solid var(--primary, $brand);
+        outline-offset: 2px;
+    }
+}
+
+.fb-intro {
+    margin: .35rem 0 .2rem;
+    color: $muted;
+    line-height: 1.5;
+}
+
+.field {
+    display: grid;
+    gap: .35rem;
+    margin: .75rem 0;
+
+    >span {
+        font-weight: 600;
+        font-size: .92rem;
+
+        .muted {
+            margin-left: .25rem;
+            font-weight: 400;
+            color: $muted;
+            font-style: italic;
+        }
+    }
+
+    select,
+    textarea {
+        width: 100%;
+        border: 1px solid $border;
+        border-radius: calc($radius - 2px);
+        background: transparent;
+        color: inherit;
+        padding: .55rem .6rem;
+        font: inherit;
+    }
+
+    textarea {
+        line-height: 1.35;
+        resize: none;
+        min-height: 120px;
+    }
+
+    /* === INPUT FILE ESTILIZADO === */
+    input[type="file"] {
+        width: 100%;
+        font: inherit;
+        color: $muted;
+        /* color del nombre del archivo */
+
+        /* Botón (Chrome/Edge/Safari/Opera) */
+        &::file-selector-button {
+            margin-right: .6rem;
+            padding: .45rem .8rem;
+            border-radius: calc($radius - 2px);
+            border: 1px solid rgba($brand, .35);
+            background: rgba($brand, .12);
+            color: $text;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, transform .08s ease;
+
+            &:hover {
+                background: rgba($brand, .18);
+                border-color: rgba($brand, .55);
+                color: $brand;
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--primary, $brand);
+                outline-offset: 2px;
+            }
+        }
+
+        /* Fallback WebKit antiguo */
+        &::-webkit-file-upload-button {
+            margin-right: .6rem;
+            padding: .45rem .8rem;
+            border-radius: calc($radius - 2px);
+            border: 1px solid rgba($brand, .35);
+            background: rgba($brand, .12);
+            color: $text;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, transform .08s ease;
+
+            &:hover {
+                background: rgba($brand, .18);
+                border-color: rgba($brand, .55);
+                color: $brand;
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--primary, $brand);
+                outline-offset: 2px;
+            }
+        }
+    }
+
+    .hint {
+        color: $muted;
+        font-size: .8rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .35rem;
+
+        /* Botón "Quitar" como acción secundaria pequeña */
+        button {
+            border: 1px solid $border;
+            background: rgba($text, .06);
+            color: inherit;
+            padding: .2rem .55rem;
+            border-radius: calc($radius - 4px);
+            font-size: .8rem;
+            line-height: 1.1;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, color .15s ease, transform .08s ease;
+
+            &:hover {
+                background: rgba($brand, .10);
+                border-color: rgba($brand, .45);
+                color: $brand;
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--primary, $brand);
+                outline-offset: 2px;
+            }
+        }
+    }
+}
+
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--primary, $brand);
+    outline-offset: 2px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: 1rem;
+
+    button {
+        border: 1px solid $border;
+        border-radius: calc($radius - 2px);
+        padding: .55rem .8rem;
+        background: $card;
+        color: inherit;
+        cursor: pointer;
+        transition: transform .08s ease, opacity .15s ease;
+
+        &:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        &:active {
+            transform: translateY(1px);
+        }
+    }
+
+    /* Último botón como primario (Enviar) */
+    button:last-child {
+        background: var(--primary, $brand);
+        color: #fff;
+        border-color: transparent;
+    }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+    .fb-modal {
+        padding: .6rem .75rem .85rem;
+    }
+}
