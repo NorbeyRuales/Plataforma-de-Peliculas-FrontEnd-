@@ -78,23 +78,48 @@ export default function ResetPassword() {
     useEffect(() => {
         (async () => {
             try {
-                const url = new URL(window.location.href);
+                const href = window.location.href;
+                const url = new URL(href);
+                const q = url.searchParams;
+                const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+
                 const hasHash = !!window.location.hash;
-                const hasCode = !!url.searchParams.get('code');
+                const hasCode = !!q.get('code');
+                const hasAccessToken = !!hash.get('access_token') || !!q.get('access_token');
+
                 if (!hasHash && !hasCode) {
                     console.warn('[reset-password] Missing auth code or hash in URL.');
                     setErr('El enlace de recuperación no trae el token de autenticación. Ábrelo directamente desde el correo o solicita uno nuevo.');
                     setHasAuth(false);
                     return;
                 }
-                const { error } = await supa.auth.exchangeCodeForSession(window.location.href);
-                if (error) {
-                    console.warn('[reset-password] exchangeCodeForSession:', error.message);
-                    setErr('No se pudo validar el enlace de recuperación. Solicita uno nuevo.');
-                    setHasAuth(false);
-                } else {
+
+                // 1) If the URL brings an access_token (implicit flow), exchange directly
+                if (hasAccessToken) {
+                    const { error } = await supa.auth.exchangeCodeForSession(href);
+                    if (error) throw error;
                     setHasAuth(true);
                     window.history.replaceState({}, document.title, '/reset-password');
+                    return;
+                }
+
+                // 2) If we have a `code` (PKCE flow), try to exchange. If it fails due to
+                //    missing code_verifier (common when requesting the email on another device),
+                //    fallback to verifyOtp with type 'recovery'.
+                if (hasCode) {
+                    const code = q.get('code')!;
+                    const { error } = await supa.auth.exchangeCodeForSession(href);
+                    if (error) {
+                        console.warn('[reset-password] exchangeCodeForSession:', error.message);
+                        // Fallback path using verifyOtp
+                        const email = q.get('email') || hash.get('email') || '';
+                        if (!email) throw error;
+                        const { error: vErr } = await supa.auth.verifyOtp({ email, token: code, type: 'recovery' });
+                        if (vErr) throw vErr;
+                    }
+                    setHasAuth(true);
+                    window.history.replaceState({}, document.title, '/reset-password');
+                    return;
                 }
             } catch (e: any) {
                 console.warn('[reset-password] Could not validate recovery link:', e?.message || e);
