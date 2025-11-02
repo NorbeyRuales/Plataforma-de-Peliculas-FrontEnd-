@@ -1,7 +1,14 @@
 /**
  * @file MovieDetail.tsx
  * @description Movie detail screen with HTML5 video player, keyboard-accessible
- * controls, favorites toggle, and star rating integration.
+ * controls, and "favorites" toggle. Includes a fallback trailer from Pexels when
+ * the movie has no streamUrl. Uses ARIA where appropriate and visible focus styles
+ * provided by global CSS.
+ *
+ * A11y notes:
+ * - Buttons and selects are natively focusable (2.1.1 Keyboard).
+ * - Focus styles vienen de los estilos globales (2.4.7 Focus Visible).
+ * - role="status"/aria-busy/aria-label usados para feedback no intrusivo.
  */
 
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
@@ -11,36 +18,42 @@ import { api } from '../../services/api'
 import { getRandomPexelsVideo } from '../../services/pexelsServices'
 import { Favorites } from '../../services/favorites'
 import { getToken } from '../../services/auth'
-import { useToast } from '../../components/toast/ToastProvider'
-import StarRating from '../../pages/movie/StarRating' // ⭐ Nuevo componente
+import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
 
+/**
+ * Lightweight movie shape used locally in this view.
+ */
 type Movie = {
   id: string | number
   title: string
   description?: string
   posterUrl?: string
   streamUrl?: string
-  userRating?: number
 }
 
-/* ---------- Helpers ---------- */
+/* ---------- Helpers locales (loader + formato humano) ---------- */
+
+// Barra superior (TopLoader): eventos globales
 function loaderStart() {
   window.dispatchEvent(new CustomEvent('top-loader', { detail: 'start' }))
 }
 function loaderStop() {
   window.dispatchEvent(new CustomEvent('top-loader', { detail: 'stop' }))
 }
+
 function formatDateES(d?: string | Date) {
   if (!d) return ''
   const date = typeof d === 'string' ? new Date(d) : d
   if (Number.isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat('es-CO', { year: 'numeric', month: 'long', day: '2-digit' }).format(date)
 }
+
 function formatYearES(d?: string | Date) {
   if (!d) return ''
   const date = typeof d === 'string' ? new Date(d) : d
   return Number.isNaN(date.getTime()) ? '' : String(date.getFullYear())
 }
+
 function formatDuration(mins?: number | string) {
   const m = Number(mins)
   if (!Number.isFinite(m) || m <= 0) return ''
@@ -48,6 +61,7 @@ function formatDuration(mins?: number | string) {
   const r = m % 60
   return h > 0 ? `${h} h ${r} min` : `${r} min`
 }
+
 function pickText(m: any, keys: string[]) {
   for (const k of keys) {
     const v = m?.[k]
@@ -56,78 +70,102 @@ function pickText(m: any, keys: string[]) {
   return ''
 }
 
-/* ---------- COMPONENTE PRINCIPAL ---------- */
+/**
+ * Movie detail page component.
+ * Fetches movie data, wires the <video> element with custom controls,
+ * and allows adding/removing the movie from favorites.
+ */
+/**
+ * @component
+ * @returns Detailed movie view with trailer playback and favorite toggle.
+ */
 export default function MovieDetail() {
+  // ------- Routing / refs -------
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const playerRef = useRef<HTMLVideoElement>(null)
-  const { error: showErrorToast } = useToast()
 
-  // Estados
+  const { error: showErrorToast } = useToast() // 👈 toast roja
+
+  // ------- Data / UI state -------
   const [movie, setMovie] = useState<Movie | null>(null)
   const [pexelsVideoUrl, setPexelsVideoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [added, setAdded] = useState(false)
   const [addedMsg, setAddedMsg] = useState('')
+
+  // Favorites state (null while loading)
   const [isFav, setIsFav] = useState<boolean | null>(null)
   const [favBusy, setFavBusy] = useState(false)
 
-  // Controles del reproductor
+  // Player controls state (mirrors <video> props)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(1)
   const [rate, setRate] = useState(1)
   const [loop, setLoop] = useState(false)
 
-  // Sinopsis expandible
+  // Sinopsis expand/collapse
   const [synopsisExpanded, setSynopsisExpanded] = useState(false)
 
-  /* -------- VALIDAR ID -------- */
+  /**
+   * Guard against invalid route id.
+   */
   useEffect(() => {
     if (!id || id === 'undefined') setError('ID de película inválido')
   }, [id])
 
-  /* -------- CARGAR PELÍCULA -------- */
+  /**
+   * Fetch movie by id from backend.
+   * Accepts either `{ movie }` or the movie object directly.
+   * 🔵 Enciende/Apaga TopLoader para visibilidad del estado.
+   */
   useEffect(() => {
     if (!id || id === 'undefined') return
-    ;(async () => {
-      loaderStart()
-      setLoading(true)
-      setError(undefined)
-      try {
-        const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
-        const m = (resp as any)?.movie ?? resp
-        setMovie(m as Movie)
-      } catch (e: any) {
-        const msg = e?.response?.data?.message || e?.message || 'No se pudo cargar la película'
-        setError(msg)
-        showErrorToast(msg)
-      } finally {
-        setLoading(false)
-        loaderStop()
-      }
-    })()
+      ; (async () => {
+        loaderStart()               // ⬅️ START loader
+        setLoading(true)
+        setError(undefined)
+        try {
+          const resp = await api.get<Movie | { movie: Movie }>(`/movies/${encodeURIComponent(id)}`)
+          const m = (resp as any)?.movie ?? resp
+          setMovie(m as Movie)
+        } catch (e: any) {
+          const msg = e?.response?.data?.message || e?.message || 'No se pudo cargar la película'
+          setError(msg)
+          showErrorToast(msg) // 🔴 toast
+        } finally {
+          setLoading(false)
+          loaderStop()              // ⬅️ STOP loader
+        }
+      })()
   }, [id, showErrorToast])
 
-  /* -------- FALLBACK DE VIDEO PEXELS -------- */
+  /**
+   * If no streamUrl in the movie, try finding a relevant stock video on Pexels.
+   * Falls back to "cinema" keyword.
+   * 🔵 Opcional: pulso del loader para la búsqueda del trailer.
+   */
   useEffect(() => {
     if (!movie?.title || (movie as any).streamUrl) return
     let canceled = false
-    ;(async () => {
-      loaderStart()
-      let url = await getRandomPexelsVideo(movie.title)
-      if (!url) url = await getRandomPexelsVideo('cinema')
-      if (!canceled) setPexelsVideoUrl(url)
-      loaderStop()
-    })()
+      ; (async () => {
+        loaderStart()               // ⬅️ START loader (pulso)
+        let url = await getRandomPexelsVideo(movie.title)
+        if (!url) url = await getRandomPexelsVideo('cinema')
+        if (!canceled) setPexelsVideoUrl(url)
+        loaderStop()                // ⬅️ STOP loader
+      })()
     return () => {
       canceled = true
     }
   }, [movie?.title, (movie as any)?.streamUrl])
 
-  /* -------- CONTROLADORES DE VIDEO -------- */
+  /**
+   * Sync local "playing" state by listening to native <video> events.
+   */
   useEffect(() => {
     const v = playerRef.current
     if (!v) return
@@ -141,6 +179,9 @@ export default function MovieDetail() {
     }
   }, [])
 
+  /**
+   * Apply local controls state to the underlying <video> element.
+   */
   useEffect(() => {
     const v = playerRef.current
     if (!v) return
@@ -150,33 +191,163 @@ export default function MovieDetail() {
     v.loop = loop
   }, [muted, volume, rate, loop])
 
-  /* -------- FAVORITOS -------- */
+  // ------- Hotkeys (no intrusivo) -------
+  // Espacio/K (play/pausa), J/L (−/+10s), M (mute), F (fullscreen), P (PiP)
   useEffect(() => {
-    const movieId = String((movie?.id ?? id) ?? '')
-    if (!movieId) return setIsFav(false)
-    if (!getToken()) return setIsFav(false)
+    const isEditable = (el: EventTarget | null) => {
+      const n = el as HTMLElement | null
+      if (!n) return false
+      const tag = (n.tagName || '').toLowerCase()
+      const editable = (n.getAttribute?.('contenteditable') || '').toLowerCase()
+      return tag === 'input' || tag === 'textarea' || editable === 'true'
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.altKey || e.ctrlKey || e.metaKey || isEditable(e.target)) return
+      const key = e.key.toLowerCase()
+      if (e.key === ' ' || key === 'k') {
+        e.preventDefault()
+        togglePlay()
+      } else if (key === 'j') {
+        seek(-10)
+      } else if (key === 'l') {
+        seek(10)
+      } else if (key === 'm') {
+        toggleMute()
+      } else if (key === 'f') {
+        toggleFullscreen()
+      } else if (key === 'p') {
+        togglePiP()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // ------- Player helpers -------
+
+  /** Play/pause the video depending on current state. */
+  function togglePlay() {
+    const v = playerRef.current
+    if (!v) return
+    if (v.paused) v.play()
+    else v.pause()
+  }
+
+  /**
+   * Seek the video by an offset in seconds (negative or positive).
+   * Clamps the target time to [0, duration].
+   * @param offset seconds to jump
+   */
+  function seek(offset: number) {
+    const v = playerRef.current
+    if (!v) return
+    const d = v.duration || Infinity
+    v.currentTime = Math.max(0, Math.min(d, v.currentTime + offset))
+  }
+
+  /** Mute/unmute shortcut. */
+  function toggleMute() {
+    setMuted(m => !m)
+  }
+
+  /**
+   * Volume range input handler (0..1).
+   * Also auto-unmutes when user sets volume > 0 while muted.
+   */
+  function onVolume(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = Number(e.target.value)
+    setVolume(val)
+    if (val > 0 && muted) setMuted(false)
+  }
+
+  /** Playback rate (speed) select handler. */
+  function onRate(e: React.ChangeEvent<HTMLSelectElement>) {
+    setRate(Number(e.target.value))
+  }
+
+  /** Toggle loop mode. */
+  function toggleLoop() {
+    setLoop(l => !l)
+  }
+
+  /**
+   * Toggle Picture-in-Picture when supported.
+   * Silently catches failures (e.e., browser policies).
+   */
+  async function togglePiP() {
+    const v = playerRef.current as any
+    try {
+      if ('pictureInPictureElement' in document && (document as any).pictureInPictureElement) {
+        await (document as any).exitPictureInPicture()
+      } else if (v?.requestPictureInPicture) {
+        await v.requestPictureInPicture()
+      }
+    } catch (e) {
+      console.error('PiP error', e)
+    }
+  }
+
+  /** Toggle native fullscreen for the <video> element. */
+  async function toggleFullscreen() {
+    const v = playerRef.current
+    if (!v) return
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+      } else {
+        await v.requestFullscreen?.()
+      }
+    } catch (e) {
+      console.error('Fullscreen error', e)
+    }
+  }
+
+  // ------- Favorites -------
+
+  /**
+   * Initialize favorites state for the current movie.
+   * If user is not authenticated, default to false.
+   */
+  useEffect(() => {
+    const movieId = String((movie?.id ?? (movie as any)?._id ?? (movie as any)?.uuid ?? id) ?? '')
+    if (!movieId) {
+      setIsFav(false)
+      return
+    }
+    if (!getToken()) {
+      setIsFav(false)
+      return
+    }
 
     let alive = true
-    ;(async () => {
-      try {
-        const exists = await Favorites.has(movieId)
-        if (alive) setIsFav(!!exists)
-      } catch {
-        if (alive) setIsFav(false)
-      }
-    })()
+      ; (async () => {
+        try {
+          const exists = await Favorites.has(movieId)
+          if (alive) setIsFav(!!exists)
+        } catch {
+          if (alive) setIsFav(false)
+        }
+      })()
     return () => {
       alive = false
     }
   }, [movie, id])
 
+  /**
+   * Toggle favorites on/off for the current movie.
+   * - If unauthenticated, redirects to /login with "next" param.
+   * - Shows non-blocking status text after the operation.
+   */
   async function toggleFav() {
-    const movieId = String((movie?.id ?? id) ?? '')
+    const movieId = String((movie?.id ?? (movie as any)?._id ?? (movie as any)?.uuid ?? id) ?? '')
     if (!movieId || favBusy || isFav === null) return
+
     if (!getToken()) {
       navigate(`/login?next=${encodeURIComponent(location.pathname + location.search)}`)
       return
     }
+
     setFavBusy(true)
     try {
       if (isFav) {
@@ -196,81 +367,37 @@ export default function MovieDetail() {
         e?.response?.data?.message ||
         e?.message ||
         'No se pudo actualizar tus favoritos'
-      showErrorToast(msg)
+      showErrorToast(msg) // 🔴 toast
     } finally {
       setFavBusy(false)
     }
   }
 
-  /* -------- SHORTCUTS DE TECLADO -------- */
-  useEffect(() => {
-    const isEditable = (el: EventTarget | null) => {
-      const n = el as HTMLElement | null
-      if (!n) return false
-      const tag = (n.tagName || '').toLowerCase()
-      const editable = (n.getAttribute?.('contenteditable') || '').toLowerCase()
-      return tag === 'input' || tag === 'textarea' || editable === 'true'
-    }
+  // ------- Render guards -------
 
-    function onKey(e: KeyboardEvent) {
-      if (e.altKey || e.ctrlKey || e.metaKey || isEditable(e.target)) return
-      const key = e.key.toLowerCase()
-      if (e.key === ' ' || key === 'k') {
-        e.preventDefault()
-        togglePlay()
-      } else if (key === 'j') seek(-10)
-      else if (key === 'l') seek(10)
-      else if (key === 'm') setMuted(m => !m)
-      else if (key === 'f') toggleFullscreen()
-      else if (key === 'p') togglePiP()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  function togglePlay() {
-    const v = playerRef.current
-    if (!v) return
-    v.paused ? v.play() : v.pause()
+  if (loading) {
+    return (
+      <section className="container">
+        {/* aria-busy hints async load to AT users */}
+        <p aria-busy="true">Cargando…</p>
+      </section>
+    )
   }
-
-  function seek(offset: number) {
-    const v = playerRef.current
-    if (!v) return
-    const d = v.duration || Infinity
-    v.currentTime = Math.max(0, Math.min(d, v.currentTime + offset))
+  if (error) {
+    return (
+      <section className="container">
+        {/* role="alert" announces error messages immediately */}
+        <p role="alert" style={{ color: 'salmon' }}>{error}</p>
+      </section>
+    )
   }
-
-  async function togglePiP() {
-    const v = playerRef.current as any
-    try {
-      if ('pictureInPictureElement' in document && (document as any).pictureInPictureElement) {
-        await (document as any).exitPictureInPicture()
-      } else if (v?.requestPictureInPicture) {
-        await v.requestPictureInPicture()
-      }
-    } catch (e) {
-      console.error('PiP error', e)
-    }
-  }
-
-  async function toggleFullscreen() {
-    const v = playerRef.current
-    if (!v) return
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen()
-      else await v.requestFullscreen?.()
-    } catch (e) {
-      console.error('Fullscreen error', e)
-    }
-  }
-
-  /* -------- RENDER -------- */
-  if (loading) return <section className="container"><p aria-busy="true">Cargando…</p></section>
-  if (error) return <section className="container"><p role="alert" style={{ color: 'salmon' }}>{error}</p></section>
   if (!movie) return null
 
+  // Prefer backend stream, otherwise Pexels fallback (or undefined)
   const videoSrc = (movie as any).streamUrl || pexelsVideoUrl || undefined
+
+  // ---------- Meta “humana” (estreno/duración/géneros) ----------
+  // Fallback: si no hay release_date, usamos year de la DB.
   const rawRelease = (movie as any)?.release_date ?? (movie as any)?.releaseDate
   const yearField = (movie as any)?.year
   const year = formatYearES(rawRelease) || (yearField ? String(yearField) : '')
@@ -279,6 +406,8 @@ export default function MovieDetail() {
   const genres = Array.isArray((movie as any)?.genres)
     ? ((movie as any).genres as any[]).map(g => (typeof g === 'string' ? g : g?.name)).filter(Boolean)
     : []
+
+  // ---------- Sinopsis con fallback + “ver más/menos” ----------
   const rawSynopsis =
     pickText(movie, ['description', 'overview', 'synopsis', 'plot', 'summary']) || (movie as any)?.description || ''
   const hasSynopsis = !!rawSynopsis
@@ -288,9 +417,6 @@ export default function MovieDetail() {
   return (
     <section className="container movie-detail movie-detail--single">
       <h1 className="detail-title">{movie.title}</h1>
-
-      {/* ⭐ Calificación del usuario */}
-      <StarRating movieId={String(movie.id)} initialRating={movie.userRating ?? 0} />
 
       <div className={`player ${!videoSrc ? 'is-loading' : ''}`}>
         <video
@@ -302,17 +428,29 @@ export default function MovieDetail() {
           style={{ width: '100%', maxWidth: 980, borderRadius: 8 }}
         />
 
+        {/* Toolbar: all buttons are keyboard accessible (2.1.1) */}
         <div className="toolbar" aria-label="Controles de reproducción">
           <div className="group">
-            <button type="button" className="ctrl" onClick={togglePlay} aria-pressed={playing} disabled={!videoSrc}>
+            <button
+              type="button"
+              className="ctrl hit-24"
+              onClick={togglePlay}
+              aria-pressed={playing}
+              disabled={!videoSrc}
+            >
               {playing ? '⏸ Pausa' : '▶ Reproducir'}
             </button>
-            <button type="button" className="ctrl" onClick={() => seek(-10)} disabled={!videoSrc}>⏮ 10s</button>
-            <button type="button" className="ctrl" onClick={() => seek(10)} disabled={!videoSrc}>10s ⏭</button>
+
+            <button type="button" className="ctrl hit-24" onClick={() => seek(-10)} disabled={!videoSrc}>
+              ⏮ 10s
+            </button>
+            <button type="button" className="ctrl hit-24" onClick={() => seek(10)} disabled={!videoSrc}>
+              10s ⏭
+            </button>
           </div>
 
           <div className="group volume">
-            <button type="button" className="ctrl" onClick={() => setMuted(m => !m)} aria-pressed={muted} disabled={!videoSrc}>
+            <button type="button" className="ctrl hit-24" onClick={toggleMute} aria-pressed={muted} disabled={!videoSrc}>
               {muted || volume === 0 ? '🔇 Mute' : '🔊 Volumen'}
             </button>
             <input
@@ -322,7 +460,7 @@ export default function MovieDetail() {
               max={1}
               step={0.01}
               value={volume}
-              onChange={e => setVolume(Number(e.target.value))}
+              onChange={onVolume}
               disabled={!videoSrc}
               aria-label="Ajustar volumen"
             />
@@ -332,7 +470,7 @@ export default function MovieDetail() {
 
           <div className="group rate">
             <span style={{ opacity: 0.8 }}>Vel:</span>
-            <select value={rate} onChange={e => setRate(Number(e.target.value))} disabled={!videoSrc}>
+            <select value={rate} onChange={onRate} disabled={!videoSrc} aria-label="Velocidad de reproducción">
               <option value={0.5}>0.5×</option>
               <option value={0.75}>0.75×</option>
               <option value={1}>1×</option>
@@ -343,11 +481,15 @@ export default function MovieDetail() {
           </div>
 
           <div className="group">
-            <button type="button" className="ctrl" onClick={() => setLoop(l => !l)} aria-pressed={loop} disabled={!videoSrc}>
+            <button type="button" className="ctrl hit-24" onClick={toggleLoop} aria-pressed={loop} disabled={!videoSrc}>
               {loop ? '🔁 Loop ON' : 'Loop OFF'}
             </button>
-            <button type="button" className="ctrl" onClick={togglePiP} disabled={!videoSrc}>🗔 PiP</button>
-            <button type="button" className="ctrl" onClick={toggleFullscreen} disabled={!videoSrc}>⛶ Full</button>
+            <button type="button" className="ctrl hit-24" onClick={togglePiP} disabled={!videoSrc}>
+              🗔 PiP
+            </button>
+            <button type="button" className="ctrl hit-24" onClick={toggleFullscreen} disabled={!videoSrc}>
+              ⛶ Full
+            </button>
           </div>
         </div>
 
@@ -356,12 +498,14 @@ export default function MovieDetail() {
             {favBusy ? 'Guardando…' : isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           </button>
         </div>
+        {/* role="status" announces transient confirmation text */}
         {added && <p role="status" className="muted">{addedMsg}</p>}
       </div>
 
+      {/* ---- Detalles ---- */}
       {(estreno || duracion || genres.length) && (
-        <section className="movie-meta">
-          <h2>Detalles</h2>
+        <section className="movie-meta" aria-labelledby="meta-title">
+          <h2 id="meta-title">Detalles</h2>
           <ul className="meta-list">
             {estreno && <li><strong>Estreno:</strong> {estreno}{year ? ` (${year})` : ''}</li>}
             {duracion && <li><strong>Duración:</strong> {duracion}</li>}
@@ -370,8 +514,9 @@ export default function MovieDetail() {
         </section>
       )}
 
-      <section className="movie-synopsis">
-        <h2>Sinopsis</h2>
+      {/* ---- SINOPSIS (texto legible con “ver más/menos”) ---- */}
+      <section className="movie-synopsis" aria-labelledby="syn-title">
+        <h2 id="syn-title">Sinopsis</h2>
         <p id="synopsis-text" style={{ whiteSpace: 'pre-line' }}>
           {hasSynopsis ? (synopsisExpanded ? rawSynopsis : shortText) : 'No hay sinopsis disponible por ahora.'}
         </p>
