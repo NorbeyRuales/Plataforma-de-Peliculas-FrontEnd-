@@ -46,6 +46,7 @@ export default function ResetPassword() {
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState<string | null>(null);
     const [err, setErr] = useState<string | null>(null);
+    const [hasAuth, setHasAuth] = useState(false);
     const errRef = useRef<HTMLParagraphElement>(null);
 
     /** Password rules used to validate strength. */
@@ -58,7 +59,6 @@ export default function ResetPassword() {
 
     const passStrong = rules.every((r) => r.re.test(pass1));
     const same = pass1 === pass2;
-    const canSave = passStrong && same && !loading;
 
     // --- strength meter ---
     const [strength, setStrength] = useState(0);
@@ -83,13 +83,23 @@ export default function ResetPassword() {
                 const hasCode = !!url.searchParams.get('code');
                 if (!hasHash && !hasCode) {
                     console.warn('[reset-password] Missing auth code or hash in URL.');
+                    setErr('El enlace de recuperación no trae el token de autenticación. Ábrelo directamente desde el correo o solicita uno nuevo.');
+                    setHasAuth(false);
                     return;
                 }
                 const { error } = await supa.auth.exchangeCodeForSession(window.location.href);
-                if (error) console.warn('[reset-password] exchangeCodeForSession:', error.message);
-                window.history.replaceState({}, document.title, '/reset-password');
+                if (error) {
+                    console.warn('[reset-password] exchangeCodeForSession:', error.message);
+                    setErr('No se pudo validar el enlace de recuperación. Solicita uno nuevo.');
+                    setHasAuth(false);
+                } else {
+                    setHasAuth(true);
+                    window.history.replaceState({}, document.title, '/reset-password');
+                }
             } catch (e: any) {
                 console.warn('[reset-password] Could not validate recovery link:', e?.message || e);
+                setErr('No se pudo validar el enlace de recuperación. Solicita uno nuevo.');
+                setHasAuth(false);
             }
         })();
     }, []);
@@ -122,6 +132,7 @@ export default function ResetPassword() {
     }
 
     const showRules = pass1.length > 0 && !passStrong;
+    const canSave = passStrong && same && !loading && hasAuth;
 
     return (
         <section className="auth-screen container">
@@ -257,7 +268,8 @@ export default function ResetPassword() {
                     </small>
                 </label>
 
-                <button className="btn primary" type="submit" disabled={!canSave} aria-busy={loading}>
+                <button className="btn primary" type="submit" disabled={!canSave} aria-busy={loading}
+                    title={!hasAuth ? 'Abre el enlace desde tu correo para habilitar el cambio.' : undefined}>
                     {loading ? 'Guardando…' : 'Guardar contraseña'}
                 </button>
             </form>
