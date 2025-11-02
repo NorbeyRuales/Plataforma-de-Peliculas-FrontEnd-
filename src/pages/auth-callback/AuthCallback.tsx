@@ -22,7 +22,7 @@ export default function AuthCallback() {
                 // no-op
             } finally {
                 // After processing the token, redirect to the password reset form
-                navigate('/forgot-password', { replace: true })
+                navigate('/reset-password', { replace: true })
             }
         })()
     }, [navigate])

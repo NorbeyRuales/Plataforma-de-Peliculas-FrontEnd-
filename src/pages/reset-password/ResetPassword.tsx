@@ -70,6 +70,17 @@ export default function ResetPassword() {
     // Move focus to the error region when an error appears
     useEffect(() => { if (err) errRef.current?.focus(); }, [err]);
 
+    // If the user already has an active session, allow updating the password
+    // even if the page was opened without the recovery parameters.
+    useEffect(() => {
+        (async () => {
+            try {
+                const { data } = await supa.auth.getSession();
+                if (data.session) setHasAuth(true);
+            } catch {}
+        })();
+    }, []);
+
     /**
      * Silently exchanges Supabase code/token from URL into a session.
      * This enables `updateUser` to succeed without asking the user to log in.
@@ -86,6 +97,8 @@ export default function ResetPassword() {
                 const hasHash = !!window.location.hash;
                 const hasCode = !!q.get('code');
                 const hasAccessToken = !!hash.get('access_token') || !!q.get('access_token');
+                const tokenHash = hash.get('token_hash') || q.get('token_hash');
+                const token = hash.get('token') || q.get('token');
 
                 if (!hasHash && !hasCode) {
                     console.warn('[reset-password] Missing auth code or hash in URL.');
@@ -120,6 +133,29 @@ export default function ResetPassword() {
                     setHasAuth(true);
                     window.history.replaceState({}, document.title, '/reset-password');
                     return;
+                }
+
+                // 3) Some projects deliver `token_hash` or `token` instead. Handle both.
+                if (tokenHash || token) {
+                    try {
+                        const email = q.get('email') || hash.get('email') || '';
+                        if (token && email) {
+                            const { error } = await supa.auth.verifyOtp({ email, token, type: 'recovery' });
+                            if (error) throw error;
+                        } else if (tokenHash) {
+                            
+                            const { error } = await supa.auth.verifyOtp({ type: 'recovery', token_hash: tokenHash });
+                            if (error) throw error;
+                        } else {
+                            throw new Error('Token de recuperación incompleto.');
+                        }
+                        setHasAuth(true);
+                        window.history.replaceState({}, document.title, '/reset-password');
+                        return;
+                    } catch (e: any) {
+                        console.warn('[reset-password] verifyOtp(token|token_hash) failed:', e?.message || e);
+                        throw e;
+                    }
                 }
             } catch (e: any) {
                 console.warn('[reset-password] Could not validate recovery link:', e?.message || e);
@@ -297,6 +333,11 @@ export default function ResetPassword() {
                     title={!hasAuth ? 'Abre el enlace desde tu correo para habilitar el cambio.' : undefined}>
                     {loading ? 'Guardando…' : 'Guardar contraseña'}
                 </button>
+                {!hasAuth && (
+                    <p className="muted" style={{ marginTop: 8 }}>
+                        Abre este formulario desde el enlace del correo de recuperación para habilitar el cambio.
+                    </p>
+                )}
             </form>
         </section>
     );
