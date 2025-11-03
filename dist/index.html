@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon y metadatos (opcional pero recomendado) -->
+  <link rel="icon" type="image/svg+xml" href="/brand/pyra.svg" />
+  <meta name="application-name" content="PYRA" />
+  <meta property="og:title" content="PYRA" />
+
+  <title>PYRA</title>
+
+  <!-- Boot del tema ANTES de que cargue React/CSS -->
+  <script>
+    (function () {
+      var KEY = 'app-theme';
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (_) {}
+      var theme = (saved === 'dark' || saved === 'light') ? saved : 'light';
+      var root = document.documentElement;
+      root.setAttribute('data-theme', theme);
+      root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+    })();
+  </script>
+  <script type="module" crossorigin src="/assets/index-D5avK0Zg.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BpJnSbfh.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+</html>

@@ -3,36 +3,18 @@
 /**
  * @file src/pages/reset-password/ResetPassword.tsx
  * @summary Final step of the Supabase password recovery flow (set a new password).
- * @module Pages/ResetPassword
- *
- * @description
- * This page is intended to be the `redirectTo` target used in the password
- * recovery email. It:
- *  1) Silently exchanges the Supabase `code` or `access_token` in the URL
- *     for a session (so the user is authenticated just for the reset).
- *  2) Validates the new password against basic rules (length, uppercase,
- *     digit, symbol) and requires confirmation.
- *  3) Calls `supa.auth.updateUser({ password })` to persist the new password.
- *
- * A11Y:
- *  - Error/status feedback uses live regions (`role="alert"` / `role="status"`).
- *  - Error summary is focusable to announce changes to screen readers.
- *  - Buttons show disabled and busy state to prevent double submits.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ResetPassword.scss';
 import { supa } from '../../services/supa';
-import { useToast } from '../../components/toast/ToastProvider' // 👈 toast
+import { useToast } from '../../components/toast/ToastProvider';
+import { pushFlashToast } from '../../utils/flashToast';
 
-/**
- * @component
- * @returns Password reset form that exchanges Supabase tokens and updates the user password.
- */
 export default function ResetPassword() {
     const navigate = useNavigate();
-    const { error: showErrorToast } = useToast() // 👈 toast roja
+    const { error: showErrorToast } = useToast();
 
     // --- form state ---
     const [pass1, setPass1] = useState('');
@@ -47,45 +29,50 @@ export default function ResetPassword() {
     const [msg, setMsg] = useState<string | null>(null);
     const [err, setErr] = useState<string | null>(null);
     const [hasAuth, setHasAuth] = useState(false);
+    const [recoveryToken, setRecoveryToken] = useState<string | null>(null); // ← access_token del hash
     const errRef = useRef<HTMLParagraphElement>(null);
 
-    /** Password rules used to validate strength. */
+    // reglas de contraseña
     const rules = [
         { re: /.{8,}/, text: 'Mínimo 8 caracteres' },
         { re: /[A-Z]/, text: 'Al menos 1 mayúscula' },
         { re: /\d/, text: 'Al menos 1 número' },
         { re: /[^A-Za-z0-9]/, text: 'Al menos 1 símbolo' },
     ];
-
     const passStrong = rules.every((r) => r.re.test(pass1));
     const same = pass1 === pass2;
 
-    // --- strength meter ---
     const [strength, setStrength] = useState(0);
     useEffect(() => {
         const passed = rules.reduce((n, r) => n + (r.re.test(pass1) ? 1 : 0), 0);
         setStrength(passed);
     }, [pass1]);
 
-    // Move focus to the error region when an error appears
     useEffect(() => { if (err) errRef.current?.focus(); }, [err]);
 
-    // If the user already has an active session, allow updating the password
-    // even if the page was opened without the recovery parameters.
+    // si ya hay sesión, habilita
     useEffect(() => {
         (async () => {
             try {
                 const { data } = await supa.auth.getSession();
                 if (data.session) setHasAuth(true);
-            } catch {}
+            } catch { }
         })();
     }, []);
 
-    /**
-     * Silently exchanges Supabase code/token from URL into a session.
-     * This enables `updateUser` to succeed without asking the user to log in.
-     * URL is cleaned afterwards to avoid reprocessing on refresh.
-     */
+    // limpia URL sin romper HashRouter
+    function cleanRecoveryParams() {
+        const u = new URL(window.location.href);
+        const isHashRouter = u.hash.startsWith('#/');
+        if (isHashRouter) {
+            const routeOnly = u.hash.split('?')[0];
+            window.history.replaceState({}, document.title, routeOnly);
+        } else {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    // Toma tokens del enlace: ?code=... | #access_token=... | token_hash/token+email
     useEffect(() => {
         (async () => {
             try {
@@ -94,69 +81,58 @@ export default function ResetPassword() {
                 const q = url.searchParams;
                 const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
 
-                const hasHash = !!window.location.hash;
-                const hasCode = !!q.get('code');
-                const hasAccessToken = !!hash.get('access_token') || !!q.get('access_token');
-                const tokenHash = hash.get('token_hash') || q.get('token_hash');
-                const token = hash.get('token') || q.get('token');
+                const code = q.get('code') || undefined;
+                const access_token = hash.get('access_token') || undefined;
+                const token_hash = hash.get('token_hash') || q.get('token_hash') || undefined;
+                const token = hash.get('token') || q.get('token') || undefined;
+                const email = q.get('email') || hash.get('email') || undefined;
 
-                if (!hasHash && !hasCode) {
-                    console.warn('[reset-password] Missing auth code or hash in URL.');
-                    setErr('El enlace de recuperación no trae el token de autenticación. Ábrelo directamente desde el correo o solicita uno nuevo.');
-                    setHasAuth(false);
-                    return;
-                }
-
-                // 1) If the URL brings an access_token (implicit flow), exchange directly
-                if (hasAccessToken) {
-                    const { error } = await supa.auth.exchangeCodeForSession(href);
-                    if (error) throw error;
-                    setHasAuth(true);
-                    window.history.replaceState({}, document.title, '/reset-password');
-                    return;
-                }
-
-                // 2) If we have a `code` (PKCE flow), try to exchange. If it fails due to
-                //    missing code_verifier (common when requesting the email on another device),
-                //    fallback to verifyOtp with type 'recovery'.
-                if (hasCode) {
-                    const code = q.get('code')!;
+                // 1) PKCE: ?code=...
+                if (code) {
                     const { error } = await supa.auth.exchangeCodeForSession(href);
                     if (error) {
-                        console.warn('[reset-password] exchangeCodeForSession:', error.message);
-                        // Fallback path using verifyOtp
-                        const email = q.get('email') || hash.get('email') || '';
                         if (!email) throw error;
                         const { error: vErr } = await supa.auth.verifyOtp({ email, token: code, type: 'recovery' });
                         if (vErr) throw vErr;
                     }
                     setHasAuth(true);
-                    window.history.replaceState({}, document.title, '/reset-password');
+                    cleanRecoveryParams();
                     return;
                 }
 
-                // 3) Some projects deliver `token_hash` or `token` instead. Handle both.
-                if (tokenHash || token) {
-                    try {
-                        const email = q.get('email') || hash.get('email') || '';
-                        if (token && email) {
-                            const { error } = await supa.auth.verifyOtp({ email, token, type: 'recovery' });
-                            if (error) throw error;
-                        } else if (tokenHash) {
-                            
-                            const { error } = await supa.auth.verifyOtp({ type: 'recovery', token_hash: tokenHash });
-                            if (error) throw error;
-                        } else {
-                            throw new Error('Token de recuperación incompleto.');
-                        }
-                        setHasAuth(true);
-                        window.history.replaceState({}, document.title, '/reset-password');
-                        return;
-                    } catch (e: any) {
-                        console.warn('[reset-password] verifyOtp(token|token_hash) failed:', e?.message || e);
-                        throw e;
-                    }
+                // 2) Legado: #access_token=...  → habilitamos botón y guardamos token.
+                if (access_token) {
+                    setHasAuth(true);
+                    setRecoveryToken(access_token);
+                    // Intentamos dejar sesión en background (si falla igual seguimos con fetch en submit)
+                    supa.auth.exchangeCodeForSession(href).finally(() => cleanRecoveryParams());
+                    return;
                 }
+
+                // 3) OTP directo
+                if (token_hash || (token && email)) {
+                    if (token && email) {
+                        const { error } = await supa.auth.verifyOtp({ email, token, type: 'recovery' });
+                        if (error) throw error;
+                    } else if (token_hash) {
+                        const { error } = await supa.auth.verifyOtp({ type: 'recovery', token_hash });
+                        if (error) throw error;
+                    }
+                    setHasAuth(true);
+                    cleanRecoveryParams();
+                    return;
+                }
+
+                // 4) Por si quedaba sesión
+                const { data } = await supa.auth.getSession();
+                if (data.session) {
+                    setHasAuth(true);
+                    cleanRecoveryParams();
+                    return;
+                }
+
+                setErr('El enlace de recuperación no trae el token de autenticación. Ábrelo desde el correo o solicita uno nuevo.');
+                setHasAuth(false);
             } catch (e: any) {
                 console.warn('[reset-password] Could not validate recovery link:', e?.message || e);
                 setErr('No se pudo validar el enlace de recuperación. Solicita uno nuevo.');
@@ -165,28 +141,50 @@ export default function ResetPassword() {
         })();
     }, []);
 
-    /**
-     * Handles the password update submit.
-     * Validates strength & match, updates via Supabase and then navigates to /login.
-     * @param {React.FormEvent} e - Form submit event.
-     * @returns {Promise<void>}
-     */
+    // Submit: si hay session → updateUser; si solo hay access_token → llamada directa a /auth/v1/user
     async function handleReset(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true); setErr(null); setMsg(null);
+
         try {
             if (!passStrong) throw new Error('La contraseña no cumple los requisitos.');
             if (!same) throw new Error('Las contraseñas no coinciden.');
-            const { error } = await supa.auth.updateUser({ password: pass1 });
-            if (error) throw error;
+
+            if (recoveryToken) {
+                // ✅ Camino robusto para hash con access_token (sin sesión en cliente)
+                const SUPA_URL = import.meta.env.VITE_SUPABASE_URL as string;
+                const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+                const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': ANON,
+                        'Authorization': `Bearer ${recoveryToken}`,
+                    },
+                    body: JSON.stringify({ password: pass1 }),
+                });
+                if (!res.ok) {
+                    let detail = 'No se pudo actualizar la contraseña.';
+                    try {
+                        const data = await res.json();
+                        detail = data?.error_description || data?.msg || detail;
+                    } catch { }
+                    throw new Error(detail);
+                }
+            } else {
+                // Sesión activa normal
+                const { error } = await supa.auth.updateUser({ password: pass1 });
+                if (error) throw error;
+            }
+
+            pushFlashToast({ kind: 'success', text: 'Contraseña actualizada. Inicia sesión.' });
             setMsg('¡Contraseña actualizada! Te llevamos al inicio de sesión…');
-            // Sign out the temporary recovery session (defensive, not strictly required)
             try { await supa.auth.signOut(); } catch { }
-            setTimeout(() => navigate('/login', { replace: true }), 1200);
+            setTimeout(() => navigate('/login', { replace: true }), 800);
         } catch (e: any) {
-            const msg = e?.message || 'No se pudo actualizar la contraseña.'
-            setErr(msg);
-            showErrorToast(msg) // 🔴 toast
+            const message = e?.message || 'No se pudo actualizar la contraseña.';
+            setErr(message);
+            showErrorToast(message);
         } finally {
             setLoading(false);
         }
@@ -202,7 +200,7 @@ export default function ResetPassword() {
             <p className="muted center">Ingresa tu nueva contraseña.</p>
 
             {err && (
-                <p ref={errRef} role="alert" className="field__error center" aria-live="assertive">
+                <p ref={errRef} role="alert" className="field__error center" aria-live="assertive" tabIndex={-1}>
                     {err}
                 </p>
             )}
@@ -213,7 +211,7 @@ export default function ResetPassword() {
             )}
 
             <form className="auth-form" onSubmit={handleReset} noValidate>
-                {/* New password */}
+                {/* Nueva contraseña */}
                 <label className="field">
                     <span className="field__label">Nueva contraseña</span>
                     <div className="password-field">
@@ -225,7 +223,7 @@ export default function ResetPassword() {
                             autoComplete="new-password"
                             value={pass1}
                             onChange={(e) => setPass1(e.target.value)}
-                            onKeyUp={(e) => setCaps1(e.getModifierState('CapsLock'))}
+                            onKeyUp={(e) => setCaps1((e as any).getModifierState('CapsLock'))}
                             aria-describedby="rp_help rp_caps1"
                         />
                         <button
@@ -252,7 +250,6 @@ export default function ResetPassword() {
                         </button>
                     </div>
 
-                    {/* Helper: hidden once all criteria pass */}
                     <div id="rp_help" aria-live="polite">
                         {showRules ? (
                             <ul className="pwd-rules" role="list">
@@ -266,13 +263,10 @@ export default function ResetPassword() {
                                 })}
                             </ul>
                         ) : (
-                            pass1.length > 0 && (
-                                <p className="field__hint ok">La contraseña cumple los requisitos.</p>
-                            )
+                            pass1.length > 0 && <p className="field__hint ok">La contraseña cumple los requisitos.</p>
                         )}
                     </div>
 
-                    {/* Strength meter visible while typing */}
                     {pass1.length > 0 && (
                         <div className="pwd-meter" aria-hidden="true">
                             <i style={{ width: `${(strength / rules.length) * 100}%` }} />
@@ -284,7 +278,7 @@ export default function ResetPassword() {
                     </small>
                 </label>
 
-                {/* Confirm password */}
+                {/* Confirmar contraseña */}
                 <label className="field">
                     <span className="field__label">Confirmar contraseña</span>
                     <div className="password-field">
@@ -295,7 +289,7 @@ export default function ResetPassword() {
                             autoComplete="new-password"
                             value={pass2}
                             onChange={(e) => setPass2(e.target.value)}
-                            onKeyUp={(e) => setCaps2(e.getModifierState('CapsLock'))}
+                            onKeyUp={(e) => setCaps2((e as any).getModifierState('CapsLock'))}
                             aria-describedby="rp_match rp_caps2"
                         />
                         <button
@@ -329,10 +323,16 @@ export default function ResetPassword() {
                     </small>
                 </label>
 
-                <button className="btn primary" type="submit" disabled={!canSave} aria-busy={loading}
-                    title={!hasAuth ? 'Abre el enlace desde tu correo para habilitar el cambio.' : undefined}>
+                <button
+                    className="btn primary"
+                    type="submit"
+                    disabled={!canSave}
+                    aria-busy={loading}
+                    title={!hasAuth ? 'Abre el enlace desde tu correo para habilitar el cambio.' : undefined}
+                >
                     {loading ? 'Guardando…' : 'Guardar contraseña'}
                 </button>
+
                 {!hasAuth && (
                     <p className="muted" style={{ marginTop: 8 }}>
                         Abre este formulario desde el enlace del correo de recuperación para habilitar el cambio.
