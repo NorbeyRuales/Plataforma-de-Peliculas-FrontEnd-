@@ -45,7 +45,7 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null)
   const pwdRef = useRef<HTMLInputElement>(null)
 
-  const { error: showErrorToast } = useToast() // 👈 toast roja
+  const { error: showErrorToast, success: showSuccessToast } = useToast() // 👈 toast roja
 
   // Persist last email typed to speed up future logins
   useEffect(() => { if (email) localStorage.setItem(EMAIL_KEY, email) }, [email])
@@ -82,6 +82,7 @@ export default function Login() {
     loaderStart() // ⬅️ START loader
     try {
       await Auth.login(email, password)
+      showSuccessToast('¡Has iniciado sesión con éxito!') // 🟢 toast
       navigate('/', { replace: true })
     } catch (err: any) {
       const msg = err?.message || 'Error al iniciar sesión'

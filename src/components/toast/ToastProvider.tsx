@@ -44,8 +44,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const api = useMemo<Ctx>(() => ({
         show,
         // Mantiene tu comportamiento; añade título por defecto para igualar el estilo de las capturas
-        success: (text, opts) => show({ type: 'success', text, title: opts?.title ?? 'Éxito', autoHideMs: 2200, ...opts }),
-        error: (text, opts) => show({ type: 'error', text, title: opts?.title ?? 'Error', ...opts }), // cierre manual por defecto
+        success: (text, opts) => show({ type: 'success', text, title: opts?.title ?? 'Éxito', autoHideMs: 5000, ...opts }),
+        error: (text, opts) => show({ type: 'error', text, title: opts?.title ?? 'Error', autoHideMs: 5000, ...opts }), // cierre manual por defecto
         info: (text, opts) => show({ type: 'info', text, title: opts?.title ?? 'Info', autoHideMs: 3500, ...opts }),
         warning: (text, opts) => show({ type: 'warning', text, title: opts?.title ?? 'Aviso', autoHideMs: 4000, ...opts }),
     }), [show])
